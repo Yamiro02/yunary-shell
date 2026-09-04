@@ -1,0 +1,10 @@
+/* Entrée CSS de la démo — celle que traite @tailwindcss/vite.
+   Même montage qu'une app consommatrice : les fondations (core + marque) en JS depuis
+   main.tsx, la couche Tailwind ICI, en CSS. theme.css charge lui-même Tailwind : jamais
+   d'@import "tailwindcss" en plus. */
+@import '@yunary/ds/theme.css';
+
+/* Les sources de la coque vivent un cran au-dessus : Tailwind ne les verrait pas sans
+   cette déclaration — exactement ce qu'une app fait avec
+   `@source '../node_modules/@yunary/shell/src'`. */
+@source '../../src';
