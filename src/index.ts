@@ -71,3 +71,16 @@ export { fr } from './i18n/fr';
 export type { Fr } from './i18n/fr';
 export { getErrorMessage } from './lib/errors';
 export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, initiales } from './lib/format';
+
+/* layout */
+export { AppLayout } from './layout/AppLayout';
+export type { AppLayoutProps } from './layout/AppLayout';
+export { HubSidebar } from './layout/HubSidebar';
+export type { HubSidebarProps, ShellNavItem } from './layout/HubSidebar';
+export { SpaceSwitcher, SpaceName } from './layout/SpaceSwitcher';
+export { CreditsCard } from './layout/CreditsCard';
+export type { CreditsView } from './layout/CreditsCard';
+export { AccountCard, UserAvatar } from './layout/AccountCard';
+export type { AccountView } from './layout/AccountCard';
+export { SegmentedControl } from './layout/SegmentedControl';
+export type { SegmentedControlProps, SegmentedOption } from './layout/SegmentedControl';

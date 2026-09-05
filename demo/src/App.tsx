@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react';
 import type { JSX, ReactNode } from 'react';
 import { Logo, Tabs } from '@yunary/ds';
 import { SHELL_VERSION } from '@yunary/shell';
+import { LayoutPage } from './pages/Layout';
 
 document.title = 'Yunary — Shell';
 
 const PAGES: { value: string; label: string; render: () => JSX.Element }[] = [
-  { value: 'accueil', label: 'Accueil', render: () => <p className="caption">Coque {SHELL_VERSION} — pages à venir.</p> },
+  { value: 'layout', label: 'Layout', render: () => <LayoutPage /> },
+  { value: 'accueil', label: 'À propos', render: () => <p className="caption">Coque {SHELL_VERSION} — la vitrine rend les vues avec des fixtures, sans back.</p> },
 ];
 
 const THEMES = [
@@ -16,7 +18,7 @@ const THEMES = [
 ];
 
 export function App() {
-  const [page, setPage] = useState('accueil');
+  const [page, setPage] = useState('layout');
   const [theme, setTheme] = useState('light');
 
   useEffect(() => {
