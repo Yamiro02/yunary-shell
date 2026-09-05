@@ -104,3 +104,21 @@ export type { ResetPasswordViewProps } from './auth/ResetPasswordPage';
 export { useAfterAuthRedirect } from './auth/useAfterAuthRedirect';
 export { loginSchema, signupSchema, forgotSchema, newPasswordSchema, PASSWORD_MIN, PASSWORD_RULE } from './auth/schemas';
 export type { LoginValues, SignupValues, ForgotValues, NewPasswordValues } from './auth/schemas';
+
+/* Paramètres */
+export { ParametresPage } from './parametres/ParametresPage';
+export type { ParametresPageProps } from './parametres/ParametresPage';
+export { ParametresLayout, parametresTabs } from './parametres/ParametresLayout';
+export type { ParametresTab, ParametresVariant, ParametresLayoutProps } from './parametres/ParametresLayout';
+export { InfosTab, InfosView } from './parametres/InfosTab';
+export type { InfosViewProps, ReseauView, SaveState } from './parametres/InfosTab';
+export { NotificationsTab, NotificationsView } from './parametres/NotificationsTab';
+export type { NotificationsViewProps } from './parametres/NotificationsTab';
+export { AbonnementTab, AbonnementView } from './parametres/AbonnementTab';
+export type { AbonnementViewProps } from './parametres/AbonnementTab';
+export { LegalTab, LegalView, DeleteAccountModal, DEFAULT_LEGAL_HREFS } from './parametres/LegalTab';
+export type { LegalViewProps, LegalHrefs, DeleteAccountModalProps } from './parametres/LegalTab';
+export { PasswordModal } from './parametres/PasswordModal';
+export type { PasswordModalProps } from './parametres/PasswordModal';
+export { TabSkeleton, TabError } from './parametres/states';
+export { InstagramMark, TikTokMark } from './auth/BrandMarks';

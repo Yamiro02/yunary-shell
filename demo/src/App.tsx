@@ -4,12 +4,14 @@ import { Logo, Tabs } from '@yunary/ds';
 import { SHELL_VERSION } from '@yunary/shell';
 import { LayoutPage } from './pages/Layout';
 import { AuthPage } from './pages/Auth';
+import { ParametresPage } from './pages/Parametres';
 
 document.title = 'Yunary — Shell';
 
 const PAGES: { value: string; label: string; render: () => JSX.Element }[] = [
   { value: 'layout', label: 'Layout', render: () => <LayoutPage /> },
   { value: 'auth', label: 'Auth', render: () => <AuthPage /> },
+  { value: 'parametres', label: 'Paramètres', render: () => <ParametresPage /> },
   { value: 'accueil', label: 'À propos', render: () => <p className="caption">Coque {SHELL_VERSION} — la vitrine rend les vues avec des fixtures, sans back.</p> },
 ];
 
