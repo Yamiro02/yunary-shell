@@ -122,3 +122,28 @@ export { PasswordModal } from './parametres/PasswordModal';
 export type { PasswordModalProps } from './parametres/PasswordModal';
 export { TabSkeleton, TabError } from './parametres/states';
 export { InstagramMark, TikTokMark } from './auth/BrandMarks';
+
+/* bilan d'audit */
+export { AuditBilan } from './audit/AuditBilan';
+export type { AuditBilanProps } from './audit/AuditBilan';
+
+/* cartes du profil créateur — contrôlées, l'autosave reste dans l'app hôte */
+export { ProfilCard } from './profil/ProfilCard';
+export { ChoiceChip } from './profil/ChoiceChip';
+export type { ChoiceChipProps } from './profil/ChoiceChip';
+export { NicheCard } from './profil/NicheCard';
+export type { NicheCardProps } from './profil/NicheCard';
+export { VoixCard } from './profil/VoixCard';
+export type { VoixCardProps } from './profil/VoixCard';
+export { AvatarCibleCard } from './profil/AvatarCibleCard';
+export type { AvatarCibleCardProps } from './profil/AvatarCibleCard';
+export { PrisesDePositionCard } from './profil/PrisesDePositionCard';
+export type { PrisesDePositionCardProps } from './profil/PrisesDePositionCard';
+
+/* pages légales — publiques */
+export { LEGAL_DOCS } from './legal/legalContent';
+export type { LegalDoc, LegalDocId, LegalSection, LegalBlock } from './legal/legalContent';
+export { LegalPageLayout, LegalDocView } from './legal/LegalPageLayout';
+export type { LegalPageLayoutProps } from './legal/LegalPageLayout';
+export { CguPage, MentionsLegalesPage, ConfidentialitePage, SuppressionDonneesPage, SuppressionDonneesView } from './legal/pages';
+export type { LegalPageProps, DeletionState } from './legal/pages';
