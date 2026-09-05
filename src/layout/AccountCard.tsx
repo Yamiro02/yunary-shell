@@ -36,7 +36,7 @@ export function AccountCard({ account }: { account: AccountView }): JSX.Element 
       <UserAvatar account={account} />
       <span className="flex min-w-0 flex-1 flex-col">
         <span className="truncate text-caption font-semibold text-foreground">{account.name}</span>
-        <span className="whitespace-nowrap text-eyebrow font-medium tracking-[0em] text-text-muted">{account.planLabel}</span>
+        <span className="truncate text-caption font-medium text-text-muted">{account.planLabel}</span>
       </span>
     </div>
   );

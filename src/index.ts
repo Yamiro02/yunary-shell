@@ -84,3 +84,23 @@ export { AccountCard, UserAvatar } from './layout/AccountCard';
 export type { AccountView } from './layout/AccountCard';
 export { SegmentedControl } from './layout/SegmentedControl';
 export type { SegmentedControlProps, SegmentedOption } from './layout/SegmentedControl';
+
+/* pages d'auth — montées par le Hub seul */
+export { AuthShell, AuthHeading } from './auth/AuthShell';
+export type { AuthShellProps } from './auth/AuthShell';
+export { OAuthButtons } from './auth/OAuthButtons';
+export type { OAuthButtonsProps } from './auth/OAuthButtons';
+export { GoogleMark, AppleMark } from './auth/BrandMarks';
+export { LoginPage, LoginView } from './auth/LoginPage';
+export type { LoginViewProps, AuthPageProps } from './auth/LoginPage';
+export { SignupPage, SignupView } from './auth/SignupPage';
+export type { SignupViewProps } from './auth/SignupPage';
+export { ForgotPasswordPage, ForgotPasswordView } from './auth/ForgotPasswordPage';
+export type { ForgotPasswordViewProps } from './auth/ForgotPasswordPage';
+export { LinkSentView } from './auth/LinkSentView';
+export type { LinkSentViewProps } from './auth/LinkSentView';
+export { ResetPasswordPage, ResetPasswordView } from './auth/ResetPasswordPage';
+export type { ResetPasswordViewProps } from './auth/ResetPasswordPage';
+export { useAfterAuthRedirect } from './auth/useAfterAuthRedirect';
+export { loginSchema, signupSchema, forgotSchema, newPasswordSchema, PASSWORD_MIN } from './auth/schemas';
+export type { LoginValues, SignupValues, ForgotValues, NewPasswordValues } from './auth/schemas';

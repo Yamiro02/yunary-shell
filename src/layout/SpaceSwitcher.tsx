@@ -5,10 +5,11 @@ import type { ToolId } from '../config';
 import { TOOLS, toolById, toolFullName, toolUrl } from './tools';
 
 /** Le nom d'un espace : « Yunary » + mot accentué (« Creator »). Deux spans : piège 3 du DS. */
-export function SpaceName({ tool, size = 'md' }: { tool: ToolId; size?: 'md' | 'lg' }): JSX.Element {
+/* `text-heading-sm` : le palier H4 du DS, 1.125rem — la taille de la maquette, avec son interlettrage. */
+export function SpaceName({ tool, className }: { tool: ToolId; className?: string }): JSX.Element {
   const def = toolById(tool);
   return (
-    <span className={cn('inline-flex gap-[0.28em] whitespace-nowrap font-display font-(--heading-weight) tracking-heading-sm text-foreground', size === 'lg' ? 'text-heading-sm' : 'text-[1.125rem]')}>
+    <span className={cn('inline-flex gap-[0.28em] whitespace-nowrap font-display text-heading-sm font-(--heading-weight) text-foreground', className)}>
       <span>{def.label}</span>
       {def.accent ? <span className="accent">{def.accent}</span> : null}
     </span>

@@ -37,7 +37,7 @@ export function CreditsCard({ credits }: CreditsCardProps): JSX.Element {
         className="bg-card"
       />
       {credits?.periodEnd ? (
-        <span className="text-eyebrow font-medium tracking-[0em] text-text-muted">{fr.layout.creditsResetOn(formatDateCourte(credits.periodEnd))}</span>
+        <span className="text-caption font-medium text-text-muted">{fr.layout.creditsResetOn(formatDateCourte(credits.periodEnd))}</span>
       ) : null}
     </div>
   );
