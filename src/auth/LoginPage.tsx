@@ -40,15 +40,20 @@ export function LoginView({
         <FormField label={f.fields.email} htmlFor="login-email" error={form.formState.errors.email?.message}>
           <Input id="login-email" type="email" autoComplete="email" placeholder={f.fields.emailPlaceholder} invalid={!!form.formState.errors.email} {...form.register('email')} />
         </FormField>
-        <div className="ds-field">
-          <div className="flex items-baseline justify-between gap-space-3">
-            <label className="ds-label" htmlFor="login-password">{f.fields.password}</label>
-            <Link to={forgotHref} className="text-caption font-semibold text-primary-readable no-underline">{f.login.forgot}</Link>
-          </div>
-          <FormField error={form.formState.errors.password?.message}>
-            <Input id="login-password" type="password" autoComplete="current-password" placeholder={f.fields.passwordPlaceholder} invalid={!!form.formState.errors.password} {...form.register('password')} />
-          </FormField>
-        </div>
+        {/* Le lien « Mot de passe oublié ? » vit DANS le libellé du FormField (maquette : à droite
+            du label) — aucune classe interne du DS n'est recomposée ici. */}
+        <FormField
+          htmlFor="login-password"
+          label={
+            <span className="flex w-full items-baseline justify-between gap-space-3">
+              <span>{f.fields.password}</span>
+              <Link to={forgotHref} className="text-caption font-semibold text-primary-readable no-underline">{f.login.forgot}</Link>
+            </span>
+          }
+          error={form.formState.errors.password?.message}
+        >
+          <Input id="login-password" type="password" autoComplete="current-password" placeholder={f.fields.passwordPlaceholder} invalid={!!form.formState.errors.password} {...form.register('password')} />
+        </FormField>
         <Button type="submit" variant="primary" fullWidth loading={loading} disabled={busy} className="mt-space-1">
           {f.login.submit}
         </Button>
