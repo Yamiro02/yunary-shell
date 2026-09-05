@@ -275,7 +275,7 @@ export const fr = {
     synthese: 'En résumé',
     profil: {
       title: 'Ton profil',
-      bioTitle: 'Ta bio actuelle, telle qu’on la voit',
+      bioTitle: "Ta bio actuelle, telle qu'on la voit",
       photo: 'Photo de profil',
       meta: (publications: number, abonnes: string, suivis: number | null) =>
         [
@@ -324,7 +324,7 @@ export const fr = {
         `Ton compte a ${count} publication${count > 1 ? 's' : ''} récente${count > 1 ? 's' : ''}, il en faut au moins ${min} pour un bilan chiffré qui veuille dire quelque chose. Plutôt que de te montrer des moyennes bancales, on préfère attendre. Continue de publier : ton audit se lancera tout seul, sans rien te demander.`,
       badge: (count: number, min: number) => `${count} publication${count > 1 ? 's' : ''} récente${count > 1 ? 's' : ''} sur ${min}`,
       profilReady:
-        'Ton profil créateur, lui, arrive à l’étape suivante : chaque hook et chaque script retravaillé dans Yunary sonnera comme toi.',
+        "Ton profil créateur, lui, arrive à l'étape suivante : chaque hook et chaque script retravaillé dans Yunary sonnera comme toi.",
     },
     error: {
       title: "Ton audit n'a pas pu être calculé",
