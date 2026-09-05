@@ -15,7 +15,7 @@ export function AuthShell({ className, children }: AuthShellProps): JSX.Element 
     <div className={cn('relative flex min-h-dvh flex-col items-center justify-center gap-space-6 overflow-hidden bg-background px-space-4 py-space-7', className)}>
       <Halo placement="center" />
       <div className="relative z-10 flex flex-col items-center gap-space-6">
-        <Logo variant="wordmark" height="2.75rem" />
+        <Logo variant="wordmark" height="2.25rem" />
         {/* `max-w-narrow` : la largeur de rôle « message centré » du DS (30rem) — la maquette dit 27.5rem,
             on prend le jeton plutôt qu'une largeur inventée. */}
         <Card size="lg" className="flex w-full max-w-narrow flex-col gap-space-5 shadow-md">
