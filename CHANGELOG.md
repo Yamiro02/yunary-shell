@@ -5,6 +5,14 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.1 — la version que les apps installent
+
+- **A1 sans classe interne du DS** : le lien « Mot de passe oublié ? » vit dans le libellé du
+  `FormField`, plus de `ds-field` / `ds-label` recomposés — la règle vaut pour toute la coque.
+- **Formules payantes** : `available` passera à `true` au lot qui déploie
+  `create-checkout-session` (noté dans le PROJECT-CONTEXT §4).
+- `v0.1.0` reste le premier jalon taggé ; c'est **`v0.1.1`** que le Hub et Creator épinglent.
+
 ## 0.1.0 — la coque
 
 Premier lot. Tout ce qu'une app Yunary partage avec les autres, en un paquet.

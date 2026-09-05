@@ -43,8 +43,8 @@ Tout ce qu'une app Yunary a en commun avec les autres et ne doit **jamais** ré�
 
 - Aucune app ne crée son propre client Supabase ni ne touche au stockage de session.
 - Le flux d'auth (login, OAuth Google/Apple, reset) est **dans le shell** ; le Hub ne fait que monter les pages. Politique de mot de passe = celle du projet Supabase (8 caractères, minuscule + majuscule + chiffre), reflétée exactement par `passwordSchema`.
-- Tout coût affiché est lu dans `actions` ; les allocations de formule vivent dans `PLANS` (Gratuite 50 crédits ; payantes sans prix, `available: false` → « Bientôt » tant que le checkout n'est pas ouvert).
-- Écarts aux maquettes validés : sidebar à `--sidebar-w` du DS (16rem, maquette 264 px) ; carte d'auth sur `max-w-narrow` (30rem, maquette 27,5rem) ; e-mail verrouillé sans icône cadenas ; carte « Ton réseau » en lecture seule depuis le dernier `account_audits` (la persistance dans `profiles` est une décision du lot Hub, `onReseauChange` est réservé) ; libellés de formule et date de recharge en `text-caption`.
+- Tout coût affiché est lu dans `actions` ; les allocations de formule vivent dans `PLANS` (Gratuite 50 crédits ; payantes sans prix, `available: false` → « Bientôt » tant que le checkout n'est pas ouvert). **`available` passe à `true` au lot qui déploie `create-checkout-session`**, avec les prix et allocations calés, puis montée de version dans les apps.
+- Écarts aux maquettes validés : sidebar à `--sidebar-w` du DS (16rem, maquette 264 px) ; carte d'auth sur `max-w-narrow` (30rem, maquette 27,5rem — jeton de largeur du DS, définitif) ; e-mail verrouillé sans icône cadenas ; carte « Ton réseau » en lecture seule depuis le dernier `account_audits` (la persistance dans `profiles` est une décision du lot Hub, `onReseauChange` est réservé) ; libellés de formule et date de recharge en `text-caption`.
 - Paliers typographiques du DS uniquement : aucun palier inventé ni amputé.
 - Versionné et taggé ; une app monte de version volontairement (jamais `latest`). Démo : `npm run demo` (port 5274), vues avec fixtures, sans back.
 
