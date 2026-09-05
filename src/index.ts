@@ -102,5 +102,5 @@ export type { LinkSentViewProps } from './auth/LinkSentView';
 export { ResetPasswordPage, ResetPasswordView } from './auth/ResetPasswordPage';
 export type { ResetPasswordViewProps } from './auth/ResetPasswordPage';
 export { useAfterAuthRedirect } from './auth/useAfterAuthRedirect';
-export { loginSchema, signupSchema, forgotSchema, newPasswordSchema, PASSWORD_MIN } from './auth/schemas';
+export { loginSchema, signupSchema, forgotSchema, newPasswordSchema, PASSWORD_MIN, PASSWORD_RULE } from './auth/schemas';
 export type { LoginValues, SignupValues, ForgotValues, NewPasswordValues } from './auth/schemas';

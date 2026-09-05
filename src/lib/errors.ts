@@ -25,6 +25,7 @@ export function getErrorMessage(error: unknown): string {
   if (n.includes('email not confirmed')) return fr.errors.auth.emailNotConfirmed;
   if (n.includes('user already registered')) return fr.errors.auth.emailAlreadyRegistered;
   if (n.includes('password should be at least')) return fr.errors.auth.passwordTooShort;
+  if (n.includes('password should contain')) return fr.errors.auth.passwordWeak;
   if (n.includes('different from the old password')) return fr.errors.auth.samePassword;
   if (n.includes('rate limit') || n.includes('too many requests')) return fr.errors.rateLimit;
   if (n.includes('failed to fetch') || n.includes('network')) return fr.errors.network;
