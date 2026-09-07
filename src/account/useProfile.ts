@@ -2,9 +2,11 @@ import { useQuery } from '@tanstack/react-query';
 import { getSupabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 
-/* `role` (Admin du Hub) n'existe pas encore en base — il arrive avec la première migration du
-   Hub. Il sera ajouté ici à ce moment-là, avec les types régénérés. */
-export const PROFILE_COLUMNS = 'id, prenom, nom, email, onboarding_completed, avatar_url, notification_prefs, locale' as const;
+/* `role`, `platform`, `handle` : posés par la migration Hub du 05/09/2026. `role` n'est jamais
+   écrit par un front (GRANT colonne-limité) ; `platform` / `handle` le sont à l'étape 1 de
+   l'onboarding du Hub. */
+export const PROFILE_COLUMNS =
+  'id, prenom, nom, email, onboarding_completed, avatar_url, notification_prefs, locale, role, platform, handle' as const;
 
 export interface NotificationPrefs {
   analyse_terminee: boolean;
@@ -32,6 +34,12 @@ export interface Profile {
   avatar_url: string | null;
   notification_prefs: NotificationPrefs;
   locale: string | null;
+  /** `user` ou `admin` — l'accès Admin se vérifie en base (RLS), jamais sur ce seul champ. */
+  role: string;
+  /** Réseau déclaré à l'onboarding (`instagram` / `tiktok`), `null` tant qu'il n'est pas renseigné. */
+  platform: string | null;
+  /** Handle déclaré, sans `@`, `null` tant qu'il n'est pas renseigné. */
+  handle: string | null;
 }
 
 export const profileKey = (userId: string | undefined) => ['profile', userId] as const;

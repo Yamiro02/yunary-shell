@@ -5,13 +5,24 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
-## 0.1.1 — la version que les apps installent
+## 0.1.2 — extension technique, migration Hub du 05/09/2026
+
+- **Types régénérés** après la migration Hub : `profiles.role` / `platform` / `handle`, table
+  `plan_allocations`, vue `admin_prospects`. Rien d'autre n'a changé côté schéma.
+- **`Profile` porte `role`, `platform`, `handle`** (`PROFILE_COLUMNS` étendu). `role` reste en
+  lecture : l'accès Admin se vérifie en base, la coque ne fait qu'exposer la valeur.
+- **Paramètres › Infos lit le réseau dans `profiles`**, plus dans le dernier `account_audits` :
+  la persistance du handle est tranchée (étape 1 de l'onboarding du Hub). `onReseauChange` reste
+  réservé. Un compte sans `platform` / `handle` voit « aucun réseau », comme avant sans audit.
+- C'est **`v0.1.2`** que le Hub épingle.
+
+## 0.1.1 — la première version installable
 
 - **A1 sans classe interne du DS** : le lien « Mot de passe oublié ? » vit dans le libellé du
   `FormField`, plus de `ds-field` / `ds-label` recomposés — la règle vaut pour toute la coque.
 - **Formules payantes** : `available` passera à `true` au lot qui déploie
   `create-checkout-session` (noté dans le PROJECT-CONTEXT §4).
-- `v0.1.0` reste le premier jalon taggé ; c'est **`v0.1.1`** que le Hub et Creator épinglent.
+- `v0.1.0` reste le premier jalon taggé ; `v0.1.1` a été la première version installable.
 
 ## 0.1.0 — la coque
 

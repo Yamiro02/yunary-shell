@@ -81,6 +81,13 @@ export type Database = {
             foreignKeyName: "account_audits_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "account_audits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -229,6 +236,13 @@ export type Database = {
             foreignKeyName: "collections_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "collections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -324,6 +338,13 @@ export type Database = {
             foreignKeyName: "creators_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "creators_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -352,6 +373,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "device_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "device_tokens_user_id_fkey"
             columns: ["user_id"]
@@ -417,6 +445,13 @@ export type Database = {
           video_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "formats_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "formats_user_id_fkey"
             columns: ["user_id"]
@@ -546,6 +581,13 @@ export type Database = {
             foreignKeyName: "oauth_states_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "oauth_states_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -632,10 +674,38 @@ export type Database = {
             foreignKeyName: "personas_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "personas_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
+      }
+      plan_allocations: {
+        Row: {
+          credits_per_month: number
+          label: string
+          plan: string
+          updated_at: string
+        }
+        Insert: {
+          credits_per_month: number
+          label: string
+          plan: string
+          updated_at?: string
+        }
+        Update: {
+          credits_per_month?: number
+          label?: string
+          plan?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       profile_analyses: {
         Row: {
@@ -670,6 +740,13 @@ export type Database = {
             foreignKeyName: "profile_analyses_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "profile_analyses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -680,34 +757,43 @@ export type Database = {
           avatar_url: string | null
           created_at: string
           email: string
+          handle: string | null
           id: string
           locale: string | null
           nom: string | null
           notification_prefs: Json
           onboarding_completed: boolean
+          platform: string | null
           prenom: string | null
+          role: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           email: string
+          handle?: string | null
           id: string
           locale?: string | null
           nom?: string | null
           notification_prefs?: Json
           onboarding_completed?: boolean
+          platform?: string | null
           prenom?: string | null
+          role?: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           email?: string
+          handle?: string | null
           id?: string
           locale?: string | null
           nom?: string | null
           notification_prefs?: Json
           onboarding_completed?: boolean
+          platform?: string | null
           prenom?: string | null
+          role?: string
         }
         Relationships: []
       }
@@ -746,6 +832,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "scripts"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "script_chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "script_chat_messages_user_id_fkey"
@@ -943,6 +1036,13 @@ export type Database = {
             foreignKeyName: "scripts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "scripts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -977,6 +1077,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "share_keys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "share_keys_user_id_fkey"
             columns: ["user_id"]
@@ -1084,6 +1191,13 @@ export type Database = {
             foreignKeyName: "social_accounts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "social_accounts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1172,6 +1286,13 @@ export type Database = {
             foreignKeyName: "subscriptions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1223,6 +1344,13 @@ export type Database = {
             foreignKeyName: "usage_events_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "usage_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1248,6 +1376,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "user_credits_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
           {
             foreignKeyName: "user_credits_user_id_fkey"
             columns: ["user_id"]
@@ -1406,6 +1541,13 @@ export type Database = {
             foreignKeyName: "videos_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "videos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1413,7 +1555,25 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_prospects: {
+        Row: {
+          audit_created_at: string | null
+          audit_status: string | null
+          created_at: string | null
+          email: string | null
+          followers: number | null
+          handle: string | null
+          niche: string | null
+          nom: string | null
+          onboarding_completed: boolean | null
+          plan: string | null
+          platform: string | null
+          prenom: string | null
+          subscription_status: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       charge_action: {
@@ -1427,6 +1587,7 @@ export type Database = {
         }
         Returns: Json
       }
+      is_admin: { Args: never; Returns: boolean }
       is_valid_sections: { Args: { p_sections: Json }; Returns: boolean }
       persist_generated_script: {
         Args: {

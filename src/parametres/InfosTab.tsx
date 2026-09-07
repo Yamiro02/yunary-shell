@@ -9,7 +9,6 @@ import { InstagramMark, TikTokMark } from '../auth/BrandMarks';
 import { useProfile } from '../account/useProfile';
 import { useUpdateProfile } from '../account/useUpdateProfile';
 import { useDeleteAvatar, useUpdateAvatar } from '../account/useAvatar';
-import { useAccountAudit } from '../audit/useAccountAudit';
 import { useLogout } from '../auth/useLogout';
 import { usePasswordReset } from '../auth/usePasswordReset';
 import { PasswordModal } from './PasswordModal';
@@ -26,9 +25,9 @@ export interface ReseauView {
 export interface InfosViewProps {
   variant?: ParametresVariant;
   profile: { prenom: string | null; nom: string | null; email: string; avatarUrl: string | null };
-  /** Réseau + handle, lecture seule (dernier `account_audits`). `null` = rien renseigné. */
+  /** Réseau + handle, lecture seule (`profiles.platform` / `profiles.handle`). `null` = rien renseigné. */
   reseau: ReseauView | null;
-  /** RÉSERVÉ : quand `profiles.platform` / `profiles.handle` existeront, ce callback rendra la carte éditable sans changer l'API. */
+  /** RÉSERVÉ : rendra la carte éditable sans changer l'API (relance d'audit = lot ultérieur). */
   onReseauChange?: (reseau: ReseauView) => void;
   onSave: (values: { prenom: string; nom: string }) => void;
   saveState?: SaveState;
@@ -135,10 +134,9 @@ export function InfosView({
   );
 }
 
-/** C2 câblée : profil, dernier audit (réseau + handle), avatar, mot de passe, déconnexion. */
+/** C2 câblée : profil (dont réseau + handle), avatar, mot de passe, déconnexion. */
 export function InfosTab({ variant = 'web' }: { variant?: ParametresVariant }): JSX.Element {
   const profile = useProfile();
-  const audit = useAccountAudit();
   const update = useUpdateProfile();
   const updateAvatar = useUpdateAvatar();
   const deleteAvatar = useDeleteAvatar();
@@ -164,7 +162,7 @@ export function InfosTab({ variant = 'web' }: { variant?: ParametresVariant }): 
       <InfosView
         variant={variant}
         profile={{ prenom: p.prenom, nom: p.nom, email: p.email, avatarUrl: p.avatar_url }}
-        reseau={audit.data ? { platform: audit.data.platform, handle: audit.data.handle } : null}
+        reseau={p.platform && p.handle ? { platform: p.platform, handle: p.handle } : null}
         saveState={saveState}
         onSave={values => {
           setSaveState('saving');

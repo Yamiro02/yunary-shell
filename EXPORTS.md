@@ -50,7 +50,7 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 
 | Export | Rôle |
 |---|---|
-| `useProfile()` | `profiles` de l'utilisateur (`Profile`, `notification_prefs` parsées). `profileKey`, `parseNotificationPrefs`, `DEFAULT_NOTIFICATION_PREFS`. |
+| `useProfile()` | `profiles` de l'utilisateur (`Profile` : identité, `notification_prefs` parsées, `role`, `platform`, `handle`). `profileKey`, `parseNotificationPrefs`, `DEFAULT_NOTIFICATION_PREFS`. |
 | `useUpdateProfile()` | Prénom, nom, `notification_prefs`. |
 | `useUpdateAvatar()` · `useDeleteAvatar()` | Photo : recadrage carré 512 px WebP → bucket `avatars` → `profiles.avatar_url`. |
 | `useCredits()` → `CreditsInfo \| null` | Solde et `period_end` (`user_credits`), allocation de la formule. `creditsKey`. |
@@ -82,7 +82,7 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 |---|---|
 | `<ParametresPage variant? tab? onTabChange? hrefs? extra? onDeleted?>` | C2–C5. `web` (4 onglets) ou `native` (Infos, Légal + slot `extra`). Sans `tab`, lit `?tab=`. |
 | `<ParametresLayout>` · `parametresTabs(variant)` | En-tête + onglets. |
-| `<InfosTab>` / `<InfosView>` | Photo, prénom / nom en autosave, e-mail verrouillé, mot de passe, réseau + handle (lecture seule, `onReseauChange` réservé), déconnexion. |
+| `<InfosTab>` / `<InfosView>` | Photo, prénom / nom en autosave, e-mail verrouillé, mot de passe, réseau + handle (lecture seule depuis `profiles`, `onReseauChange` réservé), déconnexion. |
 | `<NotificationsTab>` / `<NotificationsView>` | Deux préférences, interrupteurs du DS. |
 | `<AbonnementTab>` / `<AbonnementView>` | Portail (si abonnement), formule + solde, grille `PLANS`. |
 | `<LegalTab>` / `<LegalView>` · `DEFAULT_LEGAL_HREFS` | Liens légaux + zone danger. |
