@@ -9,7 +9,7 @@
  * Aucune fondation ici : couleurs, rayons, typo et composants génériques viennent du DS.
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
-export const SHELL_VERSION = '0.1.2';
+export const SHELL_VERSION = '0.1.3';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';

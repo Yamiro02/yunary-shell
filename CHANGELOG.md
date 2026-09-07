@@ -5,6 +5,15 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.3 — `?next=` sans imbrication
+
+- **`ProtectedRoute` lit l'URL courante dans le routeur**, plus dans `window.location`. Le
+  store de session émet deux fois au démarrage (résultat de `getSession()`, puis
+  `INITIAL_SESSION`) ; entre les deux, `Navigate` avait déjà changé l'adresse et la seconde
+  émission produisait `/login?next=…/login?next=…`. Une seule redirection après connexion,
+  désormais. La double émission du store est conservée : elle couvre un `getSession()` en échec.
+- C'est **`v0.1.3`** que le Hub épingle.
+
 ## 0.1.2 — extension technique, migration Hub du 05/09/2026
 
 - **Types régénérés** après la migration Hub : `profiles.role` / `platform` / `handle`, table
@@ -14,7 +23,7 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 - **Paramètres › Infos lit le réseau dans `profiles`**, plus dans le dernier `account_audits` :
   la persistance du handle est tranchée (étape 1 de l'onboarding du Hub). `onReseauChange` reste
   réservé. Un compte sans `platform` / `handle` voit « aucun réseau », comme avant sans audit.
-- C'est **`v0.1.2`** que le Hub épingle.
+- Première version installée par le Hub.
 
 ## 0.1.1 — la première version installable
 

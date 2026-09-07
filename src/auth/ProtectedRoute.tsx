@@ -33,7 +33,12 @@ export function ProtectedRoute({ requireOnboarding = true, children }: Protected
   const { hubUrl } = getShellConfig();
   const isHub = typeof window !== 'undefined' && window.location.origin === hubUrl;
 
-  const currentUrl = typeof window !== 'undefined' ? window.location.href : '';
+  /* L'URL courante vient du ROUTEUR, jamais de window.location : le store de session émet
+     deux fois au démarrage, et entre les deux `Navigate` a déjà changé l'adresse. Lue dans
+     window, la seconde émission produirait un `next` imbriqué (`/login?next=…/login?next=…`).
+     Lue dans le routeur, elle ne change qu'au re-rendu où ce composant est démonté. */
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const currentUrl = `${origin}${location.pathname}${location.search}${location.hash}`;
   const needsLogin = !loading && !session;
   const needsOnboarding =
     requireOnboarding && !loading && !!session && profile.isSuccess && !profile.data.onboarding_completed;
