@@ -30,11 +30,10 @@ export function CreditsCard({ credits }: CreditsCardProps): JSX.Element {
           <span>{fr.layout.creditsLeft(credits.remaining)}</span>
         )}
       </span>
-      <Progress
+      <Progress className="bg-card"
         value={credits ? credits.remaining : 0}
         max={credits?.total ?? Math.max(credits?.remaining ?? 0, 1)}
         label={fr.layout.creditsLeft(credits?.remaining ?? 0)}
-        className="bg-card"
       />
       {credits?.periodEnd ? (
         <span className="text-caption font-medium text-text-muted">{fr.layout.creditsResetOn(formatDateCourte(credits.periodEnd))}</span>

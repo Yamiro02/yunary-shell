@@ -22,7 +22,8 @@ export function ChoiceChip({ selected, onToggle, italic = false, disabled = fals
       disabled={disabled}
       onClick={onToggle}
       className={cn(
-        'inline-flex items-center gap-space-2 rounded-pill border-[1.5px] bg-background px-space-4 py-space-2 text-body-sm font-semibold text-foreground transition-colors duration-[var(--duration-fast)] ease-standard',
+        /* Artboard B5 : pilule à filet 1 px (--border, --primary cochée) sur --background, 14 px semi-gras. */
+        'inline-flex items-center gap-space-2 rounded-pill border bg-background px-space-4 py-space-2 text-body-sm font-semibold text-foreground transition-colors duration-[var(--duration-fast)] ease-standard',
         'hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:cursor-not-allowed disabled:opacity-50',
         selected ? 'border-primary' : 'border-border',
         italic && 'italic',

@@ -54,16 +54,19 @@ export function SignupView({
         </Button>
       </form>
       <OAuthButtons onOAuth={onOAuth} loading={oauthLoading} disabled={loading} />
+      {/* Liens de la carte d'auth en `--primary`, comme l'annotation des maquettes A1-A2. La mention
+          légale n'est pas sur la maquette A2 : elle reste (exigence des reviews Meta/TikTok), écart
+          signalé à Julien au jalon A2. */}
       <p className="text-center text-caption text-text-muted">
         {f.signup.legalNoticeBefore}
-        <Link to={cguHref} className="font-semibold text-primary-readable no-underline">{f.signup.legalNoticeCgu}</Link>
+        <Link to={cguHref} className="font-semibold text-primary">{f.signup.legalNoticeCgu}</Link>
         {f.signup.legalNoticeBetween}
-        <Link to={confidentialiteHref} className="font-semibold text-primary-readable no-underline">{f.signup.legalNoticePrivacy}</Link>
+        <Link to={confidentialiteHref} className="font-semibold text-primary">{f.signup.legalNoticePrivacy}</Link>
         {f.signup.legalNoticeAfter}
       </p>
       <p className="text-center text-caption text-text-muted">
         {f.signup.hasAccount}{' '}
-        <Link to={loginHref} className="font-semibold text-primary-readable no-underline">{f.signup.loginLink}</Link>
+        <Link to={loginHref} className="font-semibold text-primary">{f.signup.loginLink}</Link>
       </p>
     </AuthShell>
   );

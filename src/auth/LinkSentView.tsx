@@ -21,7 +21,10 @@ export function LinkSentView({ kind, email, onResend, resendState = 'idle', logi
   const title = kind === 'reset' ? f.sent.title : f.signup.confirmTitle;
   return (
     <AuthShell className={className}>
-      <div className="flex flex-col items-center gap-space-4 text-center">
+      {/* Maquette A4 : colonne centrée, gap 1,25 rem (hors échelle) — on prend le rythme de la carte
+          d'auth, `space-5`, comme A1-A3. Pastille `heros` (4 rem, la maquette dit 3,75 rem : palier
+          le plus proche) en ton `brand` du DS. */}
+      <div className="flex flex-col items-center gap-space-5 text-center">
         <Pastille size="heros" tone="brand" outlined>
           <Icon name="mail" size="1.75rem" />
         </Pastille>
@@ -40,11 +43,11 @@ export function LinkSentView({ kind, email, onResend, resendState = 'idle', logi
         <Badge tone="neutral" icon={<Icon name="info" strokeWidth={2.5} />}>{f.sent.spam}</Badge>
         <div className="mt-space-1 flex w-full flex-col gap-space-3">
           {onResend ? (
-            <Button variant="secondary" fullWidth loading={resendState === 'sending'} disabled={resendState !== 'idle'} onClick={onResend}>
+            <Button variant="secondary" surface="card" fullWidth loading={resendState === 'sending'} disabled={resendState !== 'idle'} onClick={onResend}>
               {resendState === 'sent' ? f.sent.resent : f.sent.resend}
             </Button>
           ) : null}
-          <Link to={loginHref} className="text-caption font-semibold text-primary-readable no-underline">{f.actions.backToLogin}</Link>
+          <Link to={loginHref} className="text-caption font-semibold text-primary">{f.actions.backToLogin}</Link>
         </div>
       </div>
     </AuthShell>

@@ -40,7 +40,10 @@ export function SegmentedControl<V extends string>({
       role="radiogroup"
       aria-label={label}
       className={cn(
-        'flex w-full min-h-control-md items-center gap-space-1 rounded-md border border-border bg-background p-space-1',
+        /* Le gabarit des onglets du DS (artboard B5 : `ds-tabs` sur carte) — rayon --tabs-radius, rail --control-md, fond --background. */
+        /* Sous 64 rem les options passent sur deux rangées de deux : quatre libellés de 15 px ne tiennent
+           pas sur la largeur d'une carte à 375 px. */
+        'flex w-full min-h-control-md flex-wrap items-center gap-space-1 rounded-[var(--tabs-radius)] border border-border bg-background p-space-1',
         disabled && 'opacity-50',
         className,
       )}
@@ -59,9 +62,9 @@ export function SegmentedControl<V extends string>({
             onClick={() => onChange(opt.value)}
             onKeyDown={e => onKeyDown(e, i)}
             className={cn(
-              'flex-1 rounded-sm px-space-3 py-space-2 font-body text-control font-semibold transition-colors duration-[var(--duration-fast)] ease-standard',
+              'min-w-0 flex-1 basis-[calc(50%-var(--space-1))] rounded-sm px-space-4 py-space-2 font-body text-control font-semibold transition-colors duration-[var(--duration-fast)] ease-standard lg:basis-0',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-              selected ? 'bg-card text-foreground shadow-sm' : 'text-text-muted hover:text-foreground',
+              selected ? 'bg-card text-foreground' : 'text-text-muted hover:text-foreground',
             )}
           >
             {opt.label}

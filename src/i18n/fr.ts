@@ -73,7 +73,6 @@ export const fr = {
     },
     login: {
       title: 'Content de te revoir',
-      subtitle: 'Connecte-toi pour continuer à faire des vues.',
       forgot: 'Mot de passe oublié ?',
       submit: 'Se connecter',
       noAccount: 'Pas encore de compte ?',
@@ -155,6 +154,14 @@ export const fr = {
       emailLocked: "L'e-mail ne peut pas être modifié.",
       password: 'Mot de passe',
       changePassword: 'Modifier le mot de passe',
+      /* Artboard C2 : « Comptes connectés », deux rangées Instagram / TikTok (OAuth au frigo : la rangée non connectée n'agit pas encore). */
+      comptes: {
+        title: 'Comptes connectés',
+        subtitle: "Yunary lit la liste de tes publications et leurs statistiques, y compris celles visibles de toi seul, pour analyser ton style. Jamais tes messages, et rien n'est publié à ta place.",
+        none: 'Aucun compte connecté',
+        connect: 'Connecter',
+        note: "Si tu déconnectes un compte, Yunary n'a plus accès à ses données. Les fiches et scripts déjà générés restent dans ta bibliothèque.",
+      },
       reseau: {
         title: 'Ton réseau',
         subtitle:

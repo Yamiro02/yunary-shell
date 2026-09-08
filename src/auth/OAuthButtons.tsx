@@ -16,14 +16,16 @@ export function OAuthButtons({ onOAuth, loading = null, disabled = false }: OAut
   return (
     <>
       <Separator label={fr.common.or} />
-      <div className="flex flex-col gap-space-3">
-        <Button variant="secondary" fullWidth icon={<GoogleMark />} loading={loading === 'google'} disabled={disabled || (!!loading && loading !== 'google')} onClick={() => onOAuth('google')}>
-          {fr.auth.actions.google}
-        </Button>
-        <Button variant="secondary" fullWidth icon={<AppleMark />} loading={loading === 'apple'} disabled={disabled || (!!loading && loading !== 'apple')} onClick={() => onOAuth('apple')}>
-          {fr.auth.actions.apple}
-        </Button>
-      </div>
+      {/* Les deux boutons sont des enfants DIRECTS de la carte (maquettes A1-A2) : c'est le
+          rythme de la carte (gap-space-5) qui les espace, pas un groupe resserré.
+          `surface="card"` : la maquette les pose sur --background (le socle ne déduit pas la
+          surface d'un bouton, il la déclare — patterns.css). */}
+      <Button variant="secondary" surface="card" fullWidth icon={<GoogleMark />} loading={loading === 'google'} disabled={disabled || (!!loading && loading !== 'google')} onClick={() => onOAuth('google')}>
+        {fr.auth.actions.google}
+      </Button>
+      <Button variant="secondary" surface="card" fullWidth icon={<AppleMark />} loading={loading === 'apple'} disabled={disabled || (!!loading && loading !== 'apple')} onClick={() => onOAuth('apple')}>
+        {fr.auth.actions.apple}
+      </Button>
     </>
   );
 }

@@ -32,17 +32,20 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
     <div className="flex max-w-wide flex-col gap-space-5">
       {error ? <Banner tone="danger">{error}</Banner> : null}
 
-      <Card className="flex flex-wrap items-center justify-between gap-space-4 px-space-6 py-space-4 shadow-none">
+      {/* Artboard C4 : carte facturation 16 / 24 (`space-4` / `space-5`), bouton secondaire sur la carte. */}
+      <Card className="flex flex-wrap items-center justify-between gap-space-4 px-space-5 py-space-4 shadow-none">
         <div className="flex flex-col gap-space-1">
-          <span className="text-body font-semibold">{a.billingTitle}</span>
+          {/* Une seule hiérarchie de titres de carte dans toute l'app : `heading-sm` (l'artboard le mettait en 16 DM Sans). */}
+          <span className="font-display text-heading-sm">{a.billingTitle}</span>
           <span className="caption">{hasSubscription ? a.billingSubtitle : a.billingLocked}</span>
         </div>
-        <Button variant="secondary" size="sm" icon={<Icon name="external-link" size="1rem" />} disabled={!hasSubscription} loading={portalBusy} onClick={onPortal} className="flex-none">
+        <Button variant="secondary" surface="card" size="sm" icon={<Icon name="external-link" size="1rem" />} disabled={!hasSubscription} loading={portalBusy} onClick={onPortal} className="flex-none">
           {a.billingCta}
         </Button>
       </Card>
 
-      <Card variant="feature" className="flex flex-col gap-space-3 px-space-6 py-space-5 shadow-none">
+      {/* Artboard C4 : carte formule 20 / 24, nom et solde en `heading` (l'artboard les met en 800 : la graisse suit le palier, 700). */}
+      <Card variant="feature" className="flex flex-col gap-space-3 px-space-5 py-space-5 shadow-none">
         <div className="flex items-start justify-between gap-space-4">
           <div className="flex flex-col gap-space-1">
             <span className="eyebrow">{a.yourPlan}</span>
@@ -63,17 +66,17 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
         ) : null}
       </Card>
 
+      {/* Plus de titre « Changer de formule » (Julien, 08/09/2026) : la grille des offres suit directement la carte formule. */}
       <div className="flex flex-col gap-space-4">
-        <h3 className="text-heading-sm">{a.changePlan}</h3>
-        <div className="grid grid-cols-1 gap-space-5 pt-space-2 md:grid-cols-3">
+        <div className="grid grid-cols-1 gap-space-5 md:grid-cols-3">
           {plans.map(p => {
             const current = p.id === plan.id;
             return (
-              <Card key={p.id} className={cn('flex flex-col gap-space-4 px-space-6 py-space-5', p.recommended ? 'border-primary shadow-md' : 'shadow-none')}>
+              <Card key={p.id} className={cn('flex flex-col gap-space-3 px-space-5 py-space-5', p.recommended ? 'border-primary shadow-sm' : 'shadow-none')}>
                 <div className="flex flex-col gap-space-1">
                   <div className="flex items-center justify-between gap-space-3">
-                    <span className="font-display text-body-lg font-(--heading-weight) tracking-heading-sm">{p.name}</span>
-                    {p.recommended ? <Badge tone="coral" pad="dense">{a.recommended}</Badge> : null}
+                    <span className="font-display text-heading-sm">{p.name}</span>
+                    {p.recommended ? <Badge tone="coral" pad="dense" className="chip">{a.recommended}</Badge> : null}
                   </div>
                   <span className="caption">
                     <strong className="font-display text-subheading font-bold text-foreground">{p.priceMonthly === null ? a.priceUnknown : `${p.priceMonthly} €`}</strong> {a.perMonth}
@@ -88,11 +91,11 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
                   ))}
                 </ul>
                 {current ? (
-                  <Button variant="secondary" size="sm" fullWidth disabled>{a.currentPlan}</Button>
+                  <Button variant="secondary" surface="card" size="sm" fullWidth disabled>{a.currentPlan}</Button>
                 ) : p.available ? (
-                  <Button variant={p.recommended ? 'primary' : 'secondary'} size="sm" fullWidth loading={checkoutBusy === p.id} disabled={!!checkoutBusy} onClick={() => onChoose(p.id)}>{a.choose}</Button>
+                  <Button variant={p.recommended ? 'primary' : 'secondary'} surface="card" size="sm" fullWidth loading={checkoutBusy === p.id} disabled={!!checkoutBusy} onClick={() => onChoose(p.id)}>{a.choose}</Button>
                 ) : (
-                  <Button variant="secondary" size="sm" fullWidth disabled>{a.soon}</Button>
+                  <Button variant="secondary" surface="card" size="sm" fullWidth disabled>{a.soon}</Button>
                 )}
               </Card>
             );

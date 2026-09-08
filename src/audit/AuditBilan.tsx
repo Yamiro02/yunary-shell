@@ -1,6 +1,7 @@
 import type { JSX, ReactNode } from 'react';
-import { ChartLine, Gauge, Heart, Sprout, TrendingDown } from 'lucide-react';
-import { Badge, Banner, Card, Icon, Pastille, cn, type BadgeProps } from '@yunary/ds';
+import { ChartLine, Gauge, Heart, Sprout, TrendingDown, WifiOff } from 'lucide-react';
+import { Badge, Card, Icon, Pastille, cn, type BadgeProps } from '@yunary/ds';
+import { AuditStateCard } from './AuditStateCard';
 import { fr } from '../i18n/fr';
 import { formatCompact, formatNombre } from '../lib/format';
 import { AUDIT_MIN_SAMPLE, type AuditBioEtat, type AuditEtatEstime, type AuditEtatMesure, type ParsedAccountAudit } from './types';
@@ -12,22 +13,31 @@ export interface AuditBilanProps {
 }
 
 /**
- * Le bilan d'audit (maquette AuditBilan.dc.html) : synthèse, profil et bio annotée, chiffres
- * clés, verdicts par axe, prose, ce qui marche / à améliorer. Variante `non_evaluable`
- * (maquette B4) et erreur. Utilisé par le Hub (onboarding 4/5) et Creator (Profil › Audit).
- * Règle : une métrique absente = une tuile absente, jamais un zéro.
+ * Le bilan d'audit — reconstruit (08/09/2026) depuis l'inventaire du maître `AuditBilan.dc.html`
+ * et de l'artboard B4 du Hub : colonne au pas `space-5` ; synthèse (carte `feature`) ; profil
+ * (carte : panneau bio 22,5 rem + constats) ; chiffres clés (tuiles sur un panneau à filets) ;
+ * verdicts par axe (grille 3 + 2) ; prose (carte `feature`) ; ce qui marche / à améliorer (deux
+ * cartes). Variante `non_evaluable` (artboard « données insuffisantes ») et erreur (bannière).
+ * Petits libellés = palier `eyebrow` du DS en gras et muted (pas la classe `.eyebrow`, qui est le
+ * surtitre au dégradé). Titres display jamais sous 18 px : les titres de badge restent en DM Sans.
+ *
+ * API : `audit` (une ligne parsée par `parseAccountAudit`) et `minSample` (miroir de l'Edge).
+ * Le composant ne connaît ni la page, ni l'étape, ni le réseau : il rend ce que la ligne porte —
+ * une métrique absente = une tuile absente, jamais un zéro. Utilisé par le Hub (onboarding 4/5)
+ * et par Creator (Profil › Audit).
  */
 export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE }: AuditBilanProps): JSX.Element {
   const a = fr.audit;
+  /* Erreur : « c'est nous, pas toi » — la carte d'état héros de la v1, ton danger, glyphe wifi coupé. */
   if (audit.status === 'error') {
-    return <Banner tone="danger" title={a.error.title}>{a.error.body}</Banner>;
+    return <AuditStateCard tone="danger" icon={<Icon glyph={WifiOff} size="1.625rem" />} title={a.error.title} description={a.error.body} />;
   }
   if (audit.status === 'non_evaluable') {
     return <NonEvaluable count={audit.stats.rythme?.publications ?? 0} min={minSample} />;
   }
   const { stats, verdicts, points, profil } = audit;
   return (
-    <div className="flex flex-col gap-space-6">
+    <div className="flex flex-col gap-space-5">
       {audit.synthese ? (
         <FeatureCard title={a.synthese}>
           <p className="text-control leading-normal text-text-secondary">{audit.synthese}</p>
@@ -51,11 +61,11 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE }: AuditBilanPr
       ) : null}
 
       {points.a_marche.length || points.a_ameliorer.length ? (
-        <div className="grid grid-cols-1 items-start gap-space-6 lg:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-space-5 lg:grid-cols-2">
           {points.a_marche.length ? (
             <Card size="lg" className="flex flex-col gap-space-5">
               <Badge tone="success" icon={<Icon name="circle-check" strokeWidth={2.5} />} className="self-start">
-                <span className="font-display text-control font-bold">{a.points.marche}</span>
+                <span className="text-control font-bold">{a.points.marche}</span>
               </Badge>
               <PointList items={points.a_marche} icon={<Icon name="check" strokeWidth={3} size="0.9375rem" className="mt-[0.1875rem] flex-none text-pill-success-fg" />} />
             </Card>
@@ -63,7 +73,7 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE }: AuditBilanPr
           {points.a_ameliorer.length ? (
             <Card size="lg" className="flex flex-col gap-space-5">
               <Badge tone="warning" icon={<Icon name="trending-up" strokeWidth={2.5} />} className="self-start">
-                <span className="font-display text-control font-bold">{a.points.ameliorer}</span>
+                <span className="text-control font-bold">{a.points.ameliorer}</span>
               </Badge>
               <PointList items={points.a_ameliorer} icon={<Icon name="arrow-right" strokeWidth={2.5} size="0.9375rem" className="mt-[0.1875rem] flex-none text-pill-warning-fg" />} />
             </Card>
@@ -130,8 +140,9 @@ function ProfilCard({ audit }: { audit: ParsedAccountAudit }): JSX.Element {
     <Card size="lg" className="flex flex-col gap-space-5">
       <span className="font-display text-subheading font-bold text-foreground">{a.profil.title}</span>
       <div className="grid grid-cols-1 items-start gap-space-6 lg:grid-cols-[22.5rem_1fr]">
-        <div className="flex flex-col gap-space-4 rounded-lg border border-border bg-background p-space-5">
-          <span className="eyebrow inline-flex items-center gap-space-2 text-text-muted"><Icon name="eye" size="0.75rem" strokeWidth={2.5} />{a.profil.bioTitle}</span>
+        <div className="flex flex-col gap-space-3 rounded-lg border border-border bg-background p-space-5">
+          {/* Libellé à 10 px sur le maître : palier `eyebrow` (12 px) du DS, le plus proche. */}
+          <span className="inline-flex items-center gap-space-2 text-eyebrow font-bold uppercase text-text-muted"><Icon name="eye" size="0.75rem" strokeWidth={2.5} />{a.profil.bioTitle}</span>
           <div className="flex items-center gap-space-4">
             {meta?.avatar_url ? (
               <img src={meta.avatar_url} alt="" className="h-[3.25rem] w-[3.25rem] flex-none rounded-pill border border-border object-cover" />
@@ -219,10 +230,10 @@ function ChiffresCard({ stats }: { stats: ParsedAccountAudit['stats'] }): JSX.El
           <div key={tile.key} className={cn('flex flex-col gap-space-3 p-space-5', i > 0 && 'border-t border-border md:border-l md:border-t-0')}>{tile}</div>
         ))}
         {engagement.length ? (
-          <div className={cn('flex flex-col gap-space-4 p-space-5', tiles.length > 0 && 'border-t border-border', 'md:col-span-full')}>
+          <div className={cn('flex flex-col gap-space-3 p-space-5', tiles.length > 0 && 'border-t border-border', 'md:col-span-full')}>
             <div className="flex items-center gap-space-2">
               <Pastille size="carte" tone="brand"><Icon glyph={Heart} size="0.9375rem" /></Pastille>
-              <span className="eyebrow text-text-muted">{a.engagement.title}</span>
+              <span className="text-eyebrow font-bold uppercase text-text-muted">{a.engagement.title}</span>
             </div>
             <div className="grid grid-cols-2 gap-space-4 md:grid-cols-4">
               {engagement.map(([n, label]) => (
@@ -244,7 +255,7 @@ function Tile({ icon, label, value, children }: { icon: ReactNode; label: string
     <>
       <div className="flex items-center gap-space-2">
         <Pastille size="carte" tone="brand">{icon}</Pastille>
-        <span className="eyebrow text-text-muted">{label}</span>
+        <span className="text-eyebrow font-bold uppercase text-text-muted">{label}</span>
       </div>
       <span className="font-display text-heading font-(--heading-weight) text-foreground">{value}</span>
       {children}
@@ -300,7 +311,7 @@ function VerdictsCard({ verdicts }: { verdicts: ParsedAccountAudit['verdicts'] }
           const topBorder = five ? i >= 3 : i >= 3;
           return (
             <div key={axe.key} className={cn('flex flex-col gap-space-3 px-space-5 py-space-4', span, i > 0 && 'border-t border-border', 'md:border-t-0', leftBorder && 'md:border-l md:border-border', topBorder && 'md:border-t md:border-border')}>
-              <span className="eyebrow text-text-muted">{a.axes[axe.key]}</span>
+              <span className="text-eyebrow font-bold uppercase text-text-muted">{a.axes[axe.key]}</span>
               {axe.badge}
               {axe.ecart ? <span className="text-caption leading-normal text-text-muted">{axe.ecart}</span> : null}
             </div>
@@ -313,15 +324,11 @@ function VerdictsCard({ verdicts }: { verdicts: ParsedAccountAudit['verdicts'] }
 
 function NonEvaluable({ count, min }: { count: number; min: number }): JSX.Element {
   const a = fr.audit.nonEvaluable;
+  /* Pas assez de matière : un état NORMAL, rassurant — ton marque, pousse. */
   return (
-    <Card size="lg" className="flex flex-col items-center gap-space-5 text-center">
-      <Pastille size="heros" shape="round" tone="brand"><Icon glyph={Sprout} size="1.625rem" /></Pastille>
-      <div className="flex max-w-narrow flex-col gap-space-2">
-        <span className="font-display text-subheading font-bold text-foreground">{a.title}</span>
-        <p className="text-control leading-normal text-text-muted">{a.body(count, min)}</p>
-      </div>
+    <AuditStateCard tone="brand" icon={<Icon glyph={Sprout} size="1.625rem" />} title={a.title} description={a.body(count, min)}>
       <Badge tone="neutral" icon={<Icon name="clock" strokeWidth={2.5} />}>{a.badge(count, min)}</Badge>
       <span className="inline-flex items-center gap-space-2 text-body-sm font-semibold text-pill-success-fg"><Icon name="check" strokeWidth={2.5} size="0.9375rem" />{a.profilReady}</span>
-    </Card>
+    </AuditStateCard>
   );
 }

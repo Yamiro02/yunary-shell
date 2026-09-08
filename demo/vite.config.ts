@@ -20,6 +20,8 @@ export default defineConfig({
     /* 5274 : la vitrine du DS occupe 5273. PORT permet au harness d'en assigner un autre. */
     port: Number(process.env.PORT) || 5274,
     open: false,
-    fs: { allow: [fileURLToPath(new URL('..', import.meta.url))] },
+    /* `../..` = apps/packages : pendant un lot, @yunary/ds peut être branché en lien symbolique vers
+       le dépôt voisin, et Vite sert ses polices depuis le chemin réel. */
+    fs: { allow: [fileURLToPath(new URL('../..', import.meta.url))] },
   },
 });

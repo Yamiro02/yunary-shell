@@ -50,7 +50,7 @@ export function ResetPasswordView({ onSubmit, loading = false, error = null, lin
         </>
       )}
       <p className="text-center text-caption">
-        <Link to={loginHref} className="font-semibold text-primary-readable no-underline">{f.actions.backToLogin}</Link>
+        <Link to={loginHref} className="font-semibold text-primary-readable">{f.actions.backToLogin}</Link>
       </p>
     </AuthShell>
   );

@@ -19,14 +19,15 @@ const ROWS: { key: keyof NotificationPrefs; label: string; description: string }
 
 /** C3 — la vue : une carte, une ligne par préférence, interrupteur du DS à droite. */
 export function NotificationsView({ prefs, onToggle, pending = null }: NotificationsViewProps): JSX.Element {
+  /* Artboard C3 : une carte à 24 px de côtés (`space-5`) sans padding vertical, rangées à 20 px, filet entre elles. */
   return (
-    <Card className="flex max-w-read flex-col py-0 shadow-none">
+    <Card className="flex max-w-read flex-col px-space-5 py-0 shadow-none">
       {ROWS.map((row, i) => (
         <div key={row.key} className="contents">
           {i > 0 ? <Separator /> : null}
           <label className="flex cursor-pointer items-center justify-between gap-space-6 py-space-5">
             <span className="flex flex-col gap-space-1">
-              <span className="font-display text-body-lg font-(--heading-weight) tracking-heading-sm">{row.label}</span>
+              <span className="font-display text-heading-sm">{row.label}</span>
               <span className="caption font-regular">{row.description}</span>
             </span>
             <Switch aria-label={row.label} checked={prefs[row.key]} disabled={pending === row.key} onChange={e => onToggle(row.key, e.target.checked)} />

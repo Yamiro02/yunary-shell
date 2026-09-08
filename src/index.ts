@@ -53,6 +53,8 @@ export type { ToolDef } from './layout/tools';
 
 /* audit de compte */
 export { useAccountAudit, accountAuditKey } from './audit/useAccountAudit';
+export { AuditStateCard } from './audit/AuditStateCard';
+export type { AuditStateCardProps } from './audit/AuditStateCard';
 export {
   parseAccountAudit, parseAuditStats, parseAuditVerdicts, parseAuditPoints, parseAuditProfil, AUDIT_MIN_SAMPLE,
 } from './audit/types';

@@ -49,7 +49,8 @@ export function NicheCard({ value, onChange }: NicheCardProps): JSX.Element {
               onChange={() => select(opt)}
               label={<span className="text-control font-medium">{opt === NICHE_OTHER ? fr.profil.niche.other : opt}</span>}
               className={cn(
-                'flex gap-space-3 rounded-md border-[1.5px] px-space-4 py-space-3 transition-colors duration-[var(--duration-base)] ease-standard',
+                /* Artboard B5 : filet 1 px --border sur --background, --primary sur --accent quand choisie. */
+                'flex gap-space-3 rounded-md border px-space-4 py-space-3 transition-colors duration-[var(--duration-base)] ease-standard',
                 selected ? 'border-primary bg-accent text-foreground' : 'border-border bg-background text-text-secondary hover:border-primary',
               )}
             />

@@ -33,7 +33,7 @@ export function LegalView({ hrefs = DEFAULT_LEGAL_HREFS, onDelete }: LegalViewPr
       {links.map(link => (
         <Link key={link.href} to={link.href} className="text-foreground no-underline">
           <Card variant="interactive" className="flex items-center justify-between gap-space-4 shadow-none">
-            <span className="font-display text-body-lg font-(--heading-weight) tracking-heading-sm">{link.label}</span>
+            <span className="font-display text-heading-sm">{link.label}</span>
             <Icon name="chevron-right" className="text-text-muted" />
           </Card>
         </Link>

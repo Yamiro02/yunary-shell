@@ -73,14 +73,18 @@ export function InfosView({
 
   return (
     <div className="flex max-w-read flex-col gap-space-5">
-      <Card className="flex flex-col gap-space-5 shadow-none">
+      {/* Artboard C2 : blocs à 20 px dans la carte → `space-4` (Julien : trop d'air à 24) ; la ligne d'état
+          « Enregistré » n'occupe aucune place tant qu'elle est vide. */}
+      <Card className="flex flex-col gap-space-4 shadow-none">
+        {/* Sous 64 rem, la rangée photo et ses deux boutons passent à la ligne (64 + 264 px ne tiennent pas dans une carte à 375 px). */}
         {web ? (
-          <div className="flex items-center gap-space-5">
+          <div className="flex flex-wrap items-center gap-space-5">
             <UserAvatar account={account} size="4rem" className="text-subheading" />
-            <div className="flex flex-col items-start gap-space-2">
-              <div className="flex gap-space-2">
+            <div className="flex min-w-0 flex-col items-start gap-space-2">
+              <div className="flex flex-wrap gap-space-2">
                 <input ref={fileInput} type="file" accept="image/jpeg,image/png,image/webp" className="hidden" onChange={onFile} />
-                <Button variant="secondary" size="sm" loading={photoBusy} onClick={() => fileInput.current?.click()}>{t.choosePhoto}</Button>
+                {/* Artboard C2 : boutons secondaires SUR la carte (le socle ne déduit pas la surface d'un bouton). */}
+                <Button variant="secondary" surface="card" size="sm" loading={photoBusy} onClick={() => fileInput.current?.click()}>{t.choosePhoto}</Button>
                 <Button variant="ghost" size="sm" disabled={!profile.avatarUrl || photoBusy} onClick={onRemovePhoto}>{t.removePhoto}</Button>
               </div>
               <span className="caption">{t.photoHint}</span>
@@ -100,32 +104,44 @@ export function InfosView({
           <Input id="infos-email" type="email" value={profile.email} readOnly disabled />
         </FormField>
         <FormField label={t.password}>
-          <div className="flex"><Button variant="secondary" onClick={onChangePassword}>{t.changePassword}</Button></div>
+          <div className="flex"><Button variant="secondary" surface="card" onClick={onChangePassword}>{t.changePassword}</Button></div>
         </FormField>
-        <div className="flex min-h-[1.125rem] justify-end" aria-live="polite">
+        <div className="flex justify-end empty:hidden" aria-live="polite">
           {saveState === 'saving' ? <span className="caption">{fr.common.saving}</span> : null}
           {saveState === 'saved' ? <span className="caption">{fr.common.saved}</span> : null}
           {saveState === 'error' ? <span className="text-caption text-destructive-readable">{fr.errors.generic}</span> : null}
         </div>
       </Card>
 
+      {/* Artboard C2 « Comptes connectés » (Julien, 08/09/2026, renverse l'écart « une seule rangée ») :
+          titre au palier des cartes (`heading-sm`), chapô, DEUX rangées Instagram / TikTok à filet 1 px
+          --input sur --background, note. La rangée connectée porte le pseudo (lecture seule, depuis
+          `profiles`) ; la rangée non connectée porte le bouton « Connecter » de l'artboard, désactivé
+          tant qu'OAuth est au frigo (état en attente d'arbitrage). */}
       {web ? (
-        <Card className="flex flex-col gap-space-5 shadow-none" title={t.reseau.title} subtitle={t.reseau.subtitle} titleSize="lg">
-          {reseau ? (
-            <div className="flex items-center gap-space-4 rounded-md border-[1.5px] border-input bg-background p-space-4">
-              <span className="text-[1.375rem] text-foreground">{reseau.platform === 'tiktok' ? <TikTokMark /> : <InstagramMark />}</span>
-              <div className="flex min-w-0 flex-1 flex-col gap-space-1">
-                <span className="text-control font-bold">{reseau.platform === 'tiktok' ? t.reseau.tiktok : t.reseau.instagram}</span>
-                <span className="caption truncate font-regular">@{reseau.handle}</span>
-              </div>
-            </div>
-          ) : (
-            <p className="caption font-regular">{t.reseau.none}</p>
-          )}
+        <Card className="shadow-none" title={t.comptes.title} subtitle={t.comptes.subtitle}>
+          {/* Le slot de titre porte déjà sa gouttière (16) : pas de gap de carte en plus. */}
+          <div className="flex flex-col gap-space-4">
+            {(['instagram', 'tiktok'] as const).map(platform => {
+              const connected = reseau?.platform === platform ? reseau : null;
+              return (
+                <div key={platform} className="flex items-center gap-space-3 rounded-md border border-input bg-background p-space-4">
+                  <span className="text-[1.375rem] text-foreground">{platform === 'tiktok' ? <TikTokMark /> : <InstagramMark />}</span>
+                  <div className="flex min-w-0 flex-1 flex-col gap-space-1">
+                    <span className="text-control font-bold">{platform === 'tiktok' ? t.reseau.tiktok : t.reseau.instagram}</span>
+                    <span className="caption truncate font-regular">{connected ? `@${connected.handle}` : t.comptes.none}</span>
+                  </div>
+                  {/* « Connecter » comme sur l'artboard — inerte tant qu'OAuth est au frigo. */}
+                  {connected ? null : <Button variant="primary" size="sm" disabled title={fr.common.soon} className="flex-none">{t.comptes.connect}</Button>}
+                </div>
+              );
+            })}
+            <p className="caption font-regular">{t.comptes.note}</p>
+          </div>
         </Card>
       ) : null}
 
-      <Card className="flex flex-col gap-space-4 shadow-none" title={t.logoutTitle}>
+      <Card className="shadow-none" title={t.logoutTitle}>
         <div className="flex">
           <Button variant="danger" icon={<Icon glyph={LogOut} size="1rem" />} loading={logoutBusy} onClick={onLogout}>{t.logout}</Button>
         </div>

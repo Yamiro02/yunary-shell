@@ -1,3 +1,5 @@
+/* ⚠️ Plus monté depuis le 08/09/2026 (décision Julien : plus de commutateur sur le logo, les outils
+   vivent dans la nav « Mes outils » de HubSidebar). Conservé exporté le temps du lot Creator, puis retiré. */
 import { useEffect, useRef, useState, type JSX } from 'react';
 import { Badge, Dropdown, Icon, Logo, cn, type DropdownItem } from '@yunary/ds';
 import { fr } from '../i18n/fr';

@@ -71,8 +71,8 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | Export | Rôle |
 |---|---|
 | `<AppLayout tool items? settingsHref? native?>` | `AppShell` + `HubSidebar` alimentés par le profil, les crédits et l'abonnement ; tiroir sous 64rem ; `Outlet` sans enfants. |
-| `<HubSidebar …>` | La sidebar en vue : commutateur, nav, Mes outils + Paramètres, crédits, compte ; `native` sans commutateur ; `linkAs` pour le routeur. |
-| `<SpaceSwitcher current>` · `<SpaceName tool>` | Le commutateur d'espace (Dropdown du DS) et le nom accentué. |
+| `<HubSidebar …>` | La sidebar en vue : logo statique (lien vers « Mes outils »), nav de l'outil, Mes outils + Paramètres en pied de nav, crédits, compte ; jamais repliée ; `native` sans « Mes outils » ; `linkAs` pour le routeur. |
+| `<SpaceSwitcher current>` · `<SpaceName tool>` | Le commutateur d'espace (Dropdown du DS) et le nom accentué — **plus monté** depuis 0.1.4 (décision Julien), retrait au lot Creator. |
 | `<CreditsCard credits>` · `<AccountCard account>` · `<UserAvatar account>` | Les cartes du bas de sidebar. `CreditsView`, `AccountView`. |
 | `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`). Manque DS consigné. |
 
@@ -95,6 +95,7 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | Export | Rôle |
 |---|---|
 | `<AuditBilan audit minSample?>` | Le bilan complet, la variante `non_evaluable`, l'erreur. Une métrique absente = une tuile absente. |
+| `<AuditStateCard tone? icon title description?>` | La carte d'état héros (design v1 : `Card lg` centrée, `Pastille heros` ronde) — attente, indisponible, erreur, non évaluable ; `brand` ou `danger`. |
 | `useAccountAudit({ poll? })` | Le dernier `account_audits`, parsé ; polling tant qu'aucune ligne. `accountAuditKey`. |
 | `parseAccountAudit` · `parseAuditStats` · `parseAuditVerdicts` · `parseAuditPoints` · `parseAuditProfil` · `AUDIT_MIN_SAMPLE` | Le contrat, en lecture tolérante. Types `ParsedAccountAudit`, `AuditStats`, `AuditVerdicts`, `AuditPoints`, `AuditProfil`… |
 

@@ -34,20 +34,23 @@ export function LoginView({
   const f = fr.auth;
   return (
     <AuthShell className={className}>
-      <AuthHeading title={f.login.title} subtitle={f.login.subtitle} />
+      {/* Pas de sous-titre : la maquette A1 en avait un (« Connecte-toi pour continuer à faire des
+          vues. »), retiré sur décision de Julien (08/09/2026). Ne pas le réintroduire. */}
+      <AuthHeading title={f.login.title} />
       {error ? <Banner tone="danger">{error}</Banner> : null}
       <form className="flex flex-col gap-space-4" noValidate onSubmit={form.handleSubmit(onSubmit)}>
         <FormField label={f.fields.email} htmlFor="login-email" error={form.formState.errors.email?.message}>
           <Input id="login-email" type="email" autoComplete="email" placeholder={f.fields.emailPlaceholder} invalid={!!form.formState.errors.email} {...form.register('email')} />
         </FormField>
         {/* Le lien « Mot de passe oublié ? » vit DANS le libellé du FormField (maquette : à droite
-            du label) — aucune classe interne du DS n'est recomposée ici. */}
+            du label) — aucune classe interne du DS n'est recomposée ici. Couleur : `--primary`,
+            annoté tel quel sur la maquette A1 (pas le jumeau lisible, réservé aux liens courants). */}
         <FormField
           htmlFor="login-password"
           label={
             <span className="flex w-full items-baseline justify-between gap-space-3">
               <span>{f.fields.password}</span>
-              <Link to={forgotHref} className="text-caption font-semibold text-primary-readable no-underline">{f.login.forgot}</Link>
+              <Link to={forgotHref} className="text-caption font-semibold text-primary">{f.login.forgot}</Link>
             </span>
           }
           error={form.formState.errors.password?.message}
@@ -61,7 +64,7 @@ export function LoginView({
       <OAuthButtons onOAuth={onOAuth} loading={oauthLoading} disabled={loading} />
       <p className="text-center text-caption text-text-muted">
         {f.login.noAccount}{' '}
-        <Link to={signupHref} className="font-semibold text-primary-readable no-underline">{f.login.signupLink}</Link>
+        <Link to={signupHref} className="font-semibold text-primary">{f.login.signupLink}</Link>
       </p>
     </AuthShell>
   );

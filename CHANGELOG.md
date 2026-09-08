@@ -5,6 +5,46 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.4 — refonte visuelle des écrans (lot du 08/09/2026)
+
+Chaque écran de la coque a été réécrit sur l'inventaire exhaustif de sa maquette
+(`resources/screens/*.dc.html`), avec les composants du DS seulement — hooks, logique,
+routage et comportements intacts. Julien a validé chaque écran à l'écran, desktop et mobile.
+Exige **`@yunary/ds` ≥ 0.1.2** (`max-w-dialog`, `--heading-xl-weight`, `Sidebar` `disabled` /
+`badge`, en-tête et pied sans gouttière).
+
+- ⚠ **`fr.auth.login.subtitle` n'existe plus** : A1 n'a pas de sous-titre (retiré par Julien, ne
+  jamais le réintroduire). Une app qui lisait la clé ne compile plus — c'est voulu.
+- **Auth A1-A4** : colonne `max-w-dialog` (les 440 px des maquettes), logo à 1,5 rem, liens sur
+  `text-primary` soulignés au survol par le socle (plus aucun `no-underline`), boutons OAuth et
+  « Renvoyer l'e-mail » en `surface="card"`, formulaire A3 et colonne A4 au pas `space-5`.
+- **`AuditStateCard` (nouvel export)** : la carte d'état héros du design v1 (`Card lg` centrée,
+  `Pastille heros` ronde, `brand` ou `danger`) — attente, indisponible, erreur, non évaluable.
+  Composée dans la coque tant que le DS n'a pas sa `StateCard` (BACKLOG DS).
+- **`AuditBilan` reconstruit sur l'inventaire** du maître et de l'artboard B4 : colonne
+  `space-5`, libellés en `eyebrow` gras, titres de badge en DM Sans, panneaux bio et engagement
+  au pas `space-3`, erreur → `AuditStateCard danger` (WifiOff), non évaluable → `brand` (Sprout).
+- **`SegmentedControl`** au rayon des onglets du DS, sans ombre, et sur deux rangées sous 64 rem
+  (quatre options ne tiennent pas en 375 px). `NicheCard` / `ChoiceChip` sur un filet de 1 px.
+- **`HubSidebar` sans commutateur et sans repli** (décisions Julien) : logo statique, lien vers
+  « Mes outils » ; nav de l'outil, puis « Mes outils » + « Paramètres » en pied de nav — les
+  outils ne vivent qu'en cartes sur la page « Mes outils » ; `collapsible={false}` et
+  `defaultCollapsed={false}` (un état replié resté en localStorage est neutralisé) ; logo,
+  entrées et cartes crédits / compte sur les mêmes bords. `SpaceSwitcher` reste exporté mais n'est
+  plus monté (retrait au lot Creator). `AppLayout` : barre haute sous `64.0625rem` (le seuil du DS,
+  plus le `lg:` de Tailwind qui chevauchait d'un pixel), `toolsHref` relatif sur le Hub.
+- **Paramètres C2-C5 sur les artboards** : en-tête `space-2`, onglets dans un rail défilant sous
+  64 rem ; **Infos** au pas `space-4`, ligne d'état sans place quand vide, rangée photo qui plie,
+  carte **« Comptes connectés »** à deux rangées Instagram / TikTok (pseudo lu dans `profiles`,
+  bouton « Connecter » désactivé avec l'infobulle « Bientôt » tant qu'OAuth est au frigo — état
+  validé par Julien), carte « Se déconnecter » au titre de carte ; chaînes
+  `parametres.infos.comptes.*` ajoutées ; **Notifications / Abonnement / Légal** : titres de
+  rangée, de facturation et de lien sur l'unique palier `heading-sm` (18 Onest 700), cartes à
+  24 px de côtés, badge « Recommandée » en `chip`, plus de titre « Changer de formule ».
+- **Vitrine** : `server.fs.allow` élargi à `apps/packages` pour servir les polices d'un DS branché
+  en lien symbolique pendant un lot.
+- C'est **`v0.1.4`** que le Hub épingle.
+
 ## 0.1.3 — `?next=` sans imbrication
 
 - **`ProtectedRoute` lit l'URL courante dans le routeur**, plus dans `window.location`. Le

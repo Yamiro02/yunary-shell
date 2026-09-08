@@ -26,14 +26,15 @@ export function ForgotPasswordView({ onSubmit, loading = false, error = null, lo
     <AuthShell className={className}>
       <AuthHeading title={f.forgot.title} subtitle={f.forgot.subtitle} />
       {error ? <Banner tone="danger">{error}</Banner> : null}
-      <form className="flex flex-col gap-space-4" noValidate onSubmit={form.handleSubmit(onSubmit)}>
+      {/* Maquette A3 : champ et CTA au rythme de la carte (1,5 rem), pas le pas serré d'un formulaire. */}
+      <form className="flex flex-col gap-space-5" noValidate onSubmit={form.handleSubmit(onSubmit)}>
         <FormField label={f.fields.email} htmlFor="forgot-email" error={form.formState.errors.email?.message}>
           <Input id="forgot-email" type="email" autoComplete="email" placeholder={f.fields.emailPlaceholder} invalid={!!form.formState.errors.email} {...form.register('email')} />
         </FormField>
         <Button type="submit" variant="primary" fullWidth loading={loading} disabled={loading}>{f.forgot.submit}</Button>
       </form>
       <p className="text-center text-caption">
-        <Link to={loginHref} className="font-semibold text-primary-readable no-underline">{f.actions.backToLogin}</Link>
+        <Link to={loginHref} className="font-semibold text-primary">{f.actions.backToLogin}</Link>
       </p>
     </AuthShell>
   );

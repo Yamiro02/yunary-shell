@@ -63,6 +63,8 @@ export function AppLayout({ tool, items = [], settingsHref = '/parametres', nati
           items={items.map(it => ({ ...it, active: it.active ?? isActive(it.href) }))}
           settingsHref={settingsHref}
           settingsActive={isActive(settingsHref)}
+          /* Dans le Hub, « Mes outils » et le logo naviguent en interne ; ailleurs, en absolu vers le Hub. */
+          toolsHref={tool === 'hub' ? '/' : undefined}
           toolsActive={tool === 'hub' && location.pathname === '/'}
           native={native}
           credits={creditsView}
@@ -73,7 +75,9 @@ export function AppLayout({ tool, items = [], settingsHref = '/parametres', nati
         />
       }
     >
-      <header className="sticky top-0 z-30 flex items-center gap-space-3 border-b border-border bg-secondary px-space-4 py-space-2 lg:hidden">
+      {/* Seuil aligné sur celui du DS (tiroir jusqu'à 64rem inclus, bureau dès 64.0625rem) : le `lg:` de
+          Tailwind, à 64rem, laissait un pixel sans barre ni tiroir. */}
+      <header className="sticky top-0 z-30 flex items-center gap-space-3 border-b border-border bg-secondary px-space-4 py-space-2 min-[64.0625rem]:hidden">
         <IconButton label={fr.layout.openMenu} onClick={() => setOpen(true)}>
           <Icon name="menu" />
         </IconButton>
