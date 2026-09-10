@@ -11,9 +11,11 @@ export const ACCOUNT: AccountView = {
 
 export const CREDITS: CreditsView = { remaining: 37, total: 50, periodEnd: '2026-09-15T00:00:00Z' };
 
+/* La nav réelle de Creator (routes `/scripts*`, libellé « Générateur » depuis le 10/09/2026) :
+   la coque l'accepte telle quelle, avec les icônes du DS — rien de propre à Creator ici. */
 export const CREATOR_ITEMS: ShellNavItem[] = [
   { label: 'Vidéos', href: '/videos', icon: <Icon name="video" />, active: true },
-  { label: 'Scripts', href: '/scripts', icon: <Icon name="file-text" /> },
+  { label: 'Générateur', href: '/scripts', icon: <Icon name="file-text" /> },
   { label: 'Profil créateur', href: '/profil', icon: <Icon name="user" /> },
 ];
 

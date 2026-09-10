@@ -120,7 +120,6 @@ export const fr = {
   layout: {
     tools: 'Mes outils',
     openTools: 'Ouvrir Mes outils',
-    switchSpace: "Changer d'outil",
     settings: 'Paramètres',
     creditsLeft: (n: number) => `${n} crédit${n > 1 ? 's' : ''} restant${n > 1 ? 's' : ''}`,
     creditsUnknown: 'Crédits indisponibles',
@@ -329,7 +328,10 @@ export const fr = {
       title: 'Encore un peu de matière, et on te dit tout',
       body: (count: number, min: number) =>
         `Ton compte a ${count} publication${count > 1 ? 's' : ''} récente${count > 1 ? 's' : ''}, il en faut au moins ${min} pour un bilan chiffré qui veuille dire quelque chose. Plutôt que de te montrer des moyennes bancales, on préfère attendre. Continue de publier : ton audit se lancera tout seul, sans rien te demander.`,
-      badge: (count: number, min: number) => `${count} publication${count > 1 ? 's' : ''} récente${count > 1 ? 's' : ''} sur ${min}`,
+      /* La jauge de l'artboard 09b : « 2 » · « / 3 publications récentes » · « Plus qu'une ». */
+      compteur: (min: number) => `/ ${min} publications récentes`,
+      reste: (n: number) => (n <= 1 ? "Plus qu'une" : `Plus que ${n}`),
+      /* Rassurance d'onboarding : passée par l'app hôte en `nonEvaluableNote`, jamais rendue d'office. */
       profilReady:
         "Ton profil créateur, lui, arrive à l'étape suivante : chaque hook et chaque script retravaillé dans Yunary sonnera comme toi.",
     },

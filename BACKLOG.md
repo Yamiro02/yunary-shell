@@ -6,4 +6,5 @@ cette liste quand elle entre dans une version, avec sa ligne de CHANGELOG.
 
 | Manque | Demandé par | Aujourd'hui | Ce que la coque devra faire |
 |---|---|---|---|
-| **`AuditBilan` : secours quand la photo de profil ne charge pas** — les avatars TikTok (`p16-*.tiktokcdn-us.com`) répondent avec `Cross-Origin-Resource-Policy`, le navigateur bloque l'image (`ERR_BLOCKED_BY_RESPONSE.NotSameOrigin`) | hub (onboarding 4/5, recette du 08/09/2026) | l'`<img>` échoue en silence, la carte « Ton profil » reste sans photo | afficher l'initiale du handle (même recette que `UserAvatar`) sur `onError` de l'image, et ne jamais compter sur le CDN |
+| **`formatRelative`** (« il y a 14 heures », « Collé à l'instant ») — la coque a `formatDateCourte` / `formatDateLongue`, pas de forme relative, alors que toute app qui date un objet récent en a besoin | creator (fiche vidéo « Analysé », page script « Collé ») | `src/lib/format.ts` de Creator | `formatRelative(iso)` à côté des autres formats FR, via `Intl.RelativeTimeFormat` |
+| **`formatRate`** (« 5,1 % » — un taux, une décimale, virgule française) | creator (carte vidéo, fiche, chiffres) | `src/lib/format.ts` de Creator | `formatRate(n)` à côté de `formatNombre` / `formatCompact` — à promouvoir dès qu'un second outil affiche un taux (Metrics) |

@@ -1,6 +1,6 @@
-import type { JSX, ReactNode } from 'react';
+import { useState, type JSX, type ReactNode } from 'react';
 import { ChartLine, Gauge, Heart, Sprout, TrendingDown, WifiOff } from 'lucide-react';
-import { Badge, Card, Icon, Pastille, cn, type BadgeProps } from '@yunary/ds';
+import { Badge, Card, Icon, Pastille, Progress, cn, type BadgeProps } from '@yunary/ds';
 import { AuditStateCard } from './AuditStateCard';
 import { fr } from '../i18n/fr';
 import { formatCompact, formatNombre } from '../lib/format';
@@ -10,6 +10,12 @@ export interface AuditBilanProps {
   audit: ParsedAccountAudit;
   /** Miroir de `AUDIT_MIN_SAMPLE` de l'Edge. */
   minSample?: number;
+  /**
+   * Appoint rendu sous la jauge de la variante `non_evaluable` — une phrase qui n'a de sens que
+   * dans le parcours de l'app hôte (l'onboarding du Hub parle d'« étape suivante », l'onglet Audit
+   * de Creator n'a pas d'étape suivante). `fr.audit.nonEvaluable.profilReady` reste disponible.
+   */
+  nonEvaluableNote?: ReactNode;
 }
 
 /**
@@ -26,14 +32,14 @@ export interface AuditBilanProps {
  * une métrique absente = une tuile absente, jamais un zéro. Utilisé par le Hub (onboarding 4/5)
  * et par Creator (Profil › Audit).
  */
-export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE }: AuditBilanProps): JSX.Element {
+export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNote }: AuditBilanProps): JSX.Element {
   const a = fr.audit;
   /* Erreur : « c'est nous, pas toi » — la carte d'état héros de la v1, ton danger, glyphe wifi coupé. */
   if (audit.status === 'error') {
     return <AuditStateCard tone="danger" icon={<Icon glyph={WifiOff} size="1.625rem" />} title={a.error.title} description={a.error.body} />;
   }
   if (audit.status === 'non_evaluable') {
-    return <NonEvaluable count={audit.stats.rythme?.publications ?? 0} min={minSample} />;
+    return <NonEvaluable count={audit.stats.rythme?.publications ?? 0} min={minSample} note={nonEvaluableNote} />;
   }
   const { stats, verdicts, points, profil } = audit;
   return (
@@ -144,11 +150,7 @@ function ProfilCard({ audit }: { audit: ParsedAccountAudit }): JSX.Element {
           {/* Libellé à 10 px sur le maître : palier `eyebrow` (12 px) du DS, le plus proche. */}
           <span className="inline-flex items-center gap-space-2 text-eyebrow font-bold uppercase text-text-muted"><Icon name="eye" size="0.75rem" strokeWidth={2.5} />{a.profil.bioTitle}</span>
           <div className="flex items-center gap-space-4">
-            {meta?.avatar_url ? (
-              <img src={meta.avatar_url} alt="" className="h-[3.25rem] w-[3.25rem] flex-none rounded-pill border border-border object-cover" />
-            ) : (
-              <span className="inline-flex h-[3.25rem] w-[3.25rem] flex-none items-center justify-center rounded-pill border border-border bg-grad-soft font-display text-body-lg font-(--heading-weight) text-primary">{initials}</span>
-            )}
+            <ProfilAvatar src={meta?.avatar_url} initials={initials} />
             <div className="flex min-w-0 flex-col gap-space-1">
               <span className="truncate text-control font-bold text-foreground">{audit.handle}</span>
               {metaLine ? <span className="text-caption text-text-muted">{metaLine}</span> : null}
@@ -169,6 +171,20 @@ function ProfilCard({ audit }: { audit: ParsedAccountAudit }): JSX.Element {
       </div>
     </Card>
   );
+}
+
+/**
+ * La photo du profil, ou l'initiale du handle. Les avatars TikTok (`p16-*.tiktokcdn-us.com`)
+ * répondent avec `Cross-Origin-Resource-Policy` : le navigateur bloque l'image et l'`<img>`
+ * échouait en silence, laissant la carte sans photo. `onError` bascule sur la même recette de
+ * secours que `UserAvatar` — on ne compte jamais sur le CDN.
+ */
+function ProfilAvatar({ src, initials }: { src?: string | null; initials: string }): JSX.Element {
+  const [failed, setFailed] = useState(false);
+  if (src && !failed) {
+    return <img src={src} alt="" onError={() => setFailed(true)} className="h-[3.25rem] w-[3.25rem] flex-none rounded-pill border border-border object-cover" />;
+  }
+  return <span className="inline-flex h-[3.25rem] w-[3.25rem] flex-none items-center justify-center rounded-pill border border-border bg-grad-soft font-display text-body-lg font-(--heading-weight) text-primary">{initials}</span>;
 }
 
 function Constat({ label, etat, text }: { label: string; etat?: AuditBioEtat; text: string }): JSX.Element {
@@ -322,13 +338,30 @@ function VerdictsCard({ verdicts }: { verdicts: ParsedAccountAudit['verdicts'] }
   );
 }
 
-function NonEvaluable({ count, min }: { count: number; min: number }): JSX.Element {
+/**
+ * Pas assez de matière : un état NORMAL, rassurant — ton marque, pousse. Sous la carte d'état,
+ * la **jauge** de l'artboard 09b de Creator (« 2 / 3 publications récentes · Plus qu'une ») : elle
+ * dit ce qu'il reste à faire là où le badge ne faisait que répéter la description. Bloc à 20 rem
+ * sur `--background`, compteur `mono` au palier `subheading`, `Progress` du DS. Les 18 px de côté
+ * et le gap de 10 px de la maquette sont ramenés aux paliers du DS (`space-4`, `space-2`).
+ * La pastille reste `Sprout` (choix du 08/09) là où la maquette dessine une horloge.
+ */
+function NonEvaluable({ count, min, note }: { count: number; min: number; note?: ReactNode }): JSX.Element {
   const a = fr.audit.nonEvaluable;
-  /* Pas assez de matière : un état NORMAL, rassurant — ton marque, pousse. */
+  const reste = Math.max(min - count, 0);
   return (
     <AuditStateCard tone="brand" icon={<Icon glyph={Sprout} size="1.625rem" />} title={a.title} description={a.body(count, min)}>
-      <Badge tone="neutral" icon={<Icon name="clock" strokeWidth={2.5} />}>{a.badge(count, min)}</Badge>
-      <span className="inline-flex items-center gap-space-2 text-body-sm font-semibold text-pill-success-fg"><Icon name="check" strokeWidth={2.5} size="0.9375rem" />{a.profilReady}</span>
+      <div className="flex w-[20rem] max-w-full flex-col gap-space-2 rounded-md bg-background p-space-4 text-left">
+        <div className="flex items-baseline justify-between gap-space-3">
+          <span className="inline-flex items-baseline gap-space-1">
+            <span className="mono text-subheading font-semibold text-foreground">{formatNombre(count)}</span>
+            <span className="text-caption text-text-muted">{a.compteur(min)}</span>
+          </span>
+          {reste ? <span className="flex-none text-caption font-semibold text-primary">{a.reste(reste)}</span> : null}
+        </div>
+        <Progress value={count} max={min} label={`${count} / ${min}`} />
+      </div>
+      {note}
     </AuditStateCard>
   );
 }

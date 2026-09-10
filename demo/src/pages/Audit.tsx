@@ -1,5 +1,6 @@
 import type { JSX, ReactNode } from 'react';
-import { AuditBilan, parseAccountAudit, type AccountAuditRow } from '@yunary/shell';
+import { Icon } from '@yunary/ds';
+import { AuditBilan, fr, parseAccountAudit, type AccountAuditRow } from '@yunary/shell';
 import { Section } from '../ui';
 
 /* Les lignes `account_audits` de la vitrine, telles que l'Edge les écrit — le composant
@@ -57,6 +58,14 @@ const TIKTOK: AccountAuditRow = {
 };
 
 const NON_EVALUABLE: AccountAuditRow = { ...BASE, status: 'non_evaluable', synthese: null, prose: null, verdicts: null, points: null, profil: null, stats: { rythme: { publications: 2 } } };
+/* Deux publications de moins : la jauge dit « Plus que 3 », pas « Plus qu'une ». */
+const NON_EVALUABLE_ZERO: AccountAuditRow = { ...NON_EVALUABLE, stats: { rythme: { publications: 0 } } };
+/* L'avatar bloqué par le CDN TikTok (`Cross-Origin-Resource-Policy`) : l'URL ne résout jamais,
+   l'`<img>` tombe en erreur et la carte affiche l'initiale du handle. */
+const AVATAR_BLOQUE: AccountAuditRow = {
+  ...BASE, platform: 'tiktok', handle: 'marie.lance',
+  stats: { ...(BASE.stats as Record<string, unknown>), profil_meta: { followers: 12400, following: 890, avatar_url: 'https://p16-sign.tiktokcdn-us.com/avatar-bloque.jpeg' } },
+};
 const ERROR: AccountAuditRow = { ...BASE, status: 'error', synthese: null, prose: null, verdicts: null, points: null, profil: null, stats: null };
 
 export function AuditPage(): JSX.Element {
@@ -68,8 +77,22 @@ export function AuditPage(): JSX.Element {
       <Section title="TikTok · métriques partielles" note="Pas d'enregistrements ni de watch time, deux verdicts absents, pas de prose ni de constat photo : les tuiles correspondantes disparaissent.">
         <Frame><AuditBilan audit={parseAccountAudit(TIKTOK)} /></Frame>
       </Section>
-      <Section title="Variante non évaluable" note="Maquette B4 : moins de 3 publications récentes.">
+      <Section title="Photo de profil bloquée" note="Avatars TikTok servis avec Cross-Origin-Resource-Policy : l'image échoue, `onError` bascule sur l'initiale du handle — jamais une carte sans photo.">
+        <Frame><AuditBilan audit={parseAccountAudit(AVATAR_BLOQUE)} /></Frame>
+      </Section>
+      <Section title="Variante non évaluable" note="Artboard 09b : la jauge « 2 / 3 publications récentes · Plus qu'une ». Sans `nonEvaluableNote` — ce que voit Creator, qui n'a pas d'étape suivante.">
         <Frame><AuditBilan audit={parseAccountAudit(NON_EVALUABLE)} /></Frame>
+      </Section>
+      <Section title="Non évaluable · avec la note de l'hôte" note="Ce que le Hub rendra à son onboarding en passant `nonEvaluableNote` (chaîne `fr.audit.nonEvaluable.profilReady`). En dessous : aucune publication, la jauge dit « Plus que 3 ».">
+        <div className="flex flex-col gap-space-5">
+          <Frame>
+            <AuditBilan
+              audit={parseAccountAudit(NON_EVALUABLE)}
+              nonEvaluableNote={<span className="inline-flex items-center gap-space-2 text-body-sm font-semibold text-pill-success-fg"><Icon name="check" strokeWidth={2.5} size="0.9375rem" />{fr.audit.nonEvaluable.profilReady}</span>}
+            />
+          </Frame>
+          <Frame><AuditBilan audit={parseAccountAudit(NON_EVALUABLE_ZERO)} /></Frame>
+        </div>
       </Section>
       <Section title="Erreur">
         <Frame><AuditBilan audit={parseAccountAudit(ERROR)} /></Frame>

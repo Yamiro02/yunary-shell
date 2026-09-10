@@ -2,14 +2,15 @@
  * @yunary/shell — la coque partagée des apps Yunary.
  *
  * Une app = `@yunary/ds` + `@yunary/shell` + ses écrans métier. Ce paquet porte ce qu'aucune
- * app ne doit réécrire : le client Supabase unique, la session, les crédits, le layout, le
- * commutateur d'outil, les pages Paramètres, auth et légales, le bilan d'audit, les cartes
- * du profil créateur, les chaînes FR communes.
+ * app ne doit réécrire : le client Supabase unique, la session, les crédits, le layout, les
+ * pages Paramètres, auth et légales, le bilan d'audit, les cartes du profil créateur, les
+ * chaînes FR communes.
  *
  * Aucune fondation ici : couleurs, rayons, typo et composants génériques viennent du DS.
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
-export const SHELL_VERSION = '0.1.3';
+/** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
+export const SHELL_VERSION = '0.1.5';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -79,7 +80,6 @@ export { AppLayout } from './layout/AppLayout';
 export type { AppLayoutProps } from './layout/AppLayout';
 export { HubSidebar } from './layout/HubSidebar';
 export type { HubSidebarProps, ShellNavItem } from './layout/HubSidebar';
-export { SpaceSwitcher, SpaceName } from './layout/SpaceSwitcher';
 export { CreditsCard } from './layout/CreditsCard';
 export type { CreditsView } from './layout/CreditsCard';
 export { AccountCard, UserAvatar } from './layout/AccountCard';

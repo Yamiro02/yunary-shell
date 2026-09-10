@@ -4,11 +4,11 @@ import { HubSidebar } from '@yunary/shell';
 import { ACCOUNT, CREATOR_ITEMS, CREATOR_NATIVE_ITEMS, CREDITS } from '../fixtures';
 import { Section } from '../ui';
 
-/* Trois espaces, la même sidebar : Hub, Creator, Creator natif (sans commutateur). */
+/* Trois espaces, la même sidebar : Hub, Creator (Vidéos · Générateur · Profil créateur), Creator natif. */
 export function LayoutPage(): JSX.Element {
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="HubSidebar" note="Maquette HubSidebar.dc.html · C6. Sidebar du DS, non repliable : commutateur en tête, nav de l'outil, Mes outils + Paramètres, crédits, compte.">
+      <Section title="HubSidebar" note="Maquette HubSidebar.dc.html · C6. Sidebar du DS, non repliable : logo statique, nav de l'outil, Mes outils + Paramètres, crédits, compte.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame label="Yunary (Hub) · Mes outils actif">
             <HubSidebar tool="hub" toolsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
@@ -16,7 +16,7 @@ export function LayoutPage(): JSX.Element {
           <Frame label="Yunary Creator · Vidéos actif">
             <HubSidebar tool="creator" items={CREATOR_ITEMS} credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
           </Frame>
-          <Frame label="Creator natif · nav réduite, sans commutateur">
+          <Frame label="Creator natif · nav réduite">
             <HubSidebar tool="creator" native items={CREATOR_NATIVE_ITEMS} settingsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
           </Frame>
         </div>

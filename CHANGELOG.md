@@ -5,6 +5,42 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.5 — lot Creator (10/09/2026)
+
+Ce que Creator a demandé à la coque en montant ses écrans, plus les retraits prévus au 08/09.
+
+- **Types régénérés** après les migrations Creator : tables `creator_scripts` et `generations`,
+  RPC `persist_generation` / `validate_batch` (et `reset_free_credits`), `platform` et `format`
+  sur `hooks` et `structures`, enum `action_type` étendu à `hook`, `restructure`, `suggest`.
+  Rien d'autre n'a bougé côté schéma.
+- ⚠ **`SpaceSwitcher` et `SpaceName` sont supprimés** — plus montés depuis 0.1.4 (le logo est
+  statique, les outils vivent en cartes sur « Mes outils »), le retrait était annoncé pour ce lot.
+  Ni le Hub ni Creator ne les importaient. `fr.layout.switchSpace` disparaît avec eux ; le registre
+  (`TOOLS`, `toolUrl`, `toolFullName`) reste, c'est lui qui porte les outils.
+- **`AuditBilan`, variante `non_evaluable` : la jauge de l'artboard 09b** remplace le badge
+  « 2 publications récentes sur 3 » — un compteur `mono` sur le palier `subheading`, la `Progress`
+  du DS et « Plus qu'une » en corail : elle dit ce qu'il reste à faire au lieu de répéter la
+  description. Bloc à 20 rem sur `--background` ; les 18 px de côté et le gap de 10 px du maître
+  sont ramenés aux paliers du DS (`space-4`, `space-2`). La pastille reste `Sprout` (choix du
+  08/09) là où l'artboard dessine une horloge. Le Hub en hérite sans rien changer.
+- ⚠ **La ligne de rassurance n'est plus rendue d'office** : elle parle d'« étape suivante », ce qui
+  n'a de sens que dans l'onboarding du Hub, pas dans l'onglet Audit de Creator. Elle passe par la
+  nouvelle prop **`nonEvaluableNote`** ; la chaîne `fr.audit.nonEvaluable.profilReady` reste
+  exportée. Le Hub rend déjà sa propre phrase sous `AuditBilan` (`nonEvaluableNext`, artboard B4) :
+  il ne perd rien en montant en 0.1.5, et peut passer la prop s'il veut la remonter dans la carte.
+  `fr.audit.nonEvaluable.badge` disparaît, `compteur` et `reste` la remplacent.
+- **`AuditBilan` : la photo de profil ne dépend plus du CDN.** Les avatars TikTok
+  (`p16-*.tiktokcdn-us.com`) sont servis avec `Cross-Origin-Resource-Policy` : le navigateur
+  bloquait l'image et la carte « Ton profil » restait sans photo. `onError` bascule sur l'initiale
+  du handle, la même recette que `UserAvatar`.
+- **`SHELL_VERSION` était resté à `0.1.3`** : la constante est alignée sur le `package.json`, et
+  porte désormais la consigne de se bumper dans le même commit (la dériver du `package.json` au
+  build casserait la vitrine, qui consomme les sources).
+- **`AppLayout` accepte la nav de Creator telle quelle** — Vidéos · Générateur · Profil créateur,
+  icônes `video` / `file-text` / `user` du DS : la coque n'a rien de propre à Creator, la vitrine
+  le montre avec la nav réelle.
+- C'est **`v0.1.5`** que Creator épingle ; le Hub monte à son prochain lot.
+
 ## 0.1.4 — refonte visuelle des écrans (lot du 08/09/2026)
 
 Chaque écran de la coque a été réécrit sur l'inventaire exhaustif de sa maquette

@@ -3,7 +3,7 @@
 **La coque partagée des apps Yunary.** Une app = `@yunary/ds` + `@yunary/shell` + ses écrans
 métier. Ce paquet porte ce qu'aucune app ne doit réécrire : le client Supabase unique et la
 session partagée entre sous-domaines, les hooks de compte (`useAuth`, `useProfile`,
-`useCredits`), la protection de route, le layout et le commutateur d'outil, les pages
+`useCredits`), la protection de route, le layout et le registre des outils, les pages
 Paramètres, auth et légales, le bilan d'audit, les cartes du profil créateur, les chaînes FR
 communes.
 
@@ -19,7 +19,7 @@ L'API publique, symbole par symbole → [`EXPORTS.md`](EXPORTS.md).
 Pas de registry : chaque app épingle une version par un tag git.
 
 ```bash
-npm i github:Yamiro02/yunary-shell#v0.1.4
+npm i github:Yamiro02/yunary-shell#v0.1.5
 ```
 
 Peer dependencies, à la charge de l'app : `react`, `react-dom`, `react-router-dom`,

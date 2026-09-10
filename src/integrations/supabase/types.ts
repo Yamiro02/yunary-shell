@@ -302,6 +302,48 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_scripts: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_scripts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "creator_scripts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creators: {
         Row: {
           created_at: string
@@ -468,15 +510,100 @@ export type Database = {
           },
         ]
       }
+      generations: {
+        Row: {
+          batch_id: string
+          created_at: string
+          credits_charged: number
+          error_message: string | null
+          id: string
+          kind: string
+          models: Json
+          outputs: Json
+          regenerated_from: string | null
+          script_id: string
+          selected: Json
+          status: string
+          updated_at: string
+          user_id: string
+          validated_at: string | null
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          credits_charged?: number
+          error_message?: string | null
+          id?: string
+          kind: string
+          models: Json
+          outputs?: Json
+          regenerated_from?: string | null
+          script_id: string
+          selected?: Json
+          status?: string
+          updated_at?: string
+          user_id: string
+          validated_at?: string | null
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          credits_charged?: number
+          error_message?: string | null
+          id?: string
+          kind?: string
+          models?: Json
+          outputs?: Json
+          regenerated_from?: string | null
+          script_id?: string
+          selected?: Json
+          status?: string
+          updated_at?: string
+          user_id?: string
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "generations_regenerated_from_fkey"
+            columns: ["regenerated_from"]
+            isOneToOne: false
+            referencedRelation: "generations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generations_script_id_fkey"
+            columns: ["script_id"]
+            isOneToOne: false
+            referencedRelation: "creator_scripts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "generations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "generations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hooks: {
         Row: {
           boucle_ouverte: string | null
           created_at: string
           favorite: boolean
+          format: string | null
           formula: string | null
           id: string
           in_library: boolean
           is_template: boolean
+          platform: string | null
           spoken_hook: string | null
           texte_ecran: string | null
           title: string | null
@@ -488,10 +615,12 @@ export type Database = {
           boucle_ouverte?: string | null
           created_at?: string
           favorite?: boolean
+          format?: string | null
           formula?: string | null
           id?: string
           in_library?: boolean
           is_template?: boolean
+          platform?: string | null
           spoken_hook?: string | null
           texte_ecran?: string | null
           title?: string | null
@@ -503,10 +632,12 @@ export type Database = {
           boucle_ouverte?: string | null
           created_at?: string
           favorite?: boolean
+          format?: string | null
           formula?: string | null
           id?: string
           in_library?: boolean
           is_template?: boolean
+          platform?: string | null
           spoken_hook?: string | null
           texte_ecran?: string | null
           title?: string | null
@@ -1208,9 +1339,11 @@ export type Database = {
           beats: Json | null
           created_at: string
           favorite: boolean
+          format: string | null
           id: string
           in_library: boolean
           is_template: boolean
+          platform: string | null
           template: string | null
           title: string | null
           video_id: string | null
@@ -1222,9 +1355,11 @@ export type Database = {
           beats?: Json | null
           created_at?: string
           favorite?: boolean
+          format?: string | null
           id?: string
           in_library?: boolean
           is_template?: boolean
+          platform?: string | null
           template?: string | null
           title?: string | null
           video_id?: string | null
@@ -1236,9 +1371,11 @@ export type Database = {
           beats?: Json | null
           created_at?: string
           favorite?: boolean
+          format?: string | null
           id?: string
           in_library?: boolean
           is_template?: boolean
+          platform?: string | null
           template?: string | null
           title?: string | null
           video_id?: string | null
@@ -1599,6 +1736,22 @@ export type Database = {
         }
         Returns: string
       }
+      persist_generation: {
+        Args: {
+          p_batch_id: string
+          p_cost_estimate?: number
+          p_input_tokens?: number
+          p_kind: string
+          p_model?: string
+          p_models: Json
+          p_output_tokens?: number
+          p_outputs: Json
+          p_regenerated_from?: string
+          p_script_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       persist_video_analysis: {
         Args: {
           p_analysis: Json
@@ -1613,14 +1766,32 @@ export type Database = {
         }
         Returns: undefined
       }
+      reset_free_credits: {
+        Args: { p_now?: string }
+        Returns: {
+          credits_remaining: number
+          user_id: string
+        }[]
+      }
       save_script: {
         Args: { p_script_id: string; p_sections: Json }
         Returns: string
       }
       undo_script: { Args: { p_script_id: string }; Returns: boolean }
+      validate_batch: {
+        Args: { p_batch_id: string; p_selections: Json }
+        Returns: Json
+      }
     }
     Enums: {
-      action_type: "analyse" | "generation" | "chat_edit" | "retouche"
+      action_type:
+        | "analyse"
+        | "generation"
+        | "chat_edit"
+        | "retouche"
+        | "hook"
+        | "restructure"
+        | "suggest"
       device_platform: "ios" | "android"
       platform: "instagram" | "tiktok"
       profile_analysis_status: "pending" | "analyzing" | "done" | "error"
@@ -1757,7 +1928,15 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      action_type: ["analyse", "generation", "chat_edit", "retouche"],
+      action_type: [
+        "analyse",
+        "generation",
+        "chat_edit",
+        "retouche",
+        "hook",
+        "restructure",
+        "suggest",
+      ],
       device_platform: ["ios", "android"],
       platform: ["instagram", "tiktok"],
       profile_analysis_status: ["pending", "analyzing", "done", "error"],
