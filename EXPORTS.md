@@ -114,10 +114,10 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | Export | Rôle |
 |---|---|
 | `<NicheCard value onChange>` | Grille de `RadioTile` (DS 0.1.4) des `NICHES` + « Autre » → champ libre. |
-| `<VoixCard voix onChange expressionsDetectees? expressions? onExpressionsChange?>` | Niveau de langue, vulgarité, humour (`aucun` exclusif), expressions signature. |
+| `<VoixCard voix onChange expressionsDetectees? expressions? onExpressionsChange?>` | Niveau de langue, vulgarité, humour (`aucun` exclusif), expressions signature — affichées dès que captées ∪ retenues (`expressions`, `voix.tics`) n'est pas vide, même sans empreinte. |
 | `<AvatarCibleCard value onChange>` | Qui / Quoi / Son problème (`AvatarCible`). |
 | `<PrisesDePositionCard value onChange>` | 01–03 (`PrisesDePosition`). |
-| `<ProfilCard icon title description?>` · `<ChoiceChip>` | La coque des cartes (pastille de marque outlined, titre `heading-sm`) et la chip cochable. |
+| `<ProfilCard icon title description?>` · `<ChoiceChip>` | La coque des cartes (pastille de marque outlined, titre `heading-sm`) et la chip cochable (filet 1,5 px, `--primary` cochée). |
 | `NICHES` · `NICHE_OTHER` · `NIVEAUX_LANGUE` · `VULGARITES` · `HUMOURS` · `HUMOUR_EXCLUSIF` | 🔒 Valeurs canoniques (v1), jamais traduites. |
 | `parseVoix` · `EMPTY_VOIX` · types `Voix`, `NiveauLangue`, `Vulgarite`, `Humour` | `personas.voix`. |
 

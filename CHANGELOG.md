@@ -5,6 +5,26 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.11 — la carte « Ta voix » sur l'artboard 06 (12/09/2026)
+
+Trois corrections sur `VoixCard` (maquette `Yunary Creator.dc.html`, artboard « 06 Profil Ta voix »).
+
+- **`ChoiceChip` : filet 1,5 px** (`border-[1.5px]`, la hairline en px admise comme dans le DS)
+  au lieu de 1 px — humour et expressions signature, et tout autre usage (Hub, onboarding) suit
+  sans rien changer. État coché (filet `--primary`, coche), désactivé et `:focus-visible`
+  (anneau `--ring` 2 px, offset 2) vérifiés.
+- **Glyphe de la pastille à 18 px** (`size="1.125rem"` sur l'`Icon`, comme le `<svg 18>` de
+  l'artboard) au lieu du repli 20 de la pastille `carte`. C'est la surcharge optique prévue par
+  l'`Icon` du DS (elle écrit `--ds-icon-size` au site d'appel), pas un forçage. Les autres cartes
+  du profil gardent 20.
+- **« Tes expressions signature » s'affiche dès qu'il y a quelque chose à montrer** : les
+  expressions captées par l'empreinte de voix ET celles déjà retenues (`voix.tics`, ou la prop
+  `expressions` quand l'hôte les porte à part), dédoublonnées — même sans empreinte captée.
+  Masquée seulement si la liste est vide. Avant, le bloc n'apparaissait qu'avec
+  `expressionsDetectees` : un profil aux tics saisis mais sans empreinte ne les voyait pas.
+- Épingle **`@yunary/ds` v0.1.8** (tuile à média collée aux bords — rien que la coque consomme).
+- Vitrine : cadre « Ta voix · expressions sans empreinte ».
+
 ## 0.1.10 — retours de Julien sur la sidebar, Card gap (11/09/2026)
 
 - **Sidebar, textes de formule : retour au rendu de la 0.1.8.** Le libellé de formule de la carte

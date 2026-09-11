@@ -7,6 +7,7 @@ export function ProfilPage(): JSX.Element {
   const [niche, setNiche] = useState('Business & entrepreneuriat');
   const [voix, setVoix] = useState<Voix>({ niveau_langue: 'naturel', vulgarite: 'rare', humour: ['autoderision', 'pince_sans_rire'], tics: [] });
   const [expressions, setExpressions] = useState(['Franchement', 'On se le dit', 'Simple, pas facile']);
+  const [voixSansEmpreinte, setVoixSansEmpreinte] = useState<Voix>({ niveau_langue: 'familier', vulgarite: 'jamais', humour: ['absurde'], tics: ['Bref', 'Tu vois le truc'] });
   const [avatar, setAvatar] = useState<AvatarCible>({
     qui: 'Des salariés de 25-35 ans qui veulent lancer un business à côté de leur job.',
     quoi: 'Un premier revenu en ligne, avec des méthodes simples et sans budget pub.',
@@ -25,6 +26,13 @@ export function ProfilPage(): JSX.Element {
             <AvatarCibleCard value={avatar} onChange={setAvatar} />
             <VoixCard voix={voix} onChange={setVoix} expressionsDetectees={['Franchement', 'On se le dit', 'Simple, pas facile', 'Note ça quelque part']} expressions={expressions} onExpressionsChange={setExpressions} />
             <PrisesDePositionCard value={positions} onChange={setPositions} />
+          </div>
+        </Frame>
+      </Section>
+      <Section title="Ta voix · expressions sans empreinte" note="Depuis 0.1.11, « Tes expressions signature » s'affiche dès que `voix.tics` en contient, même sans empreinte de voix captée (`expressionsDetectees` vide) — masquée seulement si la liste est vide. Artboard 06 : glyphe de pastille à 18 px, chips à filet 1,5 px.">
+        <Frame>
+          <div className="flex max-w-wide flex-col gap-space-6">
+            <VoixCard voix={voixSansEmpreinte} onChange={setVoixSansEmpreinte} expressions={voixSansEmpreinte.tics} onExpressionsChange={tics => setVoixSansEmpreinte(v => ({ ...v, tics }))} />
           </div>
         </Frame>
       </Section>
