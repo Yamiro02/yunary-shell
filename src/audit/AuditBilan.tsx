@@ -59,7 +59,8 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNo
 
       {audit.prose ? (
         <FeatureCard title={a.prose}>
-          <div className="flex max-w-read flex-col gap-space-4">
+          {/* Pas de plafond : le texte prend toute la largeur de sa carte, règle générale des cartes (Julien, 12/09/2026). */}
+          <div className="flex flex-col gap-space-4">
             {audit.prose.split(/\n\s*\n/).map((p, i) => (
               <p key={i} className="text-control leading-normal text-text-secondary">{p}</p>
             ))}
@@ -71,7 +72,7 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNo
         <div className="grid grid-cols-1 items-start gap-space-5 lg:grid-cols-2">
           {points.a_marche.length ? (
             <Card size="lg" className="flex flex-col gap-space-5">
-              <Badge tone="success" icon={<Icon name="circle-check" strokeWidth={2.5} />} className="self-start">
+              <Badge tone="success" icon={<Icon name="circle-check" size={POINTS_BADGE_ICON} strokeWidth={2.5} />} className="self-start">
                 <span className="text-control font-bold">{a.points.marche}</span>
               </Badge>
               <PointList items={points.a_marche} icon={<Icon name="check" strokeWidth={3} size="0.9375rem" className="mt-[0.1875rem] flex-none text-pill-success-fg" />} />
@@ -79,7 +80,7 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNo
           ) : null}
           {points.a_ameliorer.length ? (
             <Card size="lg" className="flex flex-col gap-space-5">
-              <Badge tone="warning" icon={<Icon name="trending-up" strokeWidth={2.5} />} className="self-start">
+              <Badge tone="warning" icon={<Icon name="trending-up" size={POINTS_BADGE_ICON} strokeWidth={2.5} />} className="self-start">
                 <span className="text-control font-bold">{a.points.ameliorer}</span>
               </Badge>
               <PointList items={points.a_ameliorer} icon={<Icon name="arrow-right" strokeWidth={2.5} size="0.9375rem" className="mt-[0.1875rem] flex-none text-pill-warning-fg" />} />
@@ -211,7 +212,7 @@ function ChiffresCard({ stats }: { stats: ParsedAccountAudit['stats'] }): JSX.El
     tiles.push(
       <Tile key="vues" icon={<Icon name="eye" size="0.9375rem" />} label={a.tiles.vuesMoyennes} value={formatNombre(stats.portee.vues_moyennes)}>
         {t ? (
-          <Badge tone={t === 'hausse' ? 'success' : t === 'baisse' ? 'warning' : 'amber'} icon={t === 'hausse' ? <Icon name="trending-up" strokeWidth={2.5} /> : t === 'baisse' ? <Icon glyph={TrendingDown} strokeWidth={2.5} /> : <Icon name="minus" strokeWidth={2.5} />} className="self-start">
+          <Badge tone={t === 'hausse' ? 'success' : t === 'baisse' ? 'warning' : 'amber'} icon={t === 'hausse' ? <Icon name="trending-up" size={TILE_BADGE_ICON} strokeWidth={2.5} /> : t === 'baisse' ? <Icon glyph={TrendingDown} size={TILE_BADGE_ICON} strokeWidth={2.5} /> : <Icon name="minus" size={TILE_BADGE_ICON} strokeWidth={2.5} />} className="self-start">
             {a.tiles.tendance[t]}
           </Badge>
         ) : null}
@@ -222,7 +223,7 @@ function ChiffresCard({ stats }: { stats: ParsedAccountAudit['stats'] }): JSX.El
     tiles.push(
       <Tile key="rythme" icon={<Icon name="calendar" size="0.9375rem" />} label={a.tiles.rythme} value={<>{formatNombre(Math.round(stats.rythme.frequence_hebdo * 10) / 10)}<span className="text-control font-bold text-text-muted"> {a.tiles.parSemaine}</span></>}>
         {stats.rythme.plus_long_trou_jours !== undefined ? (
-          <Badge tone="amber" icon={<Icon name="clock" strokeWidth={2.5} />} className="self-start">{a.tiles.creux(stats.rythme.plus_long_trou_jours)}</Badge>
+          <Badge tone="amber" icon={<Icon name="clock" size={TILE_BADGE_ICON} strokeWidth={2.5} />} className="self-start">{a.tiles.creux(stats.rythme.plus_long_trou_jours)}</Badge>
         ) : null}
       </Tile>,
     );
@@ -283,10 +284,17 @@ function Tile({ icon, label, value, children }: { icon: ReactNode; label: string
   );
 }
 
+/* Icônes de badge à la taille du maître AuditBilan, posées par `size` au site d'appel (jamais une règle
+   globale) : 12 px dans les tuiles de chiffres, 13 px dans les verdicts, 16 px sur « Ce qui marche » /
+   « À améliorer ». */
+const TILE_BADGE_ICON = '0.75rem';
+const VERDICT_BADGE_ICON = '0.8125rem';
+const POINTS_BADGE_ICON = '1rem';
+
 const MESURE: Record<AuditEtatMesure, { tone: BadgeProps['tone']; icon: ReactNode }> = {
-  surperforme: { tone: 'success', icon: <Icon name="trending-up" strokeWidth={2.5} /> },
-  dans_la_moyenne: { tone: 'amber', icon: <Icon name="minus" strokeWidth={2.5} /> },
-  sous_performe: { tone: 'warning', icon: <Icon glyph={TrendingDown} strokeWidth={2.5} /> },
+  surperforme: { tone: 'success', icon: <Icon name="trending-up" size={VERDICT_BADGE_ICON} strokeWidth={2.5} /> },
+  dans_la_moyenne: { tone: 'amber', icon: <Icon name="minus" size={VERDICT_BADGE_ICON} strokeWidth={2.5} /> },
+  sous_performe: { tone: 'warning', icon: <Icon glyph={TrendingDown} size={VERDICT_BADGE_ICON} strokeWidth={2.5} /> },
   non_evaluable: { tone: 'neutral', icon: null },
 };
 const ESTIME_DOTS: Record<AuditEtatEstime, number> = { fort: 3, correct: 2, faible: 1, non_evaluable: 0 };
@@ -348,13 +356,14 @@ function VerdictsCard({ verdicts }: { verdicts: ParsedAccountAudit['verdicts'] }
  * dit ce qu'il reste à faire là où le badge ne faisait que répéter la description. Bloc à 20 rem
  * sur `--background`, compteur `mono` au palier `subheading`, `Progress` du DS. Les 18 px de côté
  * et le gap de 10 px de la maquette sont ramenés aux paliers du DS (`space-4`, `space-2`).
- * La pastille reste `Sprout` (choix du 08/09) là où la maquette dessine une horloge.
+ * La pastille reste `Sprout` (choix du 08/09) là où la maquette dessine une horloge ; son glyphe est à
+ * 24 px (1,5 rem), comme l'`Icon size="1.5rem"` de l'artboard 09b.
  */
 function NonEvaluable({ count, min, note }: { count: number; min: number; note?: ReactNode }): JSX.Element {
   const a = fr.audit.nonEvaluable;
   const reste = Math.max(min - count, 0);
   return (
-    <AuditStateCard tone="brand" icon={<Icon glyph={Sprout} size="1.625rem" />} title={a.title} description={a.body(count, min)}>
+    <AuditStateCard tone="brand" icon={<Icon glyph={Sprout} size="1.5rem" />} title={a.title} description={a.body(count, min)}>
       <div className="flex w-[20rem] max-w-full flex-col gap-space-2 rounded-md bg-background p-space-4 text-left">
         <div className="flex items-baseline justify-between gap-space-3">
           <span className="inline-flex items-baseline gap-space-1">

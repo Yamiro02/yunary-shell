@@ -71,7 +71,7 @@ const ERROR: AccountAuditRow = { ...BASE, status: 'error', synthese: null, prose
 export function AuditPage(): JSX.Element {
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="AuditBilan · bilan complet" note="Maître AuditBilan.dc.html (11/09) : pastilles de marque outlined, tous les titres de section en heading-sm. Instagram : toutes les métriques.">
+      <Section title="AuditBilan · bilan complet" note="Maître AuditBilan.dc.html (11/09) : pastilles de marque outlined (glyphe 18 en en-tête de section, 15 dans les tuiles), tous les titres de section en heading-sm, icônes de badge à 12 (tuiles) / 13 (verdicts) / 16 (Ce qui marche, À améliorer), prose sans plafond. Instagram : toutes les métriques.">
         <Frame><AuditBilan audit={parseAccountAudit(BASE)} /></Frame>
       </Section>
       <Section title="TikTok · métriques partielles" note="Pas d'enregistrements ni de watch time, deux verdicts absents, pas de prose ni de constat photo : les tuiles correspondantes disparaissent.">
@@ -80,7 +80,7 @@ export function AuditPage(): JSX.Element {
       <Section title="Photo de profil bloquée" note="Avatars TikTok servis avec Cross-Origin-Resource-Policy : l'image échoue, `onError` bascule sur l'initiale du handle — jamais une carte sans photo.">
         <Frame><AuditBilan audit={parseAccountAudit(AVATAR_BLOQUE)} /></Frame>
       </Section>
-      <Section title="Variante non évaluable" note="Artboard 09b : la jauge « 2 / 3 publications récentes · Plus qu'une ». Sans `nonEvaluableNote` — ce que voit Creator, qui n'a pas d'étape suivante.">
+      <Section title="Variante non évaluable" note="Artboard 09b : glyphe de pastille à 24 px (Sprout gardée, décision du 08/09), la jauge « 2 / 3 publications récentes · Plus qu'une ». Sans `nonEvaluableNote` — ce que voit Creator, qui n'a pas d'étape suivante.">
         <Frame><AuditBilan audit={parseAccountAudit(NON_EVALUABLE)} /></Frame>
       </Section>
       <Section title="Non évaluable · avec la note de l'hôte" note="Ce que le Hub rendra à son onboarding en passant `nonEvaluableNote` (chaîne `fr.audit.nonEvaluable.profilReady`). En dessous : aucune publication, la jauge dit « Plus que 3 ».">

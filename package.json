@@ -1,6 +1,6 @@
 {
   "name": "@yunary/shell",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Coque partagée des apps Yunary — client Supabase unique, session, crédits, layout, pages Paramètres / auth / légales, bilan d'audit, cartes du profil créateur.",
   "license": "UNLICENSED",
   "private": false,

@@ -5,6 +5,25 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.13 — le bilan d'audit et la carte non évaluable sur leurs maîtres (12/09/2026)
+
+`AuditBilan` vérifié contre `AuditBilan.dc.html` et les artboards 09 / 09b de Creator.
+
+- **Icônes des badges à la taille du maître**, posées par `size` sur l'`Icon` au site d'appel —
+  jamais une règle DS globale : **12 px** dans les tuiles de chiffres (tendance, creux de
+  publication), **13 px** dans les verdicts (surperforme / dans la moyenne / sous-performe),
+  **16 px** sur « Ce qui marche » / « À améliorer ». Trois constantes en tête du fichier.
+- **La prose n'a plus de plafond** : « Ce que tes chiffres racontent » perd son `max-w-read`, le
+  texte prend toute la largeur de sa carte — la règle générale des cartes (la synthèse n'en avait
+  pas).
+- **Carte non évaluable : glyphe de la pastille à 24 px** (`1.5rem`, l'`Icon size="1.5rem"` de
+  l'artboard 09b). L'icône reste `Sprout` (décision du 08/09) et le texte ne bouge pas ; le corps
+  garde le plafond `narrow` de la `StateCard`. La carte d'erreur (« c'est nous, pas toi ») n'est
+  dessinée sur aucun maître : son glyphe reste à 1,625 rem.
+- **Titres des badges « Ce qui marche » / « À améliorer » : DM Sans**, inchangé — la règle du DS
+  réserve la display aux tailles ≥ 18.
+- `@yunary/ds` reste épinglé v0.1.8. Vitrine : notes des sections Audit mises à jour.
+
 ## 0.1.12 — les cartes du profil sur les artboards 06-09 (12/09/2026)
 
 Les points remontés par les passes 07, 08 et 09 (À propos, Niche & avatar, Audit), chaque carte
