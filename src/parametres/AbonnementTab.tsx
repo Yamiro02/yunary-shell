@@ -32,7 +32,7 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
     <div className="flex max-w-wide flex-col gap-space-5">
       {error ? <Banner tone="danger">{error}</Banner> : null}
 
-      {/* Artboard C4 : carte facturation 16 / 24 (`space-4` / `space-5`), bouton secondaire sur la carte. */}
+      {/* Artboard C4 : carte facturation 16 / 24 (`space-4` / `space-5`), bouton secondaire sur la carte. Une RANGÉE : la prop `gap` du DS pose une colonne, le gap reste en className. */}
       <Card className="flex flex-wrap items-center justify-between gap-space-4 px-space-5 py-space-4 shadow-none">
         <div className="flex flex-col gap-space-1">
           {/* Une seule hiérarchie de titres de carte dans toute l'app : `heading-sm` (l'artboard le mettait en 16 DM Sans). */}
@@ -45,7 +45,7 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
       </Card>
 
       {/* Artboard C4 : carte formule 20 / 24, nom et solde en `heading` **800** (Julien, 11/09/2026 — Onest 800 est chargé par la marque). */}
-      <Card variant="feature" className="flex flex-col gap-space-3 px-space-5 py-space-5 shadow-none">
+      <Card variant="feature" gap={3} className="px-space-5 py-space-5 shadow-none">
         <div className="flex items-start justify-between gap-space-4">
           <div className="flex flex-col gap-space-1">
             <span className="eyebrow">{a.yourPlan}</span>
@@ -73,7 +73,7 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
           {plans.map(p => {
             const current = p.id === plan.id;
             return (
-              <Card key={p.id} className={cn('flex flex-col gap-space-3 border-[1.5px] px-space-5 py-space-5', p.recommended ? 'border-primary shadow-md' : 'shadow-none')}>
+              <Card key={p.id} gap={3} className={cn('border-[1.5px] px-space-5 py-space-5', p.recommended ? 'border-primary shadow-md' : 'shadow-none')}>
                 <div className="flex flex-col gap-space-1">
                   <div className="flex items-center justify-between gap-space-3">
                     <span className="font-display text-heading-sm">{p.name}</span>

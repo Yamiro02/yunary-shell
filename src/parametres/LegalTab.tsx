@@ -32,13 +32,14 @@ export function LegalView({ hrefs = DEFAULT_LEGAL_HREFS, onDelete }: LegalViewPr
     <div className="flex max-w-read flex-col gap-space-4">
       {links.map(link => (
         <Link key={link.href} to={link.href} className="text-foreground no-underline">
+          {/* Une RANGÉE (libellé + chevron) : la prop `gap` du DS pose une colonne, le gap reste en className. */}
           <Card variant="interactive" className="flex items-center justify-between gap-space-4 shadow-none">
             <span className="font-display text-heading-sm">{link.label}</span>
             <Icon name="chevron-right" className="text-text-muted" />
           </Card>
         </Link>
       ))}
-      <Card className="flex flex-col gap-space-4 border-destructive/30 shadow-none">
+      <Card gap={4} className="border-destructive/30 shadow-none">
         <div className="flex flex-col gap-space-1">
           <h3 className="text-heading-sm text-destructive-readable">{l.danger.title}</h3>
           <p className="text-body font-medium text-text-secondary">{l.danger.description}</p>

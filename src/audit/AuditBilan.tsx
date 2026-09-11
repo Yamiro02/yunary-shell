@@ -35,9 +35,10 @@ export interface AuditBilanProps {
  */
 export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNote }: AuditBilanProps): JSX.Element {
   const a = fr.audit;
-  /* Erreur : « c'est nous, pas toi » — la carte d'état héros de la v1, ton danger, glyphe wifi coupé. */
+  /* Erreur : « c'est nous, pas toi » — la carte d'état héros de la v1, ton danger, glyphe wifi coupé à 24 px,
+     comme celui de la carte non évaluable (aucun maître ne la dessine : même règle que sa jumelle). */
   if (audit.status === 'error') {
-    return <AuditStateCard tone="danger" icon={<Icon glyph={WifiOff} size="1.625rem" />} title={a.error.title} description={a.error.body} />;
+    return <AuditStateCard tone="danger" icon={<Icon glyph={WifiOff} size="1.5rem" />} title={a.error.title} description={a.error.body} />;
   }
   if (audit.status === 'non_evaluable') {
     return <NonEvaluable count={audit.stats.rythme?.publications ?? 0} min={minSample} note={nonEvaluableNote} />;
@@ -71,7 +72,7 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNo
       {points.a_marche.length || points.a_ameliorer.length ? (
         <div className="grid grid-cols-1 items-start gap-space-5 lg:grid-cols-2">
           {points.a_marche.length ? (
-            <Card size="lg" className="flex flex-col gap-space-5">
+            <Card size="lg" gap={5}>
               <Badge tone="success" icon={<Icon name="circle-check" size={POINTS_BADGE_ICON} strokeWidth={2.5} />} className="self-start">
                 <span className="text-control font-bold">{a.points.marche}</span>
               </Badge>
@@ -79,7 +80,7 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNo
             </Card>
           ) : null}
           {points.a_ameliorer.length ? (
-            <Card size="lg" className="flex flex-col gap-space-5">
+            <Card size="lg" gap={5}>
               <Badge tone="warning" icon={<Icon name="trending-up" size={POINTS_BADGE_ICON} strokeWidth={2.5} />} className="self-start">
                 <span className="text-control font-bold">{a.points.ameliorer}</span>
               </Badge>
@@ -94,6 +95,8 @@ export function AuditBilan({ audit, minSample = AUDIT_MIN_SAMPLE, nonEvaluableNo
 
 /* ───────────────────────── blocs ───────────────────────── */
 
+/* `gap-space-2` (8 px) reste en className : la prop `gap` du DS ne connaît que 3 | 4 | 5 | 6 — un palier plus
+   haut changerait le rendu. */
 function FeatureCard({ title, children }: { title: string; children: ReactNode }): JSX.Element {
   return (
     <Card variant="feature" size="lg" className="flex flex-col gap-space-2">
@@ -107,7 +110,7 @@ function FeatureCard({ title, children }: { title: string; children: ReactNode }
    tuiles de chiffres, elles, sont dessinées à 15 et gardent leur `size="0.9375rem"`). */
 function TitledCard({ icon, title, suffix, children }: { icon: ReactNode; title: string; suffix?: string; children: ReactNode }): JSX.Element {
   return (
-    <Card size="lg" className="flex flex-col gap-space-5">
+    <Card size="lg" gap={5}>
       <div className="flex items-center gap-space-3">
         <Pastille size="carte" tone="brand" outlined>{withGlyphSize(icon)}</Pastille>
         <span className="font-display text-heading-sm font-bold text-foreground">{title}</span>
@@ -147,7 +150,7 @@ function ProfilCard({ audit }: { audit: ParsedAccountAudit }): JSX.Element {
   ].filter(Boolean).join(' · ');
   const initials = audit.handle.replace(/[^a-z0-9]/gi, '').slice(0, 2).toUpperCase() || '?';
   return (
-    <Card size="lg" className="flex flex-col gap-space-5">
+    <Card size="lg" gap={5}>
       {/* Tous les titres de section à la même taille, `heading-sm` (maître du 11/09/2026 — « Ton profil » compris). */}
       <span className="font-display text-heading-sm font-bold text-foreground">{a.profil.title}</span>
       <div className="grid grid-cols-1 items-start gap-space-6 lg:grid-cols-[22.5rem_1fr]">

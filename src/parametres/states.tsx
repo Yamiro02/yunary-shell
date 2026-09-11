@@ -5,7 +5,7 @@ import { fr } from '../i18n/fr';
 /** Un onglet en chargement : une carte de lignes grises, jamais un spinner nu. */
 export function TabSkeleton({ lines = 4 }: { lines?: number }): JSX.Element {
   return (
-    <Card className="flex max-w-read flex-col gap-space-4" aria-busy="true">
+    <Card gap={4} className="max-w-read" aria-busy="true">
       {Array.from({ length: lines }, (_, i) => (
         <Skeleton key={i} width={i % 2 ? '60%' : '85%'} height="1rem" />
       ))}

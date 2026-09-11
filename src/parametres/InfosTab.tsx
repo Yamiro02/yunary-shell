@@ -75,7 +75,7 @@ export function InfosView({
     <div className="flex max-w-read flex-col gap-space-5">
       {/* Artboard C2 : blocs à 20 px dans la carte → `space-4` (Julien : trop d'air à 24) ; la ligne d'état
           « Enregistré » n'occupe aucune place tant qu'elle est vide. */}
-      <Card className="flex flex-col gap-space-4 shadow-none">
+      <Card gap={4} className="shadow-none">
         {/* Sous 64 rem, la rangée photo et ses deux boutons passent à la ligne (64 + 264 px ne tiennent pas dans une carte à 375 px). */}
         {web ? (
           <div className="flex flex-wrap items-center gap-space-5">

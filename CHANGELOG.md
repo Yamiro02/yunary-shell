@@ -5,6 +5,28 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.14 — nettoyage de fin de passe : `Card gap`, glyphe d'erreur, `AppContent` en colonne (12/09/2026)
+
+- **`Card gap={n}` du DS partout où une carte empile ses blocs** — `AuthShell` (5), les quatre
+  cartes lg d'`AuditBilan` (points, en-têtes de section, profil : 5), la carte formule et les
+  cartes de formule de C4 (3), Infos et « Supprimer mon compte » (4), le squelette d'onglet (4).
+  Rendu mesuré avant / après sur les 47 cartes de la vitrine (Auth, Paramètres, Audit) :
+  **zéro écart** de hauteur, de largeur ou d'espacement. **Trois restent en `className`, et
+  c'est voulu** : la `FeatureCard` du bilan (synthèse, prose) empile à **8 px** (`gap-space-2`)
+  et la prop ne connaît que 3 | 4 | 5 | 6 — un palier de plus changerait le rendu ; la carte
+  facturation de C4 et la ligne « Supprimer mon compte » de C5 sont des **rangées**, la prop
+  pose une colonne. Chacune porte son commentaire.
+- **Carte d'erreur de l'audit : glyphe à 24 px**, comme la non évaluable — le point noté en
+  0.1.13.
+- **`AppContent` remplit la hauteur restante sous la barre** (maquettes 03, S1b, S3g) : dans
+  `AppLayout`, la colonne « barre haute + contenu » fait au moins la fenêtre (`min-h-dvh`) et
+  `AppContent` en prend le reste (`flex flex-col flex-1`). Une page centre un bloc verticalement
+  avec `m-auto` (état vide, écran de génération) — mesuré dans la vitrine : espaces égaux
+  au-dessus, en dessous et de chaque côté. **Rien ne bouge ailleurs** : les enfants gardent leur
+  hauteur de contenu et leur pleine largeur, les gouttières sont les mêmes, le document défile
+  toujours ; hors `AppLayout`, `flex-1` est inerte.
+- Épingle **`@yunary/ds` v0.1.9**. Vitrine : section « AppContent · bloc centré verticalement ».
+
 ## 0.1.13 — le bilan d'audit et la carte non évaluable sur leurs maîtres (12/09/2026)
 
 `AuditBilan` vérifié contre `AuditBilan.dc.html` et les artboards 09 / 09b de Creator.

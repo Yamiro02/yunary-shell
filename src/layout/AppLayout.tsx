@@ -61,9 +61,16 @@ export const APP_BLEED_TOP = '-mt-space-5';
  * `.page` du DS plafonnait à 70 rem et centrait, il reste au site). Gouttières de la v1 (voir
  * `APP_GUTTER_X`) ; vertical `space-5`. Les plafonds de lecture (`max-w-read`, `max-w-wide`…)
  * restent aux blocs qui en ont besoin, jamais à la page.
+ *
+ * **Colonne flex qui remplit la hauteur restante** (0.1.14, maquettes 03, S1b, S3g) : dans
+ * `AppLayout`, la colonne « barre haute + contenu » fait au moins la hauteur de la fenêtre et
+ * `AppContent` en prend le reste (`flex-1`) — une page peut centrer un bloc verticalement
+ * (`m-auto` sur un état vide, un écran de génération). Une page qui ne centre rien ne voit
+ * aucune différence : ses enfants gardent leur hauteur de contenu, les gouttières ne bougent
+ * pas ; hors `AppLayout` (vitrine), `flex-1` est inerte.
  */
 export function AppContent({ children, className }: AppContentProps): JSX.Element {
-  return <div className={cn('w-full py-space-5', APP_GUTTER_X, className)}>{children}</div>;
+  return <div className={cn('flex w-full flex-1 flex-col py-space-5', APP_GUTTER_X, className)}>{children}</div>;
 }
 
 export interface AppBleedProps {
@@ -138,15 +145,19 @@ export function AppLayout({
         />
       }
     >
-      {/* Seuil aligné sur celui du DS (tiroir jusqu'à 64rem inclus, bureau dès 64.0625rem) : le `lg:` de
-          Tailwind, à 64rem, laissait un pixel sans barre ni tiroir. */}
-      <header className="sticky top-0 z-30 flex items-center gap-space-3 border-b border-border bg-secondary px-space-4 py-space-2 min-[64.0625rem]:hidden">
-        <IconButton label={fr.layout.openMenu} onClick={() => setOpen(true)}>
-          <Icon name="menu" />
-        </IconButton>
-        <Logo variant="wordmark" height="1.25rem" />
-      </header>
-      <AppContent>{children ?? <Outlet />}</AppContent>
+      {/* La colonne « barre haute + contenu » fait au moins la fenêtre (`min-h-dvh`) : `AppContent` prend
+          le reste et une page peut centrer un bloc verticalement. Le document défile toujours. */}
+      <div className="flex min-h-dvh flex-col">
+        {/* Seuil aligné sur celui du DS (tiroir jusqu'à 64rem inclus, bureau dès 64.0625rem) : le `lg:` de
+            Tailwind, à 64rem, laissait un pixel sans barre ni tiroir. */}
+        <header className="sticky top-0 z-30 flex items-center gap-space-3 border-b border-border bg-secondary px-space-4 py-space-2 min-[64.0625rem]:hidden">
+          <IconButton label={fr.layout.openMenu} onClick={() => setOpen(true)}>
+            <Icon name="menu" />
+          </IconButton>
+          <Logo variant="wordmark" height="1.25rem" />
+        </header>
+        <AppContent>{children ?? <Outlet />}</AppContent>
+      </div>
     </AppShell>
   );
 }

@@ -1,6 +1,6 @@
 import { useState, type JSX, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { AppShell, Button, Card, Icon, IconButton, cn } from '@yunary/ds';
+import { AppShell, Button, Card, Icon, IconButton, StateCard, cn } from '@yunary/ds';
 import {
   APP_GUTTER_X, AbonnementView, AppBleed, AppContent, HubSidebar, InfosView, OutilsView, ParametresLayout, planFor,
   type ParametresTab,
@@ -79,6 +79,24 @@ export function LayoutPage(): JSX.Element {
                     <Button>Valider</Button>
                   </footer>
                 </AppBleed>
+              </AppContent>
+            </div>
+          </AppFrame>
+        </Bleed>
+      </Section>
+      <Section title="AppContent · bloc centré verticalement" note="Depuis 0.1.14, la colonne « barre haute + contenu » d'AppLayout fait au moins la fenêtre et AppContent en prend le reste (colonne flex, flex-1) : un état vide ou un écran de génération se centre avec `m-auto` (maquettes 03, S1b, S3g). Ici le cadre joue la colonne d'AppLayout. Les pages qui ne centrent rien ne changent pas.">
+        <Bleed>
+          <AppFrame className="h-[40rem] grid-rows-[minmax(0,1fr)]" sidebar={<HubSidebar tool="creator" items={CREATOR_ITEMS} credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+            {/* La colonne d'`AppLayout` : hauteur du cadre au lieu de `min-h-dvh`. */}
+            <div className="flex h-full flex-col">
+              <AppContent>
+                <StateCard
+                  className="m-auto w-full max-w-dialog"
+                  icon={<Icon name="video" size="1.5rem" />}
+                  title="Aucune vidéo analysée"
+                  description="Colle le lien d'une vidéo qui marche : Yunary la décortique et te dit pourquoi."
+                  action={<Button size="sm">Analyser une vidéo</Button>}
+                />
               </AppContent>
             </div>
           </AppFrame>

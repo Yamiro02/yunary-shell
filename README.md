@@ -19,7 +19,7 @@ L'API publique, symbole par symbole → [`EXPORTS.md`](EXPORTS.md).
 Pas de registry : chaque app épingle une version par un tag git.
 
 ```bash
-npm i github:Yamiro02/yunary-shell#v0.1.13
+npm i github:Yamiro02/yunary-shell#v0.1.14
 ```
 
 Peer dependencies, à la charge de l'app : `react`, `react-dom`, `react-router-dom`,

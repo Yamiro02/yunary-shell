@@ -22,7 +22,7 @@ export function AuthShell({ className, children }: AuthShellProps): JSX.Element 
         <Logo variant="wordmark" height="1.5rem" />
         {/* `max-w-dialog` : le rôle « carte centrée d'auth ou de dialogue » du DS (27,5 rem = les 440 px
             des maquettes ; ajouté au DS en 0.1.2 quand `narrow`, 30 rem, s'est avéré trop large). */}
-        <Card size="lg" className="flex w-full flex-col gap-space-5 shadow-md">
+        <Card size="lg" gap={5} className="w-full shadow-md">
           {children}
         </Card>
       </div>
