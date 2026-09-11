@@ -1,7 +1,7 @@
 import { useEffect, useState, type JSX } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Button, FormField, Icon, Input, Modal, type ModalResult } from '@yunary/ds';
+import { Button, FormField, Input, Modal, type ModalResult } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
 import { newPasswordSchema, type NewPasswordValues } from '../auth/schemas';
@@ -54,8 +54,7 @@ export function PasswordModal({ open, onClose, onSubmit, phase: forcedPhase, res
       inline={inline}
       onClose={currentPhase === 'loading' ? undefined : onClose}
       dismissable={false}
-      icon={<Icon name="user" />}
-      iconVariant="brand"
+      /* Sans pastille : le titre partage la ligne de la croix (DS 0.1.4, maquette 02 de Creator ; Julien, 11/09/2026). */
       title={p.title}
       description={p.description}
       phase={currentPhase}

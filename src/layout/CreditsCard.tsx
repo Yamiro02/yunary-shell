@@ -16,7 +16,7 @@ export interface CreditsCardProps {
   credits: CreditsView | null | undefined;
 }
 
-/** Carte crédits de la sidebar (maquette HubSidebar) : solde, barre, date de recharge. */
+/** Carte crédits de la sidebar (maître HubSidebar, 11/09/2026 : 14 / 16 → `space-3` / `space-4`, gap 8, titre display 15, piste sur `--card`) : solde, barre, date de recharge. */
 export function CreditsCard({ credits }: CreditsCardProps): JSX.Element {
   return (
     <div className="flex flex-col gap-space-2 rounded-md bg-accent px-space-4 py-space-3">
@@ -35,8 +35,9 @@ export function CreditsCard({ credits }: CreditsCardProps): JSX.Element {
         max={credits?.total ?? Math.max(credits?.remaining ?? 0, 1)}
         label={fr.layout.creditsLeft(credits?.remaining ?? 0)}
       />
+      {/* 12 px (`eyebrow`), comme le libellé de formule de la carte compte — le maître ne dessine pas cette ligne, gardée (Julien, 08/09/2026). */}
       {credits?.periodEnd ? (
-        <span className="text-caption font-medium text-text-muted">{fr.layout.creditsResetOn(formatDateCourte(credits.periodEnd))}</span>
+        <span className="text-eyebrow font-medium text-text-muted">{fr.layout.creditsResetOn(formatDateCourte(credits.periodEnd))}</span>
       ) : null}
     </div>
   );

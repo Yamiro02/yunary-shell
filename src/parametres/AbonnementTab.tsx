@@ -44,16 +44,16 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
         </Button>
       </Card>
 
-      {/* Artboard C4 : carte formule 20 / 24, nom et solde en `heading` (l'artboard les met en 800 : la graisse suit le palier, 700). */}
+      {/* Artboard C4 : carte formule 20 / 24, nom et solde en `heading` **800** (Julien, 11/09/2026 — Onest 800 est chargé par la marque). */}
       <Card variant="feature" className="flex flex-col gap-space-3 px-space-5 py-space-5 shadow-none">
         <div className="flex items-start justify-between gap-space-4">
           <div className="flex flex-col gap-space-1">
             <span className="eyebrow">{a.yourPlan}</span>
-            <span className="font-display text-heading font-bold">{plan.name}</span>
+            <span className="font-display text-heading font-extrabold">{plan.name}</span>
             <span className="text-body font-medium text-text-secondary">{isFree ? a.activationPlan : a.monthlyPlan}</span>
           </div>
           <div className="flex flex-col items-end gap-space-1">
-            <span className="font-display text-heading font-bold">
+            <span className="font-display text-heading font-extrabold">
               {credits ? credits.remaining : '—'}
               <span className="font-body text-body font-regular text-text-muted"> / {credits?.total ?? plan.creditsPerMonth ?? '—'}</span>
             </span>
@@ -69,17 +69,18 @@ export function AbonnementView({ credits, plan, hasSubscription, onPortal, porta
       {/* Plus de titre « Changer de formule » (Julien, 08/09/2026) : la grille des offres suit directement la carte formule. */}
       <div className="flex flex-col gap-space-4">
         <div className="grid grid-cols-1 gap-space-5 md:grid-cols-3">
+          {/* Artboard C4 (11/09/2026) : filet 1,5 px (hairline en px, comme le DS), la recommandée en `--primary` + `shadow-md` ; padding 24 gardé (l'artboard dit 22). */}
           {plans.map(p => {
             const current = p.id === plan.id;
             return (
-              <Card key={p.id} className={cn('flex flex-col gap-space-3 px-space-5 py-space-5', p.recommended ? 'border-primary shadow-sm' : 'shadow-none')}>
+              <Card key={p.id} className={cn('flex flex-col gap-space-3 border-[1.5px] px-space-5 py-space-5', p.recommended ? 'border-primary shadow-md' : 'shadow-none')}>
                 <div className="flex flex-col gap-space-1">
                   <div className="flex items-center justify-between gap-space-3">
                     <span className="font-display text-heading-sm">{p.name}</span>
                     {p.recommended ? <Badge tone="coral" pad="dense" className="chip">{a.recommended}</Badge> : null}
                   </div>
                   <span className="caption">
-                    <strong className="font-display text-subheading font-bold text-foreground">{p.priceMonthly === null ? a.priceUnknown : `${p.priceMonthly} €`}</strong> {a.perMonth}
+                    <strong className="font-display text-subheading font-extrabold text-foreground">{p.priceMonthly === null ? a.priceUnknown : `${p.priceMonthly} €`}</strong> {a.perMonth}
                   </span>
                 </div>
                 <ul className="flex flex-1 flex-col gap-space-2 text-body-sm text-text-secondary">

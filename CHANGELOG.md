@@ -5,6 +5,75 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.9 — alignement sur les maquettes du 11/09 (11/09/2026)
+
+Les retours de Julien et les maquettes mises à jour le 11/09/2026 (`resources/screens/` :
+HubSidebar, AuditBilan, Yunary Hub C1-C6 et B4-B5), sur le **DS 0.1.5** — l'élément sélectionné
+en corail `--primary` sur `--accent`, `StateCard`, `RadioTile`, le titre de modale sur la ligne de
+la croix. Le peer monte à `>=0.1.5`. Deux décisions de Julien tiennent : l'espacement interne des
+cartes reste à 24 px (les maquettes disent 20 / 22), et l'élément sélectionné n'est jamais en noir
+gras.
+
+### ⚠ Ce qui change à l'écran pour une app qui monte
+
+- **La sidebar porte le lockup du maître** : le monogramme du `Logo` à 1,5 rem puis le nom de
+  l'outil — « Yunary » en Onest 18 (`heading-sm`, `heading-weight`) et le mot accentué en pochoir
+  `.accent` (« Yunary Creator » ; le Hub = « Yunary » seul), lu dans le registre `TOOLS` par la
+  prop `tool` de `HubSidebar`, qui redevient lue. Plus de wordmark à 0,9 rem. Même retrait
+  `space-2` qu'une entrée : l'icône s'aligne sur les icônes de nav par construction ; gap
+  `space-2` (le maître dit 10). `no-underline` sur ce lien : c'est une entrée de nav, comme
+  `.ds-sidenav` — la règle « jamais de no-underline » vise les liens de prose.
+- **L'état actif de la nav est celui du DS 0.1.5** : plaque `--accent`, texte `--primary`, même
+  graisse que les autres entrées — plus de fond surface-alt + encre 600 + icône `--brand-via`.
+  Rien à faire dans la coque (c'est la `Sidebar` du DS), tout à voir dans l'app.
+- **`AuditStateCard` rend la `StateCard` du DS** : pastille héros **outlined et carrée** (elle
+  était ronde), padding 48, corps `body-sm` sur la colonne `narrow`, `role` status / alert. L'API
+  de la coque ne bouge pas (`tone`, `icon`, `title`, `description`, `children`, `className`) — le
+  Hub (attente, lenteur) et Creator n'ont rien à changer, mais la carte est plus haute.
+- **`NicheCard` passe sur la `RadioTile` du DS** (la tuile radio composée dans la coque sort du
+  BACKLOG du DS) : filet 1,5 px, `--primary` + `--accent` cochée, la tuile EST le label. Padding et
+  titre sont ceux du composant (18 / 20, body 600 — le maître dit 14 / 16, control 500) : c'est le
+  socle, on le prend tel quel (Julien, 11/09/2026).
+
+### Sidebar, cartes crédits et compte
+
+- Cartes au plus près du maître, sur les paliers du DS : elles y étaient déjà (12 / 16 et 8 / 12
+  pour 14 / 16 et 10 / 12, gap 8 et 12 pour 8 et 10, min 52, avatar 36, piste sur `--card`). Un
+  écart réel corrigé : **le libellé de formule passe à 12 px** (`text-eyebrow`, le maître) ; la
+  ligne « Recharge le… » (gardée bien que le maître ne la dessine pas) suit à 12 — même rôle, même
+  carte (Julien, 11/09/2026).
+- `ToolName` (nouvel export) : le nom d'un outil en display avec son mot accentué, partagé par
+  la carte de « Mes outils » et le lockup.
+
+### Profil créateur, bilan d'audit
+
+- **`SegmentedControl` : la convention de sélection des Tabs** (l'artboard B5 le dessine en
+  `.ds-tabs`) — plaque `--accent`, texte `--primary`, ombre `sm`, même graisse (600) que les
+  options non choisies. Plus de fond carte + encre 600.
+- **Pastilles de marque outlined** partout (14 carte + 1 héros sur les maquettes) : `ProfilCard`,
+  les en-têtes de section et les tuiles de chiffres d'`AuditBilan`.
+- **`AuditBilan` : tous les titres de section à `heading-sm` (18 px)**, « Ton profil » compris
+  (il était en `subheading`).
+
+### Paramètres (artboards C2-C5)
+
+- **C4 Abonnement** : nom de formule, solde et prix en **800** (`font-extrabold`, Onest 800 est
+  chargé par la marque — l'écart « la graisse suit le palier, 700 » du 08/09 est levé par Julien
+  le 11/09) ; cartes de formule en **filet 1,5 px** (hairline en px, comme le DS) ; la recommandée
+  en `--primary` + **`shadow-md`** (était `sm`). Padding 24 gardé (l'artboard dit 22).
+- **C2 Infos** : « Comptes connectés » à la taille de l'artboard (`titleSize="lg"`, `subheading`
+  22 — l'écart « 22 → 18 » du 08/09 est levé) ; rangées Instagram / TikTok en filet 1,5 px sur
+  `--input`.
+- **Modales mot de passe et suppression : plus de pastille** — le titre partage la ligne de la
+  croix (DS 0.1.4, maquette 02 de Creator). « Annuler » était déjà `secondary`. La suppression perd
+  sa corbeille rouge : le danger reste porté par le bouton `danger` et le mot à taper (Julien,
+  11/09/2026).
+
+### Outillage
+
+- Épingle **`@yunary/ds` v0.1.5** (shell et vitrine). `.claude/launch.json` gagne `shell-demo-5284`
+  (la vitrine sur un second port, quand 5274 est tenu par une autre session).
+
 ## 0.1.8 — « Mes outils » et Paramètres s'ouvrent dans chaque outil (11/09/2026)
 
 Décision Julien (11/09/2026) : depuis Creator, « Mes outils » ne renvoie plus vers le Hub. La page

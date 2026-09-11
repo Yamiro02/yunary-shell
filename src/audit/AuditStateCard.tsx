@@ -1,34 +1,29 @@
 import type { JSX, ReactNode } from 'react';
-import { Card, Pastille } from '@yunary/ds';
+import { StateCard } from '@yunary/ds';
 
 export interface AuditStateCardProps {
   /** `brand` : attente, cas limite normal · `danger` : c'est nous, pas toi. */
   tone?: 'brand' | 'danger';
-  /** Le glyphe de la pastille (1,625 rem). */
+  /** Le glyphe de la pastille héros — un `<Icon />` nu. */
   icon: ReactNode;
   title: string;
   description?: ReactNode;
-  /** Appoint sous la description : badge, ligne de rassurance… */
+  /** Appoint sous la description : badge, jauge, ligne de rassurance… */
   children?: ReactNode;
   className?: string;
 }
 
 /**
- * La carte d'état héros de l'onboarding — le design de la v1 (`StateCard` héros, cadre plein,
- * pastille ronde) repris avec le DS : `Card lg` centrée, `Pastille heros` ronde, titre
- * `subheading`, corps `control` muted, pas `space-4` (l'artboard « données insuffisantes »).
- * Sert l'attente, l'audit indisponible, l'audit en erreur et la variante non évaluable, ici et
- * dans Creator. Manque du DS (carte d'état héros) consigné dans son BACKLOG.
+ * La carte d'état héros de l'onboarding — l'attente, l'audit indisponible, l'audit en erreur et
+ * la variante non évaluable, ici et dans le Hub. Depuis 0.1.9 c'est la **`StateCard` du DS**
+ * (0.1.4, sortie de son BACKLOG à la troisième demande) : `Card lg` centrée, pastille héros
+ * outlined et carrée, titre subheading, corps muted sur la colonne `narrow`, `role` status /
+ * alert selon le ton. L'API de la coque ne bouge pas : les apps ne changent rien.
  */
 export function AuditStateCard({ tone = 'brand', icon, title, description, children, className }: AuditStateCardProps): JSX.Element {
   return (
-    <Card size="lg" role={tone === 'danger' ? 'alert' : 'status'} className={['flex flex-col items-center gap-space-4 text-center', className].filter(Boolean).join(' ')}>
-      <Pastille size="heros" shape="round" tone={tone}>{icon}</Pastille>
-      <div className="flex max-w-narrow flex-col gap-space-2">
-        <span className="text-subheading text-foreground">{title}</span>
-        {description ? <p className="text-control leading-normal text-text-muted">{description}</p> : null}
-      </div>
+    <StateCard tone={tone} icon={icon} title={title} description={description} className={className}>
       {children}
-    </Card>
+    </StateCard>
   );
 }

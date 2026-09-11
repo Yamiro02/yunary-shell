@@ -114,18 +114,18 @@ export function InfosView({
       </Card>
 
       {/* Artboard C2 « Comptes connectés » (Julien, 08/09/2026, renverse l'écart « une seule rangée ») :
-          titre au palier des cartes (`heading-sm`), chapô, DEUX rangées Instagram / TikTok à filet 1 px
-          --input sur --background, note. La rangée connectée porte le pseudo (lecture seule, depuis
+          titre à la taille de l'artboard (`subheading`, Julien 11/09/2026), chapô, DEUX rangées
+          Instagram / TikTok à filet 1,5 px --input sur --background, note. La rangée connectée porte le pseudo (lecture seule, depuis
           `profiles`) ; la rangée non connectée porte le bouton « Connecter » de l'artboard, désactivé
           tant qu'OAuth est au frigo (état en attente d'arbitrage). */}
       {web ? (
-        <Card className="shadow-none" title={t.comptes.title} subtitle={t.comptes.subtitle}>
+        <Card className="shadow-none" title={t.comptes.title} titleSize="lg" subtitle={t.comptes.subtitle}>
           {/* Le slot de titre porte déjà sa gouttière (16) : pas de gap de carte en plus. */}
           <div className="flex flex-col gap-space-4">
             {(['instagram', 'tiktok'] as const).map(platform => {
               const connected = reseau?.platform === platform ? reseau : null;
               return (
-                <div key={platform} className="flex items-center gap-space-3 rounded-md border border-input bg-background p-space-4">
+                <div key={platform} className="flex items-center gap-space-3 rounded-md border-[1.5px] border-input bg-background p-space-4">
                   <span className="text-[1.375rem] text-foreground">{platform === 'tiktok' ? <TikTokMark /> : <InstagramMark />}</span>
                   <div className="flex min-w-0 flex-1 flex-col gap-space-1">
                     <span className="text-control font-bold">{platform === 'tiktok' ? t.reseau.tiktok : t.reseau.instagram}</span>

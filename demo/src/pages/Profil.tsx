@@ -31,7 +31,7 @@ export function ProfilPage(): JSX.Element {
       <Section title="Niche hors liste" note="Une niche détectée hors presets ouvre directement le champ libre.">
         <Frame><NicheCard value="Apiculture urbaine" onChange={() => undefined} /></Frame>
       </Section>
-      <Section title="Primitives composées" note="SegmentedControl (choix unique, flèches au clavier) et ChoiceChip — manques consignés au backlog du DS.">
+      <Section title="Primitives composées" note="SegmentedControl (choix unique, flèches au clavier ; sélection à la convention des Tabs du DS : corail sur `--accent`, même graisse) et ChoiceChip — manques consignés au backlog du DS. La tuile de niche, elle, est la RadioTile du DS depuis 0.1.9.">
         <Frame>
           <div className="flex max-w-narrow flex-col gap-space-5">
             <SegmentedControl label="Exemple" options={[{ value: 'a', label: 'Soutenu' }, { value: 'b', label: 'Naturel' }, { value: 'c', label: 'Cru' }]} value={seg} onChange={setSeg} />

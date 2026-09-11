@@ -4,6 +4,7 @@ import { Badge, Button, Card, Logo } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import type { ToolId } from '../config';
 import { TOOLS, toolUrl, type ToolDef } from '../layout/tools';
+import { ToolName } from '../layout/ToolName';
 import { useProfile } from '../account/useProfile';
 
 export interface OutilsViewProps {
@@ -61,18 +62,6 @@ export function OutilsPage({ tool, homeHref }: OutilsPageProps): JSX.Element {
   return <OutilsView tool={tool} homeHref={homeHref} prenom={profile.data?.prenom ?? null} />;
 }
 
-/* Deux spans pour le nom : l'externe porte la typo, l'interne le pochoir `.accent` (piège 3 du DS).
-   Entre les deux, une vraie espace — c'est un espace de mot, pas un gap de mise en page — et le
-   lockup ne se coupe jamais (à 375 px, « Yunary Metrics » + « Bientôt » tiennent au pixel près). */
-function ToolName({ tool }: { tool: ToolDef }): JSX.Element {
-  return (
-    <h3 className="whitespace-nowrap text-heading-sm">
-      <span>{tool.label}</span>
-      {tool.accent ? <> <span className="accent">{tool.accent}</span></> : null}
-    </h3>
-  );
-}
-
 /**
  * La carte d'un outil ouvert. Avec `homeHref` (l'outil courant), « Ouvrir » reste une vraie `<a href>`
  * — clic-milieu, « ouvrir dans un onglet » et lecteur d'écran intacts — dont le clic simple est
@@ -94,7 +83,7 @@ function LiveCard({ tool, homeHref }: { tool: ToolDef; homeHref?: string }): JSX
     <Card variant="interactive" className="flex flex-col gap-space-5">
       <div className="flex items-center gap-space-3">
         <Logo variant="monogram" height="2.25rem" />
-        <ToolName tool={tool} />
+        <h3 className="text-heading-sm"><ToolName tool={tool} /></h3>
       </div>
       <p className="text-body-sm leading-normal text-text-secondary">{tool.description}</p>
       <div className="flex">
@@ -110,7 +99,7 @@ function SoonCard({ tool }: { tool: ToolDef }): JSX.Element {
       <div className="flex items-center justify-between gap-space-3">
         <div className="flex items-center gap-space-3">
           <Logo variant="monogram" height="2.25rem" />
-          <ToolName tool={tool} />
+          <h3 className="text-heading-sm"><ToolName tool={tool} /></h3>
         </div>
         <Badge tone="neutral">{fr.outils.soon}</Badge>
       </div>

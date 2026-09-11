@@ -105,7 +105,7 @@ function TitledCard({ icon, title, suffix, children }: { icon: ReactNode; title:
   return (
     <Card size="lg" className="flex flex-col gap-space-5">
       <div className="flex items-center gap-space-3">
-        <Pastille size="carte" tone="brand">{icon}</Pastille>
+        <Pastille size="carte" tone="brand" outlined>{icon}</Pastille>
         <span className="font-display text-heading-sm font-bold text-foreground">{title}</span>
         {suffix ? <span className="font-display text-heading-sm font-bold text-foreground">{suffix}</span> : null}
       </div>
@@ -144,7 +144,8 @@ function ProfilCard({ audit }: { audit: ParsedAccountAudit }): JSX.Element {
   const initials = audit.handle.replace(/[^a-z0-9]/gi, '').slice(0, 2).toUpperCase() || '?';
   return (
     <Card size="lg" className="flex flex-col gap-space-5">
-      <span className="font-display text-subheading font-bold text-foreground">{a.profil.title}</span>
+      {/* Tous les titres de section à la même taille, `heading-sm` (maître du 11/09/2026 — « Ton profil » compris). */}
+      <span className="font-display text-heading-sm font-bold text-foreground">{a.profil.title}</span>
       <div className="grid grid-cols-1 items-start gap-space-6 lg:grid-cols-[22.5rem_1fr]">
         <div className="flex flex-col gap-space-3 rounded-lg border border-border bg-background p-space-5">
           {/* Libellé à 10 px sur le maître : palier `eyebrow` (12 px) du DS, le plus proche. */}
@@ -248,7 +249,7 @@ function ChiffresCard({ stats }: { stats: ParsedAccountAudit['stats'] }): JSX.El
         {engagement.length ? (
           <div className={cn('flex flex-col gap-space-3 p-space-5', tiles.length > 0 && 'border-t border-border', 'md:col-span-full')}>
             <div className="flex items-center gap-space-2">
-              <Pastille size="carte" tone="brand"><Icon glyph={Heart} size="0.9375rem" /></Pastille>
+              <Pastille size="carte" tone="brand" outlined><Icon glyph={Heart} size="0.9375rem" /></Pastille>
               <span className="text-eyebrow font-bold uppercase text-text-muted">{a.engagement.title}</span>
             </div>
             <div className="grid grid-cols-2 gap-space-4 md:grid-cols-4">
@@ -270,7 +271,7 @@ function Tile({ icon, label, value, children }: { icon: ReactNode; label: string
   return (
     <>
       <div className="flex items-center gap-space-2">
-        <Pastille size="carte" tone="brand">{icon}</Pastille>
+        <Pastille size="carte" tone="brand" outlined>{icon}</Pastille>
         <span className="text-eyebrow font-bold uppercase text-text-muted">{label}</span>
       </div>
       <span className="font-display text-heading font-(--heading-weight) text-foreground">{value}</span>

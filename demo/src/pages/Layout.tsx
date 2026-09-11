@@ -15,7 +15,7 @@ export function LayoutPage(): JSX.Element {
   const [tab, setTab] = useState<ParametresTab>('abonnement');
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="HubSidebar" note="Maquette HubSidebar.dc.html · C6. Sidebar du DS, non repliable : logo statique, nav de l'outil, Mes outils + Paramètres, crédits, compte.">
+      <Section title="HubSidebar" note="Maître HubSidebar.dc.html (11/09) · C6. Sidebar du DS, non repliable : lockup statique (monogramme 1,5 rem + « Yunary Creator » en display 18, depuis le registre), nav de l'outil, Mes outils + Paramètres, crédits, compte. État actif = celui du DS 0.1.5 : corail sur `--accent`, même graisse.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame label="Yunary (Hub) · Mes outils actif">
             <HubSidebar tool="hub" toolsHref="/" toolsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />

@@ -4,7 +4,8 @@ import { cn } from '@yunary/ds';
 /**
  * Choix UNIQUE pleine largeur — niveau de langue, vulgarité. Un `radiogroup`, pas des
  * onglets : la valeur est une donnée, pas une vue. Flèches gauche/droite pour changer,
- * hover / selected / focus-visible aux jetons du DS. Manque DS consigné (BACKLOG.md).
+ * hover / selected / focus-visible aux jetons du DS ; la sélection suit la convention des Tabs
+ * (artboard B5 les dessine en `.ds-tabs`). Manque DS consigné (BACKLOG.md).
  */
 export interface SegmentedOption<V extends string> {
   value: V;
@@ -64,7 +65,9 @@ export function SegmentedControl<V extends string>({
             className={cn(
               'min-w-0 flex-1 basis-[calc(50%-var(--space-1))] rounded-sm px-space-4 py-space-2 font-body text-control font-semibold transition-colors duration-[var(--duration-fast)] ease-standard lg:basis-0',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring',
-              selected ? 'bg-card text-foreground' : 'text-text-muted hover:text-foreground',
+              /* La convention de l'élément sélectionné (DS 0.1.5, celle des Tabs) : plaque `--accent`, texte
+                 `--primary`, MÊME graisse que les autres — jamais de fond carte + encre 600. */
+              selected ? 'bg-accent text-primary shadow-sm' : 'text-text-muted hover:text-foreground',
             )}
           >
             {opt.label}

@@ -71,7 +71,7 @@ const ERROR: AccountAuditRow = { ...BASE, status: 'error', synthese: null, prose
 export function AuditPage(): JSX.Element {
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="AuditBilan · bilan complet" note="Maquette AuditBilan.dc.html. Instagram : toutes les métriques.">
+      <Section title="AuditBilan · bilan complet" note="Maître AuditBilan.dc.html (11/09) : pastilles de marque outlined, tous les titres de section en heading-sm. Instagram : toutes les métriques.">
         <Frame><AuditBilan audit={parseAccountAudit(BASE)} /></Frame>
       </Section>
       <Section title="TikTok · métriques partielles" note="Pas d'enregistrements ni de watch time, deux verdicts absents, pas de prose ni de constat photo : les tuiles correspondantes disparaissent.">
@@ -94,7 +94,7 @@ export function AuditPage(): JSX.Element {
           <Frame><AuditBilan audit={parseAccountAudit(NON_EVALUABLE_ZERO)} /></Frame>
         </div>
       </Section>
-      <Section title="Erreur">
+      <Section title="Erreur" note="AuditStateCard = la StateCard du DS depuis 0.1.9 : pastille héros outlined carrée, ton danger, role alert.">
         <Frame><AuditBilan audit={parseAccountAudit(ERROR)} /></Frame>
       </Section>
     </div>

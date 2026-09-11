@@ -96,8 +96,8 @@ export function DeleteAccountModal({ open, onClose, onConfirm, phase: forcedPhas
       inline={inline}
       onClose={currentPhase === 'loading' ? undefined : onClose}
       dismissable={false}
-      icon={<Icon name="trash-2" />}
-      iconVariant="danger"
+      /* Sans pastille : le titre partage la ligne de la croix (DS 0.1.4 ; Julien, 11/09/2026). Le danger
+         reste porté par le bouton `danger` et le mot à taper. */
       title={d.title}
       description={d.description}
       phase={currentPhase}

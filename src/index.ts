@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.1.8';
+export const SHELL_VERSION = '0.1.9';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -79,6 +79,7 @@ export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, initia
 export { AppLayout, AppContent, AppBleed, APP_GUTTER_X, APP_BLEED_X, APP_BLEED_TOP } from './layout/AppLayout';
 export type { AppLayoutProps, AppContentProps, AppBleedProps } from './layout/AppLayout';
 export { HubSidebar } from './layout/HubSidebar';
+export { ToolName } from './layout/ToolName';
 export type { HubSidebarProps, ShellNavItem } from './layout/HubSidebar';
 export { CreditsCard } from './layout/CreditsCard';
 export type { CreditsView } from './layout/CreditsCard';

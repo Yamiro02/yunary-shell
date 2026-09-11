@@ -15,7 +15,7 @@ export function ParametresPage(): JSX.Element {
   const [tab, setTab] = useState<ParametresTab>('infos');
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="Paramètres · web" note="Maquettes C2 à C5. Change d'onglet ici comme dans l'app ; les données sont des fixtures.">
+      <Section title="Paramètres · web" note="Artboards C2 à C5 (11/09) : « Comptes connectés » en subheading, rangées et cartes de formule en filet 1,5 px, nom / solde / prix en 800, recommandée en shadow-md ; padding des cartes gardé à 24. Change d'onglet ici comme dans l'app ; les données sont des fixtures.">
         <Frame>
           <ParametresLayout variant="web" tab={tab} onTabChange={setTab}>
             {tab === 'infos' ? <InfosView profile={PROFILE} reseau={{ platform: 'instagram', handle: 'julien.crea' }} onSave={noop} saveState="saved" onChoosePhoto={noop} onRemovePhoto={noop} onChangePassword={noop} onLogout={noop} /> : null}
@@ -49,7 +49,7 @@ export function ParametresPage(): JSX.Element {
         <NativeDemo />
       </Section>
 
-      <Section title="Modales" note="Mot de passe (saisie) · suppression de compte (saisie, puis résultat d'erreur).">
+      <Section title="Modales" note="Mot de passe (saisie) · suppression de compte (saisie, puis résultat d'erreur). Sans pastille depuis 0.1.9 : le titre partage la ligne de la croix (DS 0.1.4), « Annuler » en secondary.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame><PasswordModal open inline onClose={noop} onSubmit={never} /></Frame>
           <Frame><DeleteAccountModal open inline onClose={noop} onConfirm={never} /></Frame>

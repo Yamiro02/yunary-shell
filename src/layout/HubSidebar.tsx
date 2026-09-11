@@ -3,6 +3,8 @@ import { Icon, Logo, Sidebar, type SidebarItem, type SidebarSection } from '@yun
 import { Wrench } from 'lucide-react';
 import { fr } from '../i18n/fr';
 import type { ToolId } from '../config';
+import { toolById } from './tools';
+import { ToolName } from './ToolName';
 import { CreditsCard, type CreditsView } from './CreditsCard';
 import { AccountCard, type AccountView } from './AccountCard';
 
@@ -15,7 +17,7 @@ export interface ShellNavItem {
 }
 
 export interface HubSidebarProps {
-  /** L'espace courant — gardé dans l'API (Creator le passe) ; plus rien ne le lit depuis le retrait du commutateur. */
+  /** L'espace courant : le lockup en tête le nomme (« Yunary Creator », depuis le registre `TOOLS`). */
   tool: ToolId;
   /** La navigation de l'outil (vide pour le Hub, dont la seule destination est « Mes outils »). */
   items?: ShellNavItem[];
@@ -51,7 +53,7 @@ export interface HubSidebarProps {
  * marque, son tiroir sous 64rem — rien n'est redessiné.
  */
 export function HubSidebar({
-  tool: _tool, items = [], settingsHref = '/parametres', settingsActive = false, toolsHref = '/outils', toolsActive = false,
+  tool, items = [], settingsHref = '/parametres', settingsActive = false, toolsHref = '/outils', toolsActive = false,
   native = false, credits, account, linkAs, open, onClose, staticLayout = false, className,
 }: HubSidebarProps): JSX.Element {
   /* La nav = la nav de l'outil, puis « Mes outils » + Paramètres — rien d'autre (décision Julien,
@@ -61,14 +63,26 @@ export function HubSidebar({
     ...(native ? [] : [{ label: fr.layout.tools, href: toolsHref, icon: <Icon glyph={Wrench} />, active: toolsActive }]),
     { label: fr.layout.settings, href: settingsHref, icon: <Icon name="settings" />, active: settingsActive },
   ];
-  /* Le logo en tête : mot à 18 px, icône au lockup du DS (maître : 30 / 18). Un raccourci vers
-     « Mes outils » (la même route locale) sur le web, un simple mark en natif. */
+  /* Le lockup en tête (maître HubSidebar, 11/09/2026) : le monogramme du `Logo` à 1,5 rem, puis le
+     nom de l'outil — « Yunary » en display 18 px et le mot accentué en pochoir. Même retrait
+     `space-2` qu'une entrée de nav : l'icône s'aligne sur les icônes des entrées par construction.
+     Gap `space-2` — le maître dit 10, le palier le plus proche (le monogramme rend 30 px, comme
+     le hint du maître : le nom ne tombe pas sur les libellés de nav, ni ici ni sur le maître).
+     Un raccourci vers « Mes outils » (la même route locale) sur le web, un simple lockup en natif.
+     `no-underline` : le lockup est une entrée de nav, pas un lien texte — `.ds-sidenav` pose lui aussi
+     `text-decoration:none` ; la règle « jamais de no-underline » vise les liens de prose. */
   const BrandLink = (linkAs ?? 'a') as ElementType;
+  const lockup = (
+    <>
+      <Logo variant="monogram" height="1.5rem" />
+      <ToolName tool={toolById(tool)} />
+    </>
+  );
   const brand = native ? (
-    <span className="flex min-h-[3rem] items-center px-space-2"><Logo variant="wordmark" height="0.9rem" /></span>
+    <span className="flex min-h-[3rem] items-center gap-space-2 px-space-2">{lockup}</span>
   ) : (
-    <BrandLink {...(linkAs ? { to: toolsHref } : { href: toolsHref })} aria-label={fr.layout.openTools} className="flex min-h-[3rem] items-center px-space-2 text-foreground">
-      <Logo variant="wordmark" height="0.9rem" />
+    <BrandLink {...(linkAs ? { to: toolsHref } : { href: toolsHref })} aria-label={fr.layout.openTools} className="flex min-h-[3rem] items-center gap-space-2 px-space-2 text-foreground no-underline">
+      {lockup}
     </BrandLink>
   );
   return (

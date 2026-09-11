@@ -74,9 +74,10 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières de la v1 — `space-4` de côté et `space-5` en vertical sous 64 rem, `space-5` partout dès que la sidebar est à demeure (`64.0625rem`). Pour une page hors `AppLayout` qui veut les mêmes bords. |
 | `APP_GUTTER_X` · `APP_BLEED_X` · `APP_BLEED_TOP` | Les gouttières d'`AppContent` en classes : y rentrer (`px-space-4 min-[64.0625rem]:px-space-5`, ce qu'`AppContent` pose), en sortir (le miroir négatif), coller au haut du contenu (`-mt-space-5`). Pour une barre collante bord à bord ; jamais recopiées dans une app. |
 | `<AppBleed flush? className?>` | Un bloc qui sort des gouttières latérales (`APP_BLEED_X`) — le cas « page entière » : fiche, script, assistant ; `flush` colle aussi au haut (`APP_BLEED_TOP`). Ses enfants rentrent avec `APP_GUTTER_X`. `AppBleedProps`. |
-| `<HubSidebar …>` | La sidebar en vue : logo statique (lien vers « Mes outils »), nav de l'outil, Mes outils + Paramètres en pied de nav, crédits, compte ; jamais repliée ; `native` sans « Mes outils » ; `linkAs` pour le routeur ; `toolsHref` local (défaut `/outils`), jamais le Hub. |
+| `<HubSidebar tool …>` | La sidebar en vue : lockup en tête (monogramme 1,5 rem + `ToolName` de `tool`, lien vers « Mes outils »), nav de l'outil, Mes outils + Paramètres en pied de nav, crédits, compte ; jamais repliée ; `native` sans « Mes outils » ; `linkAs` pour le routeur ; `toolsHref` local (défaut `/outils`), jamais le Hub. |
+| `<ToolName tool className?>` | Le nom d'un outil en display 18 : « Yunary » puis le mot accentué en pochoir `.accent`. Le lockup de la sidebar et la carte de « Mes outils ». |
 | `<CreditsCard credits>` · `<AccountCard account>` · `<UserAvatar account>` | Les cartes du bas de sidebar. `CreditsView`, `AccountView`. |
-| `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`). Manque DS consigné. |
+| `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`), sélection à la convention des Tabs (`--primary` sur `--accent`, même graisse). Manque DS consigné. |
 
 ## « Mes outils » (montée par chaque app sur `/outils`, le Hub sur `/`)
 
@@ -104,7 +105,7 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | Export | Rôle |
 |---|---|
 | `<AuditBilan audit minSample? nonEvaluableNote?>` | Le bilan complet, la variante `non_evaluable` (jauge « n / min · Plus qu'une »), l'erreur. Une métrique absente = une tuile absente. La photo de profil retombe sur l'initiale du handle quand le CDN la bloque. `nonEvaluableNote` : appoint de l'hôte sous la jauge (le Hub y passe `fr.audit.nonEvaluable.profilReady`, Creator ne passe rien). |
-| `<AuditStateCard tone? icon title description?>` | La carte d'état héros (design v1 : `Card lg` centrée, `Pastille heros` ronde) — attente, indisponible, erreur, non évaluable ; `brand` ou `danger`. |
+| `<AuditStateCard tone? icon title description?>` | La carte d'état héros — la `StateCard` du DS (0.1.4 : `Card lg` centrée, pastille héros outlined carrée) — attente, indisponible, erreur, non évaluable ; `brand` ou `danger`. API de la coque inchangée. |
 | `useAccountAudit({ poll? })` | Le dernier `account_audits`, parsé ; polling tant qu'aucune ligne. `accountAuditKey`. |
 | `parseAccountAudit` · `parseAuditStats` · `parseAuditVerdicts` · `parseAuditPoints` · `parseAuditProfil` · `AUDIT_MIN_SAMPLE` | Le contrat, en lecture tolérante. Types `ParsedAccountAudit`, `AuditStats`, `AuditVerdicts`, `AuditPoints`, `AuditProfil`… |
 
@@ -112,11 +113,11 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 
 | Export | Rôle |
 |---|---|
-| `<NicheCard value onChange>` | Grille radio des `NICHES` + « Autre » → champ libre. |
+| `<NicheCard value onChange>` | Grille de `RadioTile` (DS 0.1.4) des `NICHES` + « Autre » → champ libre. |
 | `<VoixCard voix onChange expressionsDetectees? expressions? onExpressionsChange?>` | Niveau de langue, vulgarité, humour (`aucun` exclusif), expressions signature. |
 | `<AvatarCibleCard value onChange>` | Qui / Quoi / Son problème (`AvatarCible`). |
 | `<PrisesDePositionCard value onChange>` | 01–03 (`PrisesDePosition`). |
-| `<ProfilCard icon title description?>` · `<ChoiceChip>` | La coque des cartes et la chip cochable. |
+| `<ProfilCard icon title description?>` · `<ChoiceChip>` | La coque des cartes (pastille de marque outlined, titre `heading-sm`) et la chip cochable. |
 | `NICHES` · `NICHE_OTHER` · `NIVEAUX_LANGUE` · `VULGARITES` · `HUMOURS` · `HUMOUR_EXCLUSIF` | 🔒 Valeurs canoniques (v1), jamais traduites. |
 | `parseVoix` · `EMPTY_VOIX` · types `Voix`, `NiveauLangue`, `Vulgarite`, `Humour` | `personas.voix`. |
 
