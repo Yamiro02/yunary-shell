@@ -35,9 +35,10 @@ export function CreditsCard({ credits }: CreditsCardProps): JSX.Element {
         max={credits?.total ?? Math.max(credits?.remaining ?? 0, 1)}
         label={fr.layout.creditsLeft(credits?.remaining ?? 0)}
       />
-      {/* 12 px (`eyebrow`), comme le libellé de formule de la carte compte — le maître ne dessine pas cette ligne, gardée (Julien, 08/09/2026). */}
+      {/* « Recharge le… » en `caption` (13 px), comme le libellé de formule de la carte compte — le rendu de la 0.1.8
+          (Julien, 11/09/2026 : l'eyebrow ne va pas). Le maître ne dessine pas cette ligne, gardée (08/09/2026). */}
       {credits?.periodEnd ? (
-        <span className="text-eyebrow font-medium text-text-muted">{fr.layout.creditsResetOn(formatDateCourte(credits.periodEnd))}</span>
+        <span className="text-caption font-medium text-text-muted">{fr.layout.creditsResetOn(formatDateCourte(credits.periodEnd))}</span>
       ) : null}
     </div>
   );

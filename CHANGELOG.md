@@ -5,6 +5,23 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.10 — retours de Julien sur la sidebar, Card gap (11/09/2026)
+
+- **Sidebar, textes de formule : retour au rendu de la 0.1.8.** Le libellé de formule de la carte
+  compte (« Formule Gratuite ») et « Recharge le… » de la carte crédits reviennent en
+  `text-caption` (13 px) `font-medium` muted — le `text-eyebrow` (12 px) posé en 0.1.9 d'après le
+  maître ne va pas à Julien. Rien d'autre ne change de taille.
+- **Lockup sans retrait propre** (décision Julien, 11/09/2026) : plus de `px-space-2` sur le lien
+  du logo, web et natif. Le bord gauche du monogramme est celui des pilules de nav, comme le logo
+  de la `Sidebar` du DS — on ne l'aligne plus sur les icônes des entrées (qui, elles, sont en
+  retrait de `space-2` dans leur pilule).
+- **Largeur de la sidebar : `--sidebar-w` du DS**, clamp 240 → 288 selon l'écran, multiplié par le
+  zoom. Inchangée, jamais figée, aucune largeur en dur dans la coque.
+- **`Card gap={5}` du DS** dans `OutilsView` (cartes d'outil) et `ProfilCard`, à la place de
+  `flex flex-col gap-space-5` en `className` : la pile est la prop du composant, pas une
+  recomposition. Rendu identique.
+- Épingle **`@yunary/ds` v0.1.7** (shell et vitrine).
+
 ## 0.1.9 — alignement sur les maquettes du 11/09 (11/09/2026)
 
 Les retours de Julien et les maquettes mises à jour le 11/09/2026 (`resources/screens/` :

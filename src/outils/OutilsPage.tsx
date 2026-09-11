@@ -80,7 +80,7 @@ function LiveCard({ tool, homeHref }: { tool: ToolDef; homeHref?: string }): JSX
       }
     : undefined;
   return (
-    <Card variant="interactive" className="flex flex-col gap-space-5">
+    <Card variant="interactive" gap={5}>
       <div className="flex items-center gap-space-3">
         <Logo variant="monogram" height="2.25rem" />
         <h3 className="text-heading-sm"><ToolName tool={tool} /></h3>
@@ -95,7 +95,7 @@ function LiveCard({ tool, homeHref }: { tool: ToolDef; homeHref?: string }): JSX
 
 function SoonCard({ tool }: { tool: ToolDef }): JSX.Element {
   return (
-    <Card className="flex flex-col gap-space-5 opacity-80">
+    <Card gap={5} className="opacity-80">
       <div className="flex items-center justify-between gap-space-3">
         <div className="flex items-center gap-space-3">
           <Logo variant="monogram" height="2.25rem" />

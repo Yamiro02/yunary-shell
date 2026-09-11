@@ -64,10 +64,10 @@ export function HubSidebar({
     { label: fr.layout.settings, href: settingsHref, icon: <Icon name="settings" />, active: settingsActive },
   ];
   /* Le lockup en tête (maître HubSidebar, 11/09/2026) : le monogramme du `Logo` à 1,5 rem, puis le
-     nom de l'outil — « Yunary » en display 18 px et le mot accentué en pochoir. Même retrait
-     `space-2` qu'une entrée de nav : l'icône s'aligne sur les icônes des entrées par construction.
-     Gap `space-2` — le maître dit 10, le palier le plus proche (le monogramme rend 30 px, comme
-     le hint du maître : le nom ne tombe pas sur les libellés de nav, ni ici ni sur le maître).
+     nom de l'outil — « Yunary » en display 18 px et le mot accentué en pochoir. SANS retrait
+     propre (décision Julien, 11/09/2026) : le bord gauche du monogramme est celui des pilules de
+     nav, comme le logo de la `Sidebar` du DS — on ne l'aligne plus sur les icônes des entrées.
+     Gap `space-2` — le maître dit 10, le palier le plus proche.
      Un raccourci vers « Mes outils » (la même route locale) sur le web, un simple lockup en natif.
      `no-underline` : le lockup est une entrée de nav, pas un lien texte — `.ds-sidenav` pose lui aussi
      `text-decoration:none` ; la règle « jamais de no-underline » vise les liens de prose. */
@@ -79,9 +79,9 @@ export function HubSidebar({
     </>
   );
   const brand = native ? (
-    <span className="flex min-h-[3rem] items-center gap-space-2 px-space-2">{lockup}</span>
+    <span className="flex min-h-[3rem] items-center gap-space-2">{lockup}</span>
   ) : (
-    <BrandLink {...(linkAs ? { to: toolsHref } : { href: toolsHref })} aria-label={fr.layout.openTools} className="flex min-h-[3rem] items-center gap-space-2 px-space-2 text-foreground no-underline">
+    <BrandLink {...(linkAs ? { to: toolsHref } : { href: toolsHref })} aria-label={fr.layout.openTools} className="flex min-h-[3rem] items-center gap-space-2 text-foreground no-underline">
       {lockup}
     </BrandLink>
   );
