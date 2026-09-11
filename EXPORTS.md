@@ -70,7 +70,8 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 
 | Export | Rôle |
 |---|---|
-| `<AppLayout tool items? settingsHref? native?>` | `AppShell` + `HubSidebar` alimentés par le profil, les crédits et l'abonnement ; tiroir sous 64rem ; `Outlet` sans enfants. |
+| `<AppLayout tool items? settingsHref? native?>` | `AppShell` + `HubSidebar` alimentés par le profil, les crédits et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. |
+| `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières `space-5` sous 64 rem et `space-7` dès que la sidebar est à demeure, vertical `space-7`. Pour une page hors `AppLayout` qui veut les mêmes bords. |
 | `<HubSidebar …>` | La sidebar en vue : logo statique (lien vers « Mes outils »), nav de l'outil, Mes outils + Paramètres en pied de nav, crédits, compte ; jamais repliée ; `native` sans « Mes outils » ; `linkAs` pour le routeur. |
 | `<CreditsCard credits>` · `<AccountCard account>` · `<UserAvatar account>` | Les cartes du bas de sidebar. `CreditsView`, `AccountView`. |
 | `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`). Manque DS consigné. |

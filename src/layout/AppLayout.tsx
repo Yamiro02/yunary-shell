@@ -1,6 +1,6 @@
 import { useEffect, useState, type JSX, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
-import { AppShell, Icon, IconButton, Logo } from '@yunary/ds';
+import { AppShell, Icon, IconButton, Logo, cn } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import type { ToolId } from '../config';
 import { useProfile } from '../account/useProfile';
@@ -22,10 +22,28 @@ export interface AppLayoutProps {
   children?: ReactNode;
 }
 
+export interface AppContentProps {
+  children?: ReactNode;
+  className?: string;
+}
+
+/**
+ * Le conteneur du contenu d'une app : **pleine largeur, sans plafond** (décision Julien,
+ * 11/09/2026 — les artboards Hub et Creator remplissent leur colonne, avec 56 à 64 px de côté et
+ * aucun `max-width` ; `.page` du DS plafonnait à 70 rem et centrait, il reste au site). Gouttières
+ * sur les paliers du DS : `space-5` (24 px) en régime tiroir, `space-7` (48 px, le palier le plus
+ * proche des maquettes) dès que la sidebar est à demeure — le même seuil que le DS, `64.0625rem`.
+ * Vertical inchangé : `space-7`. Les plafonds de lecture (`max-w-read`, `max-w-wide`…) restent
+ * aux blocs qui en ont besoin, jamais à la page.
+ */
+export function AppContent({ children, className }: AppContentProps): JSX.Element {
+  return <div className={cn('w-full px-space-5 py-space-7 min-[64.0625rem]:px-space-7', className)}>{children}</div>;
+}
+
 /**
  * Le squelette d'une app : `AppShell` + `HubSidebar` du DS, tiroir sous 64rem ouvert par
- * une barre haute, contenu dans `.page`. Lit le profil, les crédits et l'abonnement pour
- * alimenter la sidebar — les pages, elles, n'ont rien à refaire.
+ * une barre haute, contenu dans `AppContent` (pleine largeur). Lit le profil, les crédits et
+ * l'abonnement pour alimenter la sidebar — les pages, elles, n'ont rien à refaire.
  */
 export function AppLayout({ tool, items = [], settingsHref = '/parametres', native = false, children }: AppLayoutProps): JSX.Element {
   const location = useLocation();
@@ -83,7 +101,7 @@ export function AppLayout({ tool, items = [], settingsHref = '/parametres', nati
         </IconButton>
         <Logo variant="wordmark" height="1.25rem" />
       </header>
-      <div className="page py-space-7">{children ?? <Outlet />}</div>
+      <AppContent>{children ?? <Outlet />}</AppContent>
     </AppShell>
   );
 }

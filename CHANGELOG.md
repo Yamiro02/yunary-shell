@@ -5,6 +5,29 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.6 — le contenu passe pleine largeur (11/09/2026)
+
+- **`AppLayout` ne monte plus `.page`** : le contenu du Hub et de Creator remplit la colonne,
+  comme les artboards (aucun `max-width` dans leurs `main`, 56 à 64 px de côté). `.page` du DS
+  (70 rem centrés) plafonnait tout à 1 120 px ; il n'est pas touché, il sert au site et aux pages
+  légales publiques. Le conteneur est **`AppContent`** (nouvel export) : `space-5` de côté en régime
+  tiroir (les 24 px d'aujourd'hui, rien ne bouge sous 64 rem), `space-7` dès que la sidebar est à
+  demeure (`64.0625rem`, le seuil du DS — 48 px, le palier le plus proche des maquettes), vertical
+  `space-7` inchangé. Exporté pour qu'une page hors `AppLayout` puisse prendre les mêmes bords.
+- **Plafonds gardés, parce qu'ils sont ceux du bloc, pas de la page** : `max-w-read` sur les
+  formulaires (Infos, Notifications, Légal, leurs squelettes et erreurs) et sur la prose du bilan —
+  un champ ou une ligne de texte de 1 400 px ne se lit pas ; `max-w-wide` sur Abonnement — trois
+  cartes de formule à 900 px, comme l'artboard C4, plutôt que trois cartes vides à 460 ;
+  `max-w-narrow` sur le texte d'`AuditStateCard` (message centré). Les cartes du bilan (synthèse,
+  profil, chiffres, verdicts, points) et celles du profil créateur n'ont aucun plafond : elles
+  s'étirent. Rien n'est centré dans le sens de la page.
+- ⚠ **Chaque app retire ses propres plafonds de page** à sa montée de version — un `.page`, un
+  `max-w-[71.25rem]` ou un `px-[3.5rem]` posé dans une page d'app doublerait désormais les
+  gouttières de la coque ou recréerait le plafond. Les plafonds de bloc (un texte, un état vide, un
+  champ de recherche) restent à l'app.
+- Vitrine : section « AppLayout · contenu pleine largeur » — la coque en `AppShell` fixe sur toute
+  la fenêtre, Paramètres dedans, à redimensionner.
+
 ## 0.1.5 — lot Creator (10/09/2026)
 
 Ce que Creator a demandé à la coque en montant ses écrans, plus les retraits prévus au 08/09.
