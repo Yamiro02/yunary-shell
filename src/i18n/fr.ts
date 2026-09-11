@@ -130,6 +130,14 @@ export const fr = {
     planLabel: (plan: string) => `Formule ${plan}`,
   },
 
+  /* « Mes outils » (C1) — remontée du Hub le 11/09/2026, la page s'ouvre dans chaque outil. */
+  outils: {
+    hello: (prenom: string | null) => (prenom ? `Salut ${prenom}` : 'Salut'),
+    lead: "Par quoi tu commences aujourd'hui ?",
+    open: 'Ouvrir',
+    soon: 'Bientôt',
+  },
+
   parametres: {
     title: 'Paramètres',
     subtitle: 'Ton compte, ton réseau, ta formule.',

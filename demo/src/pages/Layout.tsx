@@ -2,7 +2,8 @@ import { useState, type JSX, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AppShell, Button, Card, Icon, IconButton, cn } from '@yunary/ds';
 import {
-  APP_GUTTER_X, AbonnementView, AppBleed, AppContent, HubSidebar, InfosView, ParametresLayout, planFor, type ParametresTab,
+  APP_GUTTER_X, AbonnementView, AppBleed, AppContent, HubSidebar, InfosView, OutilsView, ParametresLayout, planFor,
+  type ParametresTab,
 } from '@yunary/shell';
 import { ACCOUNT, CREATOR_ITEMS, CREATOR_NATIVE_ITEMS, CREDITS } from '../fixtures';
 import { Section } from '../ui';
@@ -17,7 +18,7 @@ export function LayoutPage(): JSX.Element {
       <Section title="HubSidebar" note="Maquette HubSidebar.dc.html · C6. Sidebar du DS, non repliable : logo statique, nav de l'outil, Mes outils + Paramètres, crédits, compte.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame label="Yunary (Hub) · Mes outils actif">
-            <HubSidebar tool="hub" toolsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
+            <HubSidebar tool="hub" toolsHref="/" toolsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
           </Frame>
           <Frame label="Yunary Creator · Vidéos actif">
             <HubSidebar tool="creator" items={CREATOR_ITEMS} credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
@@ -29,7 +30,7 @@ export function LayoutPage(): JSX.Element {
       </Section>
       <Section title="AppLayout · contenu pleine largeur" note="Depuis 0.1.6, le contenu remplit la colonne (plus de `.page` à 70 rem). Gouttières de la v1 depuis 0.1.7 : 16 px de côté et 24 px en haut et en bas sous 64 rem, 24 px partout dès que la sidebar est à demeure. Le plafond `max-w-wide` d'Abonnement et `max-w-read` d'Infos restent : ce sont ceux du bloc, pas de la page. Redimensionne la fenêtre.">
         <Bleed>
-          <AppFrame className="min-h-[52rem]" sidebar={<HubSidebar tool="hub" settingsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+          <AppFrame className="min-h-[52rem]" sidebar={<HubSidebar tool="hub" toolsHref="/" settingsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
             <AppContent>
               <ParametresLayout variant="web" tab={tab} onTabChange={setTab}>
                 {tab === 'abonnement' ? (
@@ -38,6 +39,15 @@ export function LayoutPage(): JSX.Element {
                   <InfosView profile={{ prenom: 'Julien', nom: 'Fernandes', email: 'julien@julienfernandes.com', avatarUrl: null }} reseau={{ platform: 'instagram', handle: 'julien.crea' }} onSave={noop} saveState="saved" onChoosePhoto={noop} onRemovePhoto={noop} onChangePassword={noop} onLogout={noop} />
                 )}
               </ParametresLayout>
+            </AppContent>
+          </AppFrame>
+        </Bleed>
+      </Section>
+      <Section title="OutilsView · « Mes outils » dans l'outil" note="Depuis 0.1.8, la page « Mes outils » (artboard C1, remontée du Hub) s'ouvre DANS chaque outil sur sa route locale /outils — l'entrée du pied de nav et le logo y mènent, sans changer de sous-domaine. Ici Creator est l'outil courant : sa carte « Ouvrir » navigue en interne vers /videos (la vitrine ne route pas, seule l'URL bouge) ; Metrics reste « Bientôt » ; le Hub n'a pas de carte, « Mes outils » est son accueil.">
+        <Bleed>
+          <AppFrame className="min-h-[52rem]" sidebar={<HubSidebar tool="creator" items={CREATOR_ITEMS.map(it => ({ ...it, active: false }))} toolsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+            <AppContent>
+              <OutilsView tool="creator" homeHref="/videos" prenom="Julien" />
             </AppContent>
           </AppFrame>
         </Bleed>
@@ -76,9 +86,9 @@ export function LayoutPage(): JSX.Element {
       </Section>
       <Section title="États de la carte crédits" note="Chargement (squelette), solde indisponible, allocation inconnue (barre pleine).">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
-          <Frame label="Chargement"><HubSidebar tool="hub" credits={undefined} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Solde indisponible"><HubSidebar tool="hub" credits={null} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Allocation inconnue"><HubSidebar tool="hub" credits={{ remaining: 120, total: null, periodEnd: null }} account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
+          <Frame label="Chargement"><HubSidebar tool="hub" toolsHref="/" credits={undefined} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
+          <Frame label="Solde indisponible"><HubSidebar tool="hub" toolsHref="/" credits={null} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
+          <Frame label="Allocation inconnue"><HubSidebar tool="hub" toolsHref="/" credits={{ remaining: 120, total: null, periodEnd: null }} account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
         </div>
       </Section>
     </div>

@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.1.7';
+export const SHELL_VERSION = '0.1.8';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -86,6 +86,10 @@ export { AccountCard, UserAvatar } from './layout/AccountCard';
 export type { AccountView } from './layout/AccountCard';
 export { SegmentedControl } from './layout/SegmentedControl';
 export type { SegmentedControlProps, SegmentedOption } from './layout/SegmentedControl';
+
+/* « Mes outils » — montée par chaque app sur /outils (le Hub sur /) */
+export { OutilsPage, OutilsView } from './outils/OutilsPage';
+export type { OutilsPageProps, OutilsViewProps } from './outils/OutilsPage';
 
 /* pages d'auth — montées par le Hub seul */
 export { AuthShell, AuthHeading } from './auth/AuthShell';

@@ -3,7 +3,6 @@ import { Icon, Logo, Sidebar, type SidebarItem, type SidebarSection } from '@yun
 import { Wrench } from 'lucide-react';
 import { fr } from '../i18n/fr';
 import type { ToolId } from '../config';
-import { toolUrl } from './tools';
 import { CreditsCard, type CreditsView } from './CreditsCard';
 import { AccountCard, type AccountView } from './AccountCard';
 
@@ -22,7 +21,10 @@ export interface HubSidebarProps {
   items?: ShellNavItem[];
   settingsHref?: string;
   settingsActive?: boolean;
-  /** « Mes outils » — le Hub. Défaut : `toolUrl('hub')`. */
+  /**
+   * « Mes outils » — la route LOCALE de la page, dans l'outil courant (décision Julien, 11/09/2026 :
+   * on ne change ni de sous-domaine ni de menu). Défaut `/outils` ; le Hub passe `/`, son accueil.
+   */
   toolsHref?: string;
   toolsActive?: boolean;
   /** Capacitor : pas de section « Mes outils » ; la nav réduite est celle passée en `items`. */
@@ -43,29 +45,29 @@ export interface HubSidebarProps {
  * La sidebar du maître `HubSidebar.dc.html`, remaniée sur les décisions de Julien (08/09/2026) :
  * **plus de commutateur** — le logo est statique (un raccourci vers « Mes outils ») ; la nav de
  * l'outil, puis « Mes outils » + Paramètres (les outils ne vivent qu'en cartes sur la page « Mes
- * outils »), la carte crédits et le compte. C'est la `Sidebar` du DS **sans son régime replié**
+ * outils », qui s'ouvre DANS l'outil courant depuis 0.1.8 — `toolsHref` est une route locale, jamais
+ * le Hub), la carte crédits et le compte. C'est la `Sidebar` du DS **sans son régime replié**
  * (retiré par Julien, 08/09/2026 : la barre est toujours dépliée), sa largeur `--sidebar-w` de la
  * marque, son tiroir sous 64rem — rien n'est redessiné.
  */
 export function HubSidebar({
-  tool: _tool, items = [], settingsHref = '/parametres', settingsActive = false, toolsHref, toolsActive = false,
+  tool: _tool, items = [], settingsHref = '/parametres', settingsActive = false, toolsHref = '/outils', toolsActive = false,
   native = false, credits, account, linkAs, open, onClose, staticLayout = false, className,
 }: HubSidebarProps): JSX.Element {
-  const hubHref = toolsHref ?? toolUrl('hub');
   /* La nav = la nav de l'outil, puis « Mes outils » + Paramètres — rien d'autre (décision Julien,
      08/09/2026) : les outils ne vivent qu'en cartes sur la page « Mes outils ». */
   const sections: SidebarSection[] = items.length ? [{ items: items.map(toSidebarItem) }] : [];
   const footerItems: SidebarItem[] = [
-    ...(native ? [] : [{ label: fr.layout.tools, href: hubHref, icon: <Icon glyph={Wrench} />, active: toolsActive }]),
+    ...(native ? [] : [{ label: fr.layout.tools, href: toolsHref, icon: <Icon glyph={Wrench} />, active: toolsActive }]),
     { label: fr.layout.settings, href: settingsHref, icon: <Icon name="settings" />, active: settingsActive },
   ];
   /* Le logo en tête : mot à 18 px, icône au lockup du DS (maître : 30 / 18). Un raccourci vers
-     « Mes outils » sur le web, un simple mark en natif. */
+     « Mes outils » (la même route locale) sur le web, un simple mark en natif. */
   const BrandLink = (linkAs ?? 'a') as ElementType;
   const brand = native ? (
     <span className="flex min-h-[3rem] items-center px-space-2"><Logo variant="wordmark" height="0.9rem" /></span>
   ) : (
-    <BrandLink {...(linkAs ? { to: hubHref } : { href: hubHref })} aria-label={fr.layout.openTools} className="flex min-h-[3rem] items-center px-space-2 text-foreground">
+    <BrandLink {...(linkAs ? { to: toolsHref } : { href: toolsHref })} aria-label={fr.layout.openTools} className="flex min-h-[3rem] items-center px-space-2 text-foreground">
       <Logo variant="wordmark" height="0.9rem" />
     </BrandLink>
   );

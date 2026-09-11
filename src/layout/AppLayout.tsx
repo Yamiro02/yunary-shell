@@ -17,6 +17,11 @@ export interface AppLayoutProps {
   /** La nav de l'outil. `active` se déduit de la route quand il n'est pas passé. */
   items?: ShellNavItem[];
   settingsHref?: string;
+  /**
+   * La route LOCALE de « Mes outils » — l'entrée du pied de nav et le logo y mènent, et l'entrée est
+   * active dessus. Défaut `/outils` (chaque outil monte `OutilsPage` dessus) ; le Hub passe `/`.
+   */
+  toolsHref?: string;
   native?: boolean;
   /** Sans enfants, rend l'`Outlet` du routeur. */
   children?: ReactNode;
@@ -83,7 +88,9 @@ export function AppBleed({ children, className, flush = false }: AppBleedProps):
  * une barre haute, contenu dans `AppContent` (pleine largeur). Lit le profil, les crédits et
  * l'abonnement pour alimenter la sidebar — les pages, elles, n'ont rien à refaire.
  */
-export function AppLayout({ tool, items = [], settingsHref = '/parametres', native = false, children }: AppLayoutProps): JSX.Element {
+export function AppLayout({
+  tool, items = [], settingsHref = '/parametres', toolsHref = '/outils', native = false, children,
+}: AppLayoutProps): JSX.Element {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const profile = useProfile();
@@ -119,9 +126,9 @@ export function AppLayout({ tool, items = [], settingsHref = '/parametres', nati
           items={items.map(it => ({ ...it, active: it.active ?? isActive(it.href) }))}
           settingsHref={settingsHref}
           settingsActive={isActive(settingsHref)}
-          /* Dans le Hub, « Mes outils » et le logo naviguent en interne ; ailleurs, en absolu vers le Hub. */
-          toolsHref={tool === 'hub' ? '/' : undefined}
-          toolsActive={tool === 'hub' && location.pathname === '/'}
+          /* « Mes outils » et le logo naviguent en interne, dans l'outil courant — plus jamais vers le Hub. */
+          toolsHref={toolsHref}
+          toolsActive={isActive(toolsHref)}
           native={native}
           credits={creditsView}
           account={account}

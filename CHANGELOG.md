@@ -5,6 +5,42 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.8 — « Mes outils » et Paramètres s'ouvrent dans chaque outil (11/09/2026)
+
+Décision Julien (11/09/2026) : depuis Creator, « Mes outils » ne renvoie plus vers le Hub. La page
+s'ouvre **dans l'outil courant**, sur sa route locale, sans changer d'URL de sous-domaine ni de
+menu — la sidebar reste celle de l'outil. Paramètres l'était déjà (`/parametres` monté par chaque
+app). Exige **`@yunary/ds` ≥ 0.1.3** (`grid-cards-dialog`) : le peer monte.
+
+- **`OutilsPage` remontée du Hub dans la coque** — `src/outils/OutilsPage.tsx`, vue
+  (`OutilsView tool homeHref? prenom`) + page câblée (`OutilsPage tool homeHref?`, prénom lu dans
+  le profil), chaînes `fr.outils` (`hello`, `lead`, `open`, `soon`). Même rendu qu'aujourd'hui :
+  artboard C1, `grid-cards-dialog`, cartes du registre `TOOLS` sauf le Hub (« Mes outils » EST son
+  accueil), « Bientôt » à 80 %.
+- **La carte de l'outil courant navigue en interne** : avec `homeHref` (`/videos` pour Creator),
+  « Ouvrir » reste une vraie `<a href>` — clic-milieu, « ouvrir dans un onglet » et lecteur d'écran
+  intacts — dont le clic simple est intercepté vers `navigate(homeHref)` : plus de rechargement vers
+  le sous-domaine où l'on est déjà. Les autres outils gardent leur lien absolu (`toolUrl`). Le `as`
+  de `Button` n'accepte pas le `Link` du routeur (BACKLOG du DS), d'où le détour, le même que le
+  `CardLink` de Creator.
+- **`AppLayout` et `HubSidebar` : « Mes outils » ET le logo pointent par défaut vers la route
+  locale `/outils`** — plus jamais `toolUrl('hub')`. Nouvelle prop `toolsHref` sur `AppLayout`
+  (défaut `/outils`) ; l'entrée est active sur cette route (`isActive`, exact pour `/`). Le
+  cas particulier « Hub → `/` » codé en dur dans `AppLayout` disparaît : **le Hub passe
+  `toolsHref="/"`**, son accueil.
+- **Paramètres et Abonnement : aucun lien de la coque ne renvoie vers le Hub** — vérifié :
+  `settingsHref` est relatif (`/parametres`), les onglets vivent dans `?tab=`, les liens légaux sont
+  `DEFAULT_LEGAL_HREFS` (`/cgu`…), les cartes crédits et compte n'ont pas de lien. Seuls les flux
+  d'auth (`login`, `reset`, `next=`) visent `hubUrl`, et c'est leur rôle.
+- ⚠ **Chaque app à sa montée en 0.1.8** : **monter `OutilsPage` sur `/outils`** dans le layout
+  connecté — Creator : `<Route path="/outils" element={<OutilsPage tool="creator" homeHref="/videos" />} />`
+  et DS `#v0.1.3` ; Hub : `<OutilsPage tool="hub" />` sur `/` à la place de sa page locale,
+  **`toolsHref="/"` sur `AppLayout`** (sinon le pied de nav mène à `/outils`, qui n'existe pas dans
+  le Hub), suppression de `apps/hub/src/pages/OutilsPage.tsx` et de `fr.outils` du Hub (désormais
+  dans `fr` de la coque). Sans la route, l'entrée du pied de nav mène à une page absente.
+- Vitrine : section « OutilsView · « Mes outils » dans l'outil » — Creator courant, « Ouvrir »
+  en interne vers `/videos` ; les cadres Hub passent `toolsHref="/"`.
+
 ## 0.1.7 — les marges de page de la v1, exportées (11/09/2026)
 
 - **`AppContent` reprend les gouttières de la v1** (`legacy-v1 › AppLayout` : `px-4 pt-6 pb-6
