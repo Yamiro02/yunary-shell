@@ -16,6 +16,7 @@ export function ProfilPage(): JSX.Element {
   const [positions, setPositions] = useState<PrisesDePosition>(["L'action bat le plan parfait", "Pas besoin d'être expert pour se lancer", "L'organique avant la pub, toujours"]);
   const [seg, setSeg] = useState<'a' | 'b' | 'c' | null>(null);
   const [chip, setChip] = useState(false);
+  const [ajouts, setAjouts] = useState(0);
 
   return (
     <div className="flex flex-col gap-space-7">
@@ -39,7 +40,7 @@ export function ProfilPage(): JSX.Element {
       <Section title="Niche hors liste" note="Une niche détectée hors presets ouvre directement le champ libre.">
         <Frame><NicheCard value="Apiculture urbaine" onChange={() => undefined} /></Frame>
       </Section>
-      <Section title="Primitives composées" note="SegmentedControl (choix unique, flèches au clavier ; sélection à la convention des Tabs du DS : corail sur `--accent`, même graisse) et ChoiceChip — manques consignés au backlog du DS. La tuile de niche, elle, est la RadioTile du DS depuis 0.1.9.">
+      <Section title="Primitives composées" note="SegmentedControl (choix unique, flèches au clavier ; sélection à la convention des Tabs du DS : corail sur `--accent`, même graisse) et ChoiceChip — manques consignés au backlog du DS. variant ajout (0.1.12, artboard 07) : pointillés 1,5 px, muted, « + » de 14 px, même hauteur, jamais cochée. La tuile de niche, elle, est la RadioTile du DS depuis 0.1.9.">
         <Frame>
           <div className="flex max-w-narrow flex-col gap-space-5">
             <SegmentedControl label="Exemple" options={[{ value: 'a', label: 'Soutenu' }, { value: 'b', label: 'Naturel' }, { value: 'c', label: 'Cru' }]} value={seg} onChange={setSeg} />
@@ -48,7 +49,10 @@ export function ProfilPage(): JSX.Element {
               <ChoiceChip selected={chip} onToggle={() => setChip(c => !c)}>Cochable</ChoiceChip>
               <ChoiceChip selected italic onToggle={() => undefined}>« Italique »</ChoiceChip>
               <ChoiceChip selected={false} disabled onToggle={() => undefined}>Désactivée</ChoiceChip>
+              <ChoiceChip variant="ajout" onToggle={() => setAjouts(n => n + 1)}>Autre passion…</ChoiceChip>
+              <ChoiceChip variant="ajout" disabled onToggle={() => undefined}>Autre vécu…</ChoiceChip>
             </div>
+            {ajouts ? <span className="caption">Chip d'ajout cliquée {ajouts} fois.</span> : null}
           </div>
         </Frame>
       </Section>

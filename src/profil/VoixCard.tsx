@@ -21,7 +21,7 @@ export interface VoixCardProps {
 /**
  * « Ta voix » — niveau de langue et vulgarité (choix unique, `SegmentedControl`), humour
  * (chips, « aucun » exclusif), expressions signature (chips italiques, on retire, on n'ajoute pas).
- * Artboard « 06 Profil Ta voix » (Creator) : glyphe de la pastille à 18 px, chips à filet 1,5 px.
+ * Artboard « 06 Profil Ta voix » (Creator) : glyphe de la pastille à 18 px (posé par `ProfilCard`), chips à filet 1,5 px.
  */
 export function VoixCard({ voix, onChange, expressionsDetectees = [], expressions = [], onExpressionsChange }: VoixCardProps): JSX.Element {
   const v = fr.profil.voix;
@@ -42,7 +42,7 @@ export function VoixCard({ voix, onChange, expressionsDetectees = [], expression
     onExpressionsChange?.(expressions.includes(e) ? expressions.filter(x => x !== e) : [...expressions, e]);
   };
   return (
-    <ProfilCard icon={<Icon glyph={Bot} size="1.125rem" />} title={v.title}>
+    <ProfilCard icon={<Icon glyph={Bot} />} title={v.title}>
       <div className="grid grid-cols-1 gap-space-5 lg:grid-cols-2">
         <Field label={v.niveauLabel}>
           <SegmentedControl<NiveauLangue> label={v.niveauLabel} options={NIVEAUX_LANGUE.map(n => ({ value: n, label: v.niveau[n] }))} value={voix.niveau_langue} onChange={niveau_langue => onChange({ ...voix, niveau_langue })} />

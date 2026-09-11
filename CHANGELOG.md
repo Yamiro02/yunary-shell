@@ -5,6 +5,30 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.12 — les cartes du profil sur les artboards 06-09 (12/09/2026)
+
+Les points remontés par les passes 07, 08 et 09 (À propos, Niche & avatar, Audit), chaque carte
+vérifiée contre son artboard (`Yunary Creator.dc.html` + `AuditBilan.dc.html`).
+
+- **`ChoiceChip variant="ajout"`** (artboard 07 : « Autre passion… », « Autre vécu… ») — la même
+  pilule, en pointillés 1,5 px `--border`, fond transparent, texte muted, un « + » de 14 px au
+  trait 2,4 à gauche ; même padding, même police, même hauteur (39 px mesurés, comme la chip de
+  choix). Survol `--primary` + encre, `:focus-visible` `--ring` — ceux de la chip de choix. Jamais
+  cochée : pas d'`aria-pressed`, `onToggle` est le clic d'ajout. `selected` devient optionnel.
+- **`ProfilCard` : la phrase sous le titre à 16 px du titre** (`space-4`, le palier le plus proche
+  des 14 de l'artboard 07 — elle était à 24). Les blocs suivants restent à 24. Vaut pour toutes
+  les cartes qui passent `description` : Prises de position, et À propos / Hors caméra de Creator.
+- **Glyphes des pastilles à 18 px** (`1.125rem`), comme le `<svg 18>` des artboards : sur
+  **toutes les `ProfilCard`** — Niche, Avatar cible, Voix, Prises de position, et celles des apps
+  (À propos, Hors caméra) sans rien passer — et sur les **en-têtes de section d'`AuditBilan`**
+  (« Tes chiffres clés », « Le verdict, axe par axe »). La carte pose `size` sur l'icône reçue
+  (`withGlyphSize`, nouvel export avec `CARD_GLYPH_SIZE`) : `--ds-icon-size` est enregistrée
+  `inherits:false` dans le DS, une valeur posée sur la pastille serait inerte — seule la prop
+  `size` de l'`Icon` compte, et un `size` passé par l'appelant garde la main. **Écart suivi :**
+  les tuiles de chiffres du bilan (Vues moyennes, Rythme, Watch time, Engagement) sont dessinées
+  à **15** sur le maître AuditBilan et gardent `size="0.9375rem"`.
+- `@yunary/ds` reste épinglé v0.1.8. Vitrine : chips d'ajout dans « Primitives composées ».
+
 ## 0.1.11 — la carte « Ta voix » sur l'artboard 06 (12/09/2026)
 
 Trois corrections sur `VoixCard` (maquette `Yunary Creator.dc.html`, artboard « 06 Profil Ta voix »).

@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.1.11';
+export const SHELL_VERSION = '0.1.12';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -74,6 +74,7 @@ export { fr } from './i18n/fr';
 export type { Fr } from './i18n/fr';
 export { getErrorMessage } from './lib/errors';
 export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, initiales } from './lib/format';
+export { withGlyphSize, CARD_GLYPH_SIZE } from './lib/icon';
 
 /* layout */
 export { AppLayout, AppContent, AppBleed, APP_GUTTER_X, APP_BLEED_X, APP_BLEED_TOP } from './layout/AppLayout';

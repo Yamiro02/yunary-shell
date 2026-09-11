@@ -117,7 +117,7 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | `<VoixCard voix onChange expressionsDetectees? expressions? onExpressionsChange?>` | Niveau de langue, vulgarité, humour (`aucun` exclusif), expressions signature — affichées dès que captées ∪ retenues (`expressions`, `voix.tics`) n'est pas vide, même sans empreinte. |
 | `<AvatarCibleCard value onChange>` | Qui / Quoi / Son problème (`AvatarCible`). |
 | `<PrisesDePositionCard value onChange>` | 01–03 (`PrisesDePosition`). |
-| `<ProfilCard icon title description?>` · `<ChoiceChip>` | La coque des cartes (pastille de marque outlined, titre `heading-sm`) et la chip cochable (filet 1,5 px, `--primary` cochée). |
+| `<ProfilCard icon title description?>` · `<ChoiceChip variant? selected? onToggle>` | La coque des cartes (pastille de marque outlined au glyphe de 18 px posé par la carte, titre `heading-sm`, phrase à `space-4` du titre, pile `space-5`) et la chip : `choix` (filet 1,5 px, `--primary` cochée, `aria-pressed`) ou `ajout` (pointillés, muted, « + », jamais cochée). |
 | `NICHES` · `NICHE_OTHER` · `NIVEAUX_LANGUE` · `VULGARITES` · `HUMOURS` · `HUMOUR_EXCLUSIF` | 🔒 Valeurs canoniques (v1), jamais traduites. |
 | `parseVoix` · `EMPTY_VOIX` · types `Voix`, `NiveauLangue`, `Vulgarite`, `Humour` | `personas.voix`. |
 
@@ -136,4 +136,5 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | `fr` | Toutes les chaînes communes (erreurs, auth, layout, paramètres, formules, légal, audit, profil). |
 | `getErrorMessage(error)` | Une erreur (Supabase, réseau, inconnue) → une phrase FR. Jamais un message brut à l'écran. |
 | `formatNombre` · `formatCompact` · `formatDateCourte` · `formatDateLongue` · `initiales` | Formats FR via `Intl`. |
+| `withGlyphSize(icon, size?)` · `CARD_GLYPH_SIZE` | Pose `size` (18 px par défaut) sur un `<Icon />` reçu en prop, sauf si l'appelant l'a fixé — le geste des pastilles `carte` de la coque (`--ds-icon-size` n'hérite pas). |
 | `SHELL_VERSION` | La version du paquet. |

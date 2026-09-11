@@ -2,6 +2,7 @@ import { useState, type JSX, type ReactNode } from 'react';
 import { ChartLine, Gauge, Heart, Sprout, TrendingDown, WifiOff } from 'lucide-react';
 import { Badge, Card, Icon, Pastille, Progress, cn, type BadgeProps } from '@yunary/ds';
 import { AuditStateCard } from './AuditStateCard';
+import { withGlyphSize } from '../lib/icon';
 import { fr } from '../i18n/fr';
 import { formatCompact, formatNombre } from '../lib/format';
 import { AUDIT_MIN_SAMPLE, type AuditBioEtat, type AuditEtatEstime, type AuditEtatMesure, type ParsedAccountAudit } from './types';
@@ -101,11 +102,13 @@ function FeatureCard({ title, children }: { title: string; children: ReactNode }
   );
 }
 
+/* En-tête de section du bilan : pastille outlined au glyphe de 18 px (maître AuditBilan, `<svg 18>` — les
+   tuiles de chiffres, elles, sont dessinées à 15 et gardent leur `size="0.9375rem"`). */
 function TitledCard({ icon, title, suffix, children }: { icon: ReactNode; title: string; suffix?: string; children: ReactNode }): JSX.Element {
   return (
     <Card size="lg" className="flex flex-col gap-space-5">
       <div className="flex items-center gap-space-3">
-        <Pastille size="carte" tone="brand" outlined>{icon}</Pastille>
+        <Pastille size="carte" tone="brand" outlined>{withGlyphSize(icon)}</Pastille>
         <span className="font-display text-heading-sm font-bold text-foreground">{title}</span>
         {suffix ? <span className="font-display text-heading-sm font-bold text-foreground">{suffix}</span> : null}
       </div>
