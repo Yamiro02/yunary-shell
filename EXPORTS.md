@@ -71,7 +71,9 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | Export | Rôle |
 |---|---|
 | `<AppLayout tool items? settingsHref? native?>` | `AppShell` + `HubSidebar` alimentés par le profil, les crédits et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. |
-| `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières `space-5` sous 64 rem et `space-7` dès que la sidebar est à demeure, vertical `space-7`. Pour une page hors `AppLayout` qui veut les mêmes bords. |
+| `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières de la v1 — `space-4` de côté et `space-5` en vertical sous 64 rem, `space-5` partout dès que la sidebar est à demeure (`64.0625rem`). Pour une page hors `AppLayout` qui veut les mêmes bords. |
+| `APP_GUTTER_X` · `APP_BLEED_X` · `APP_BLEED_TOP` | Les gouttières d'`AppContent` en classes : y rentrer (`px-space-4 min-[64.0625rem]:px-space-5`, ce qu'`AppContent` pose), en sortir (le miroir négatif), coller au haut du contenu (`-mt-space-5`). Pour une barre collante bord à bord ; jamais recopiées dans une app. |
+| `<AppBleed flush? className?>` | Un bloc qui sort des gouttières latérales (`APP_BLEED_X`) — le cas « page entière » : fiche, script, assistant ; `flush` colle aussi au haut (`APP_BLEED_TOP`). Ses enfants rentrent avec `APP_GUTTER_X`. `AppBleedProps`. |
 | `<HubSidebar …>` | La sidebar en vue : logo statique (lien vers « Mes outils »), nav de l'outil, Mes outils + Paramètres en pied de nav, crédits, compte ; jamais repliée ; `native` sans « Mes outils » ; `linkAs` pour le routeur. |
 | `<CreditsCard credits>` · `<AccountCard account>` · `<UserAvatar account>` | Les cartes du bas de sidebar. `CreditsView`, `AccountView`. |
 | `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`). Manque DS consigné. |

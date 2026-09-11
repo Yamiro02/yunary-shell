@@ -28,16 +28,54 @@ export interface AppContentProps {
 }
 
 /**
+ * Les gouttières d'`AppContent`, exportées pour qu'une app n'ait jamais à les recopier.
+ *
+ * Ce sont **celles de la v1** (`legacy-v1 › AppLayout` : `px-4 pt-6 pb-6 lg:p-6`, décision Julien
+ * 11/09/2026) : 16 px de côté et 24 px en haut et en bas en régime tiroir, 24 px partout dès que la
+ * sidebar est à demeure. Le vertical ne bouge donc pas, seul l'horizontal passe de `space-4` à
+ * `space-5`. Le seuil est **celui de la sidebar au pixel près** — `64.0625rem`, le découpage du DS
+ * (`AppShell`), pas le `lg:` de Tailwind (64rem) : un pixel d'écart donnerait, à 1024 px de large
+ * exactement, une barre bord à bord trop large et un défilement horizontal.
+ *
+ * Une barre collante bord à bord (haut de fiche, pied d'un tri) SORT des gouttières avec
+ * `APP_BLEED_X` puis y RENTRE pour son contenu avec `APP_GUTTER_X` — sur le même élément ou sur
+ * deux. Une page qui commence par une telle barre la veut au ras du haut : `APP_BLEED_TOP` reprend
+ * le padding haut d'`AppContent`, sinon la barre flotte 24 px sous le bord tant qu'on n'a pas
+ * défilé, puis se colle — deux positions pour un même élément.
+ */
+/** Rentrer dans les gouttières latérales : ce qu'`AppContent` pose. */
+export const APP_GUTTER_X = 'px-space-4 min-[64.0625rem]:px-space-5';
+/** Sortir des gouttières latérales : le miroir négatif d'`APP_GUTTER_X`. */
+export const APP_BLEED_X = '-mx-space-4 min-[64.0625rem]:-mx-space-5';
+/** Coller au haut du contenu : reprend le `pt-space-5` d'`AppContent`. */
+export const APP_BLEED_TOP = '-mt-space-5';
+
+/**
  * Le conteneur du contenu d'une app : **pleine largeur, sans plafond** (décision Julien,
- * 11/09/2026 — les artboards Hub et Creator remplissent leur colonne, avec 56 à 64 px de côté et
- * aucun `max-width` ; `.page` du DS plafonnait à 70 rem et centrait, il reste au site). Gouttières
- * sur les paliers du DS : `space-5` (24 px) en régime tiroir, `space-7` (48 px, le palier le plus
- * proche des maquettes) dès que la sidebar est à demeure — le même seuil que le DS, `64.0625rem`.
- * Vertical inchangé : `space-7`. Les plafonds de lecture (`max-w-read`, `max-w-wide`…) restent
- * aux blocs qui en ont besoin, jamais à la page.
+ * 11/09/2026 — les artboards Hub et Creator remplissent leur colonne et n'ont aucun `max-width` ;
+ * `.page` du DS plafonnait à 70 rem et centrait, il reste au site). Gouttières de la v1 (voir
+ * `APP_GUTTER_X`) ; vertical `space-5`. Les plafonds de lecture (`max-w-read`, `max-w-wide`…)
+ * restent aux blocs qui en ont besoin, jamais à la page.
  */
 export function AppContent({ children, className }: AppContentProps): JSX.Element {
-  return <div className={cn('w-full px-space-5 py-space-7 min-[64.0625rem]:px-space-7', className)}>{children}</div>;
+  return <div className={cn('w-full py-space-5', APP_GUTTER_X, className)}>{children}</div>;
+}
+
+export interface AppBleedProps {
+  children?: ReactNode;
+  className?: string;
+  /** Colle aussi au haut du contenu (`APP_BLEED_TOP`) : pour une page qui commence par une barre collante. */
+  flush?: boolean;
+}
+
+/**
+ * Un bloc qui sort des gouttières d'`AppContent` — le cas « page entière » : une fiche, un
+ * script, un assistant dont la barre haute et le pied sont collants et bord à bord. Ses enfants
+ * rentrent dans les gouttières avec `APP_GUTTER_X`. Une seule barre qui sort et rentre sur le
+ * même élément compose directement `APP_BLEED_X` + `APP_GUTTER_X`, sans ce wrapper.
+ */
+export function AppBleed({ children, className, flush = false }: AppBleedProps): JSX.Element {
+  return <div className={cn(APP_BLEED_X, flush && APP_BLEED_TOP, className)}>{children}</div>;
 }
 
 /**

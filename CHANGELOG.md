@@ -5,6 +5,36 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.7 — les marges de page de la v1, exportées (11/09/2026)
+
+- **`AppContent` reprend les gouttières de la v1** (`legacy-v1 › AppLayout` : `px-4 pt-6 pb-6
+  lg:p-6`, décision Julien) : **16 px de côté, 24 px en haut et en bas** en régime tiroir ; **24 px
+  partout** dès que la sidebar est à demeure. Sur les paliers du DS : `px-space-4 py-space-5`,
+  `px-space-5` dès `64.0625rem`. Le `space-7` de 0.1.6 (48 px de côté et en vertical) disparaît :
+  il était le palier « le plus proche » des 56 / 64 px des artboards, la v1 en usage réel tranche
+  pour des marges plus serrées. Le seuil reste celui de la sidebar au pixel près (`64.0625rem`,
+  pas `lg:`) — le DS n'a pas de palier nommé pour lui, l'entrée (d) de son BACKLOG reste ouverte.
+- **Les gouttières sont exportées, à côté d'`AppContent`** — Creator les recopiait dans
+  `src/components/common/marges.ts` pour ses barres collantes bord à bord (haut de fiche, haut de
+  script, assistant, pied du tri), et ne suivait donc pas la coque quand elle bougeait. Trois
+  constantes, miroir un pour un des siennes : **`APP_GUTTER_X`** (rentrer dans les gouttières
+  latérales — ce qu'`AppContent` pose, ex-`DANS_MARGES`), **`APP_BLEED_X`** (en sortir,
+  ex-`HORS_MARGES`), **`APP_BLEED_TOP`** (coller au haut du contenu, ex-`HORS_MARGE_HAUTE`) ; et
+  **`<AppBleed flush?>`**, le wrapper du cas « page entière » (`APP_BLEED_X`, plus
+  `APP_BLEED_TOP` avec `flush`). Une barre seule qui sort et rentre sur le même élément compose
+  les deux constantes sans wrapper. `AppContent` est construit sur `APP_GUTTER_X` : une seule
+  source, plus de valeur en double.
+- ⚠ **Chaque app remonte à 0.1.7 et suit** : Creator supprime `marges.ts` et importe les trois
+  constantes (renommage mécanique) ; toute page qui calait un retrait sur les 48 px de 0.1.6 (un
+  `-mt-space-7`, un `px-space-7` miroir) casse silencieusement — 24 px de trop d'un côté.
+- Épingle **`@yunary/ds` v0.1.3** (échelle d'app 100 / 115 %, titre de page 36 px, `grid-cards-*`) :
+  rien de nouveau n'est consommé par la coque, le peer reste `>=0.1.2` — la vitrine, elle, rend
+  désormais aux proportions de la v1.
+- Vitrine : section « AppBleed · barre collante bord à bord » — une fiche dans la coque, barre
+  haute et pied collants, le cadre défile ; note de la section AppLayout mise à jour. Les deux
+  cadres d'app **retirent la sidebar sous le seuil** (0.1.6 l'épinglait : à 375 px le contenu
+  n'avait plus que 100 px) — dans une app c'est le tiroir d'`AppLayout` qui prend le relais.
+
 ## 0.1.6 — le contenu passe pleine largeur (11/09/2026)
 
 - **`AppLayout` ne monte plus `.page`** : le contenu du Hub et de Creator remplit la colonne,
