@@ -179,75 +179,6 @@ export type Database = {
         }
         Relationships: []
       }
-      collection_videos: {
-        Row: {
-          collection_id: string
-          created_at: string
-          video_id: string
-        }
-        Insert: {
-          collection_id: string
-          created_at?: string
-          video_id: string
-        }
-        Update: {
-          collection_id?: string
-          created_at?: string
-          video_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collection_videos_collection_id_fkey"
-            columns: ["collection_id"]
-            isOneToOne: false
-            referencedRelation: "collections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "collection_videos_video_id_fkey"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "videos"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      collections: {
-        Row: {
-          created_at: string
-          id: string
-          name: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          name: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          name?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "collections_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "collections_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       creator_baselines: {
         Row: {
           computed_at: string | null
@@ -392,124 +323,6 @@ export type Database = {
           },
         ]
       }
-      device_tokens: {
-        Row: {
-          created_at: string
-          id: string
-          platform: Database["public"]["Enums"]["device_platform"]
-          token: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          platform: Database["public"]["Enums"]["device_platform"]
-          token: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          platform?: Database["public"]["Enums"]["device_platform"]
-          token?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "device_tokens_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "device_tokens_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      formats: {
-        Row: {
-          cadre_setting: string | null
-          created_at: string
-          difficulte: string | null
-          duree_seconds: number | null
-          elements_visuels: string[] | null
-          favorite: boolean
-          id: string
-          in_library: boolean
-          is_template: boolean
-          materiel: string[] | null
-          reproduction: string | null
-          rythme_montage: string | null
-          title: string | null
-          type_format: string | null
-          user_id: string | null
-          video_id: string | null
-        }
-        Insert: {
-          cadre_setting?: string | null
-          created_at?: string
-          difficulte?: string | null
-          duree_seconds?: number | null
-          elements_visuels?: string[] | null
-          favorite?: boolean
-          id?: string
-          in_library?: boolean
-          is_template?: boolean
-          materiel?: string[] | null
-          reproduction?: string | null
-          rythme_montage?: string | null
-          title?: string | null
-          type_format?: string | null
-          user_id?: string | null
-          video_id?: string | null
-        }
-        Update: {
-          cadre_setting?: string | null
-          created_at?: string
-          difficulte?: string | null
-          duree_seconds?: number | null
-          elements_visuels?: string[] | null
-          favorite?: boolean
-          id?: string
-          in_library?: boolean
-          is_template?: boolean
-          materiel?: string[] | null
-          reproduction?: string | null
-          rythme_montage?: string | null
-          title?: string | null
-          type_format?: string | null
-          user_id?: string | null
-          video_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "formats_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "formats_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "formats_video_id_fkey"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "videos"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       generations: {
         Row: {
           batch_id: string
@@ -597,11 +410,9 @@ export type Database = {
         Row: {
           boucle_ouverte: string | null
           created_at: string
-          favorite: boolean
           format: string | null
           formula: string | null
           id: string
-          in_library: boolean
           is_template: boolean
           platform: string | null
           spoken_hook: string | null
@@ -614,11 +425,9 @@ export type Database = {
         Insert: {
           boucle_ouverte?: string | null
           created_at?: string
-          favorite?: boolean
           format?: string | null
           formula?: string | null
           id?: string
-          in_library?: boolean
           is_template?: boolean
           platform?: string | null
           spoken_hook?: string | null
@@ -631,11 +440,9 @@ export type Database = {
         Update: {
           boucle_ouverte?: string | null
           created_at?: string
-          favorite?: boolean
           format?: string | null
           formula?: string | null
           id?: string
-          in_library?: boolean
           is_template?: boolean
           platform?: string | null
           spoken_hook?: string | null
@@ -737,7 +544,6 @@ export type Database = {
           id: string
           niche: string | null
           notes: string | null
-          off_record: string | null
           onboarding_step: number
           passions: string[]
           social_links: Json | null
@@ -762,7 +568,6 @@ export type Database = {
           id?: string
           niche?: string | null
           notes?: string | null
-          off_record?: string | null
           onboarding_step?: number
           passions?: string[]
           social_links?: Json | null
@@ -787,7 +592,6 @@ export type Database = {
           id?: string
           niche?: string | null
           notes?: string | null
-          off_record?: string | null
           onboarding_step?: number
           passions?: string[]
           social_links?: Json | null
@@ -927,257 +731,6 @@ export type Database = {
           role?: string
         }
         Relationships: []
-      }
-      script_chat_messages: {
-        Row: {
-          action_type: string | null
-          content: string
-          created_at: string
-          id: string
-          role: string
-          script_id: string
-          user_id: string
-        }
-        Insert: {
-          action_type?: string | null
-          content: string
-          created_at?: string
-          id?: string
-          role: string
-          script_id: string
-          user_id: string
-        }
-        Update: {
-          action_type?: string | null
-          content?: string
-          created_at?: string
-          id?: string
-          role?: string
-          script_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "script_chat_messages_script_id_fkey"
-            columns: ["script_id"]
-            isOneToOne: false
-            referencedRelation: "scripts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "script_chat_messages_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "script_chat_messages_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      script_edits: {
-        Row: {
-          after_text: string | null
-          assistant_message_id: string | null
-          before_text: string
-          created_at: string
-          error_message: string | null
-          id: string
-          instruction: string
-          occurrence: number
-          resolved_at: string | null
-          script_id: string
-          section_id: string
-          status: Database["public"]["Enums"]["script_edit_status"]
-          user_id: string
-          user_message_id: string | null
-        }
-        Insert: {
-          after_text?: string | null
-          assistant_message_id?: string | null
-          before_text: string
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          instruction: string
-          occurrence?: number
-          resolved_at?: string | null
-          script_id: string
-          section_id: string
-          status?: Database["public"]["Enums"]["script_edit_status"]
-          user_id: string
-          user_message_id?: string | null
-        }
-        Update: {
-          after_text?: string | null
-          assistant_message_id?: string | null
-          before_text?: string
-          created_at?: string
-          error_message?: string | null
-          id?: string
-          instruction?: string
-          occurrence?: number
-          resolved_at?: string | null
-          script_id?: string
-          section_id?: string
-          status?: Database["public"]["Enums"]["script_edit_status"]
-          user_id?: string
-          user_message_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "script_edits_assistant_message_id_fkey"
-            columns: ["assistant_message_id"]
-            isOneToOne: false
-            referencedRelation: "script_chat_messages"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "script_edits_script_id_fkey"
-            columns: ["script_id"]
-            isOneToOne: false
-            referencedRelation: "scripts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "script_edits_user_message_id_fkey"
-            columns: ["user_message_id"]
-            isOneToOne: false
-            referencedRelation: "script_chat_messages"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      script_revisions: {
-        Row: {
-          created_at: string
-          id: string
-          script_id: string
-          sections: Json | null
-          source: Database["public"]["Enums"]["revision_source"]
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          script_id: string
-          sections?: Json | null
-          source: Database["public"]["Enums"]["revision_source"]
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          script_id?: string
-          sections?: Json | null
-          source?: Database["public"]["Enums"]["revision_source"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "script_revisions_script_id_fkey"
-            columns: ["script_id"]
-            isOneToOne: false
-            referencedRelation: "scripts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      script_sources: {
-        Row: {
-          created_at: string
-          script_id: string
-          video_id: string
-        }
-        Insert: {
-          created_at?: string
-          script_id: string
-          video_id: string
-        }
-        Update: {
-          created_at?: string
-          script_id?: string
-          video_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "script_sources_script_id_fkey"
-            columns: ["script_id"]
-            isOneToOne: false
-            referencedRelation: "scripts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "script_sources_video_id_fkey"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "videos"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      scripts: {
-        Row: {
-          brief: Json | null
-          created_at: string
-          current_revision_id: string | null
-          id: string
-          sections: Json | null
-          status: Database["public"]["Enums"]["script_status"]
-          subject: string | null
-          title: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          brief?: Json | null
-          created_at?: string
-          current_revision_id?: string | null
-          id?: string
-          sections?: Json | null
-          status?: Database["public"]["Enums"]["script_status"]
-          subject?: string | null
-          title?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          brief?: Json | null
-          created_at?: string
-          current_revision_id?: string | null
-          id?: string
-          sections?: Json | null
-          status?: Database["public"]["Enums"]["script_status"]
-          subject?: string | null
-          title?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "scripts_current_revision_id_fkey"
-            columns: ["current_revision_id"]
-            isOneToOne: false
-            referencedRelation: "script_revisions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "scripts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "scripts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       share_keys: {
         Row: {
@@ -1338,10 +891,8 @@ export type Database = {
         Row: {
           beats: Json | null
           created_at: string
-          favorite: boolean
           format: string | null
           id: string
-          in_library: boolean
           is_template: boolean
           platform: string | null
           template: string | null
@@ -1354,10 +905,8 @@ export type Database = {
         Insert: {
           beats?: Json | null
           created_at?: string
-          favorite?: boolean
           format?: string | null
           id?: string
-          in_library?: boolean
           is_template?: boolean
           platform?: string | null
           template?: string | null
@@ -1370,10 +919,8 @@ export type Database = {
         Update: {
           beats?: Json | null
           created_at?: string
-          favorite?: boolean
           format?: string | null
           id?: string
-          in_library?: boolean
           is_template?: boolean
           platform?: string | null
           template?: string | null
@@ -1529,39 +1076,6 @@ export type Database = {
           },
         ]
       }
-      video_formats: {
-        Row: {
-          created_at: string
-          format_id: string
-          video_id: string
-        }
-        Insert: {
-          created_at?: string
-          format_id: string
-          video_id: string
-        }
-        Update: {
-          created_at?: string
-          format_id?: string
-          video_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "video_formats_format_id_fkey"
-            columns: ["format_id"]
-            isOneToOne: false
-            referencedRelation: "formats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "video_formats_video_id_fkey"
-            columns: ["video_id"]
-            isOneToOne: false
-            referencedRelation: "videos"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       videos: {
         Row: {
           caption: string | null
@@ -1572,7 +1086,6 @@ export type Database = {
           date_publication: string | null
           engagement_rate: number | null
           error_message: string | null
-          favorite: boolean
           hashtags: string[] | null
           id: string
           lien: string
@@ -1604,7 +1117,6 @@ export type Database = {
           date_publication?: string | null
           engagement_rate?: number | null
           error_message?: string | null
-          favorite?: boolean
           hashtags?: string[] | null
           id?: string
           lien: string
@@ -1636,7 +1148,6 @@ export type Database = {
           date_publication?: string | null
           engagement_rate?: number | null
           error_message?: string | null
-          favorite?: boolean
           hashtags?: string[] | null
           id?: string
           lien?: string
@@ -1725,17 +1236,6 @@ export type Database = {
         Returns: Json
       }
       is_admin: { Args: never; Returns: boolean }
-      is_valid_sections: { Args: { p_sections: Json }; Returns: boolean }
-      persist_generated_script: {
-        Args: {
-          p_brief: Json
-          p_sections: Json
-          p_source_video_ids: string[]
-          p_subject: string
-          p_title: string
-        }
-        Returns: string
-      }
       persist_generation: {
         Args: {
           p_batch_id: string
@@ -1756,8 +1256,6 @@ export type Database = {
         Args: {
           p_analysis: Json
           p_creator_id: string
-          p_existing_format_id?: string
-          p_format: Json
           p_hook: Json
           p_structure: Json
           p_user_id: string
@@ -1773,11 +1271,6 @@ export type Database = {
           user_id: string
         }[]
       }
-      save_script: {
-        Args: { p_script_id: string; p_sections: Json }
-        Returns: string
-      }
-      undo_script: { Args: { p_script_id: string }; Returns: boolean }
       validate_batch: {
         Args: { p_batch_id: string; p_selections: Json }
         Returns: Json
@@ -1792,12 +1285,8 @@ export type Database = {
         | "hook"
         | "restructure"
         | "suggest"
-      device_platform: "ios" | "android"
       platform: "instagram" | "tiktok"
       profile_analysis_status: "pending" | "analyzing" | "done" | "error"
-      revision_source: "generation" | "chat_edit" | "manual"
-      script_edit_status: "pending" | "applied" | "reverted" | "failed"
-      script_status: "draft" | "final"
       social_account_status: "active" | "expired" | "revoked" | "error"
       social_platform: "instagram" | "tiktok"
       video_status: "pending" | "analyzing" | "done" | "error"
@@ -1937,12 +1426,8 @@ export const Constants = {
         "restructure",
         "suggest",
       ],
-      device_platform: ["ios", "android"],
       platform: ["instagram", "tiktok"],
       profile_analysis_status: ["pending", "analyzing", "done", "error"],
-      revision_source: ["generation", "chat_edit", "manual"],
-      script_edit_status: ["pending", "applied", "reverted", "failed"],
-      script_status: ["draft", "final"],
       social_account_status: ["active", "expired", "revoked", "error"],
       social_platform: ["instagram", "tiktok"],
       video_status: ["pending", "analyzing", "done", "error"],

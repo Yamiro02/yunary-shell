@@ -5,6 +5,22 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.1.15 — types Supabase régénérés après le nettoyage de la base (12/09/2026)
+
+- **`src/integrations/supabase/types.ts` régénéré** (1 951 → 1 436 lignes) après la purge du
+  schéma : 10 tables (`collections`, `collection_videos`, `device_tokens`, `formats`,
+  `video_formats`, `scripts`, `script_chat_messages`, `script_edits`, `script_revisions`,
+  `script_sources`), 4 enums (`device_platform`, `revision_source`, `script_edit_status`,
+  `script_status`), les RPC `is_valid_sections`, `persist_generated_script`, `save_script`,
+  `undo_script`, et les colonnes `favorite` / `in_library` (`hooks`, `structures`, `videos`) et
+  `personas.off_record` ; `persist_video_analysis` n'a plus qu'une signature.
+- **La coque ne référençait rien de tout cela** — vérifié : ses `.from()` visent `account_audits`,
+  `actions`, `profiles`, `subscriptions`, `user_credits`, ses types dérivés `Tables<'account_audits'>`
+  et `TablesUpdate<'profiles'>` ; les seules occurrences des noms disparus sont des mots de prose
+  (« scripts » dans les chaînes) et la route `/scripts` de Creator dans la vitrine. Typecheck et
+  build verts sur les nouveaux types.
+- `@yunary/ds` reste épinglé v0.1.9. Rien d'autre dans cette version.
+
 ## 0.1.14 — nettoyage de fin de passe : `Card gap`, glyphe d'erreur, `AppContent` en colonne (12/09/2026)
 
 - **`Card gap={n}` du DS partout où une carte empile ses blocs** — `AuthShell` (5), les quatre
