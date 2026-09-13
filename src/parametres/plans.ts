@@ -1,4 +1,5 @@
 import { fr } from '../i18n/fr';
+import type { PlanCatalog } from '../account/usePlanCatalog';
 
 /**
  * Le catalogue des formules — l'IDENTITÉ et les arguments de vente, rien d'autre. Deux offres
@@ -44,13 +45,22 @@ export function planFor(plan: string | null | undefined): PlanDef {
 }
 
 /**
- * Les arguments d'une formule, le chiffre en tête — « 50 crédits offerts à l'inscription » vient de
- * `plan_allocations.signup_credits` (la Gratuite n'a plus d'allocation mensuelle depuis le
- * 13/09/2026 : un don unique, jamais rechargé), « 300 crédits par mois » de `credits_per_month` —
- * jamais d'une chaîne. `null` = catalogue pas encore lu → « — crédits … ».
+ * 🔒 LA SOURCE UNIQUE des arguments de vente des formules (maquette D1 du Hub, 13/09/2026) — l'onglet
+ * Abonnement et l'écran de choix du Hub les lisent ici, personne ne tient sa propre liste.
+ *   Gratuite : « 50 crédits, offerts une fois » · « Environ 5 analyses » · « Pas de recharge mensuelle »
+ *   Créateur : « 300 crédits par mois » · « Tous les outils, sans limite d'accès » · « Tes crédits se rechargent chaque mois »
+ * Les chiffres viennent du catalogue (`signup_credits`, `credits_per_month`, `actions.analyse`) — jamais
+ * d'une chaîne ; `catalog` absent → « — ». Retirés sur décision Julien : « Environ 30 analyses ou 12
+ * scripts complets » (faux : pas les deux avec la même enveloppe) et « Sans carte bleue » (c'est
+ * l'argument qui vend le gratuit, on ne le met pas en avant).
  */
-export function planFeatures(plan: PlanDef, credits: { creditsPerMonth: number | null; signupCredits: number | null }): string[] {
+export function planFeatures(plan: PlanDef, catalog: PlanCatalog | undefined): string[] {
   const a = fr.parametres.abonnement;
-  const head = plan.id === 'free' ? a.signupCredits(credits.signupCredits) : a.creditsPerMonth(credits.creditsPerMonth);
-  return [head, ...plan.features];
+  const row = catalog?.allocations.find(r => r.plan === plan.id);
+  if (plan.id === 'free') {
+    const signup = row?.signupCredits ?? null;
+    const analyses = signup !== null && catalog?.analyseCost ? Math.floor(signup / catalog.analyseCost) : null;
+    return [a.signupOnce(signup), a.analysesApprox(analyses), ...plan.features];
+  }
+  return [a.creditsPerMonth(row?.creditsPerMonth ?? null), ...plan.features];
 }

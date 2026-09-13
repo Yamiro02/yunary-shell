@@ -6,7 +6,7 @@ import { getErrorMessage } from '../lib/errors';
 import { useCredits } from '../account/useCredits';
 import { isSubscriptionActive, useSubscription, type SubscriptionInfo } from '../account/useSubscription';
 import { useCancelSubscription, usePortalSession, useResumeSubscription } from '../account/useStripe';
-import { allocationFor, isLaunchPrice, priceToShow, signupCreditsFor, usePlanCatalog, type PlanCatalog } from '../account/usePlanCatalog';
+import { allocationFor, isLaunchPrice, priceToShow, usePlanCatalog, type PlanCatalog } from '../account/usePlanCatalog';
 import { CheckoutModal } from '../abonnement/CheckoutModal';
 import { CancelSubscriptionModal } from '../abonnement/CancelSubscriptionModal';
 import { CheckoutActivationCard } from '../abonnement/CheckoutActivationCard';
@@ -88,7 +88,7 @@ export function AbonnementView({
               {credits ? credits.remaining : '—'}
               {showBar ? <span className="font-body text-body font-regular text-text-muted"> / {total}</span> : null}
             </span>
-            <span className="caption">{showBar ? a.creditsThisMonth : a.creditsLeft}</span>
+            <span className="caption">{showBar ? a.creditsThisMonth : a.creditsLeft(credits?.remaining ?? 0)}</span>
           </div>
         </div>
         {showBar ? <Progress value={credits?.remaining ?? 0} max={total} label={a.creditsThisMonth} className="bg-card" /> : null}
@@ -152,7 +152,7 @@ export function AbonnementView({
                 ) : null}
               </div>
               <ul className="flex flex-1 flex-col gap-space-2 text-body-sm text-text-secondary">
-                {planFeatures(p, { creditsPerMonth: allocationFor(catalog, p.id), signupCredits: signupCreditsFor(catalog, p.id) }).map(fe => (
+                {planFeatures(p, catalog).map(fe => (
                   <li key={fe} className="flex items-start gap-space-2">
                     <Icon name="check" size="1rem" strokeWidth={3} className="mt-[0.125rem] flex-none text-pill-success-fg" />
                     <span>{fe}</span>

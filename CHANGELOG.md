@@ -5,6 +5,27 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.2.4 — les textes de formules, une seule source (13/09/2026)
+
+- **Cause racine** : les arguments de vente existaient en double (grille de l'onglet Abonnement dans
+  le paquet, écran de choix D1 dans le Hub) et divergeaient. **Le paquet est la source unique** :
+  `planFeatures(plan, catalog)` rend la liste complète, chiffres du catalogue compris — le Hub la
+  consomme et retire sa copie. Textes validés sur D1 : Gratuite « 50 crédits, offerts une fois » ·
+  « Environ 5 analyses » · « Pas de recharge mensuelle » ; Créateur « 300 crédits par mois » · « Tous
+  les outils, sans limite d'accès » · « Tes crédits se rechargent chaque mois ». Retirés sur décision
+  Julien : « Environ 30 analyses ou 12 scripts complets » (faux : pas les deux avec la même
+  enveloppe) et « Sans carte bleue » (l'argument qui vend le gratuit, on ne le met pas en avant).
+  🔒 « Environ 5 analyses » n'est pas écrit : `signup_credits ÷ actions.analyse` — le catalogue lit
+  désormais aussi le coût de l'analyse (`PlanCatalog.analyseCost`). Plus aucun nombre littéral
+  dans les formules.
+- Carte « Ta formule », gratuit : « Forfait d'activation · sans carte bleue » → **« Sans recharge
+  mensuelle »** ; **« 0 crédit restant »** — accord au singulier pour 0 et 1 (`creditsLeft(n)`,
+  même règle que la carte de la sidebar).
+- ⚠ `planFeatures(plan, catalog)` remplace `planFeatures(plan, { creditsPerMonth, signupCredits })`
+  (0.2.0, aucune app dessus) ; `fr.parametres.abonnement.creditsLeft` devient une fonction ;
+  `signupCredits(n)` → `signupOnce(n)` + `analysesApprox(n)`.
+- Rendu vérifié à l'écran pour un gratuit (37 et 0 crédits) et un abonné.
+
 ## 0.2.3 — le vrai tarif de l'abonné : `amount_cents` (13/09/2026)
 
 - **`useSubscription` expose `amountCents`** (`subscriptions.amount_cents`, GRANT vérifié en base) :

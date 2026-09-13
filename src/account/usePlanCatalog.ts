@@ -35,15 +35,18 @@ export interface PlanCatalog {
   founder: FounderOffer | null;
   /** Le compteur `launch_counter` tel quel, indépendant de l'offre en cours — `null` = pas de ligne. */
   launch: LaunchCounter | null;
+  /** 🔒 Le coût d'une analyse (`actions.analyse`), pour « Environ N analyses » — `null` = ligne absente. */
+  analyseCost: number | null;
 }
 
 export const planCatalogKey = ['plan-catalog'] as const;
 
 /**
- * 🔒 Le catalogue — prix et allocations — vient de la BASE, jamais d'une constante front :
- * `plan_allocations` (label, `credits_per_month`, `signup_credits`, `price_cents`) et `launch_counter` (places
- * fondateur : `taken`, `total`, `price_cents`), lus en parallèle. Les deux tables sont lisibles
- * par `authenticated`. Le compteur bouge à chaque abonnement : cache court.
+ * 🔒 Le catalogue — prix, allocations, coût d'une analyse — vient de la BASE, jamais d'une constante
+ * front : `plan_allocations` (label, `credits_per_month`, `signup_credits`, `price_cents`),
+ * `launch_counter` (places de lancement : `taken`, `total`, `price_cents`) et `actions` (le coût de
+ * l'analyse, pour « Environ N analyses »), lus en parallèle. Les trois tables sont lisibles par
+ * `authenticated`. Le compteur bouge à chaque abonnement : cache court.
  */
 export function usePlanCatalog() {
   const { user } = useAuth();
@@ -53,13 +56,15 @@ export function usePlanCatalog() {
     staleTime: 60 * 1000,
     queryFn: async (): Promise<PlanCatalog> => {
       const supabase = getSupabase();
-      const [allocRes, counterRes] = await Promise.all([
+      const [allocRes, counterRes, analyseRes] = await Promise.all([
         supabase.from('plan_allocations').select('plan, label, credits_per_month, signup_credits, price_cents'),
-        /* Une seule ligne aujourd'hui (l'offre fondateur) ; on ne présume pas de sa `key`. */
+        /* Une seule ligne aujourd'hui (l'offre de lancement) ; on ne présume pas de sa `key`. */
         supabase.from('launch_counter').select('key, taken, total, price_cents').order('key').limit(1).maybeSingle(),
+        supabase.from('actions').select('credits_cost').eq('action_type', 'analyse').maybeSingle(),
       ]);
       if (allocRes.error) throw allocRes.error;
       if (counterRes.error) throw counterRes.error;
+      if (analyseRes.error) throw analyseRes.error;
       const allocations = allocRes.data.map(row => ({
         plan: row.plan, label: row.label, creditsPerMonth: row.credits_per_month, signupCredits: row.signup_credits, priceCents: row.price_cents,
       }));
@@ -69,6 +74,7 @@ export function usePlanCatalog() {
         allocations,
         founder: c && slotsRemaining > 0 ? { slotsRemaining, total: c.total, priceCents: c.price_cents } : null,
         launch: c ? { total: c.total, taken: c.taken, priceCents: c.price_cents } : null,
+        analyseCost: analyseRes.data?.credits_cost ?? null,
       };
     },
   });

@@ -220,10 +220,12 @@ export const fr = {
       billingCta: 'Gérer ma facturation',
       billingLocked: 'Disponible avec une formule payante',
       yourPlan: 'Ta formule',
-      activationPlan: "Forfait d'activation · sans carte bleue",
+      /* Gratuite : ce qui est vrai — pas de recharge (l'ancien « Forfait d'activation · sans carte bleue » était obscur, 13/09/2026). */
+      activationPlan: 'Sans recharge mensuelle',
       monthlyPlan: 'Rechargée chaque mois',
       creditsThisMonth: 'crédits ce mois-ci',
-      creditsLeft: 'crédits restants',
+      /* Accord français : 0 et 1 au singulier — « 0 crédit restant », « 1 crédit restant ». */
+      creditsLeft: (n: number) => (n > 1 ? 'crédits restants' : 'crédit restant'),
       /* Gratuite : plus de recharge ni de date (13/09/2026). */
       offeredFree: "Crédits offerts à l'inscription, non renouvelés. Passe à Créateur pour recharger chaque mois.",
       resetOnPaid: (date: string) => `Recharge le ${date}.`,
@@ -238,8 +240,10 @@ export const fr = {
       recommended: 'Recommandée',
       perMonth: '/mois',
       priceUnknown: '— €',
-      creditsPerMonth: (n: number | null) => (n === null ? '— crédits par mois' : `${n} crédits par mois`),
-      signupCredits: (n: number | null) => (n === null ? "— crédits offerts à l'inscription" : `${n} crédits offerts à l'inscription`),
+      /* Arguments des formules (maquette D1) — les chiffres viennent du catalogue, `null` = pas encore lu. */
+      creditsPerMonth: (n: number | null) => (n === null ? '— crédits par mois' : `${n} crédit${n > 1 ? 's' : ''} par mois`),
+      signupOnce: (n: number | null) => (n === null ? '— crédits, offerts une fois' : `${n} crédit${n > 1 ? 's' : ''}, offert${n > 1 ? 's' : ''} une fois`),
+      analysesApprox: (n: number | null) => (n === null ? 'Environ — analyses' : `Environ ${n} analyse${n > 1 ? 's' : ''}`),
       /* Offre de lancement (`launch_counter`) : visible tant qu'il reste des places, disparaît à 0. « Tarif fondateur » → « Offre de lancement » (Julien, 13/09/2026). */
       founderSlots: (n: number) => `Offre de lancement — il reste ${n} place${n > 1 ? 's' : ''}`,
       founderKeep: 'Ce prix reste le tien tant que tu es abonné',
@@ -300,15 +304,15 @@ export const fr = {
 
   /* Deux offres depuis 0.2.0 (13/09/2026). Arguments de vente seulement : prix et allocation viennent de la base. */
   formules: {
-    /* La première ligne de chaque formule (« N crédits offerts à l'inscription », « N crédits par mois ») est
-       ajoutée par `planFeatures` depuis `plan_allocations` — jamais un nombre ici. */
+    /* Maquette D1 (13/09/2026). Les lignes chiffrées (« N crédits, offerts une fois », « Environ N analyses »,
+       « N crédits par mois ») sont ajoutées par `planFeatures` depuis le catalogue — jamais un nombre ici. */
     free: {
       name: 'Gratuite',
-      features: ['Pour essayer', 'Sans carte bleue'],
+      features: ['Pas de recharge mensuelle'],
     },
     createur: {
       name: 'Créateur',
-      features: ['Environ 30 analyses ou 12 scripts complets', "Tous les outils, sans limite d'accès"],
+      features: ["Tous les outils, sans limite d'accès", 'Tes crédits se rechargent chaque mois'],
     },
   },
 

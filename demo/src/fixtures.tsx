@@ -24,6 +24,7 @@ export const CATALOG: PlanCatalog = {
   ],
   founder: { slotsRemaining: 37, total: 100, priceCents: 1200 },
   launch: { total: 100, taken: 63, priceCents: 1200 },
+  analyseCost: 10,
 };
 /* Places écoulées : l'offre passe à `null`, le compteur reste lisible (« Tu fais partie des 100 premiers »). */
 export const CATALOG_SOLD_OUT: PlanCatalog = { ...CATALOG, founder: null, launch: { total: 100, taken: 100, priceCents: 1200 } };

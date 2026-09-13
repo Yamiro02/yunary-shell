@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.2.3';
+export const SHELL_VERSION = '0.2.4';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
