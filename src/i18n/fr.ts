@@ -131,8 +131,8 @@ export const fr = {
     /* Gratuite : 50 crédits une fois, jamais rechargés (13/09/2026) — plus de date de recharge. Court : la ligne
        tient sur une seule ligne dans la sidebar à 15 rem (« Crédits offerts, non renouvelés » y passait à deux). */
     creditsOffered: 'Offerts, non renouvelés',
-    /* Solde sous 20 % de l'allocation : la carte mène à Paramètres › Abonnement. */
-    creditsLowLink: 'Crédits bas : voir les formules',
+    /* La carte mène à Paramètres › Abonnement : gratuit toujours, abonné sous 20 % de l'allocation. */
+    creditsLowLink: 'Voir les formules',
     planLabel: (plan: string) => `Formule ${plan}`,
     /* Retour de Stripe, webhook pas encore passé : jamais « Formule Gratuite » à qui vient de payer. */
     planActivating: 'Activation en cours…',

@@ -32,7 +32,7 @@ export interface HubSidebarProps {
   /** Capacitor : pas de section « Mes outils » ; la nav réduite est celle passée en `items`. */
   native?: boolean;
   credits: CreditsView | null | undefined;
-  /** Solde bas : la carte crédits mène ici (Paramètres › Abonnement). Sans lui, jamais cliquable. */
+  /** La carte crédits mène ici (Paramètres › Abonnement) — gratuit toujours, abonné sous 20 %. Sans lui, jamais cliquable. */
   creditsHref?: string;
   account: AccountView;
   /** Le lien du routeur (`NavLink`) — `href` lui arrive en `to`. */

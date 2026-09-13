@@ -24,21 +24,31 @@ export interface CreditsCardProps {
   linkAs?: ElementType;
 }
 
-/** Sous 20 % de l'allocation mensuelle — ou à zéro pour un gratuit, qui n'a plus d'allocation. */
+/** Abonné : solde sous 20 % de l'allocation mensuelle. Faux sans allocation connue (`null`) ou pour un gratuit (`0`). */
 export function isCreditsLow(credits: CreditsView | null | undefined): boolean {
+  if (!credits || !credits.total) return false;
+  return credits.remaining < credits.total * 0.2;
+}
+
+/**
+ * La carte mène-t-elle à Paramètres › Abonnement ? Gratuit (`total` 0) : **toujours** — il n'a rien
+ * à recharger, sa seule issue est l'abonnement, et à zéro le lien arriverait trop tard (décision
+ * Julien, 13/09/2026). Abonné : sous 20 % de l'allocation seulement — la recharge arrive, le lien
+ * ne sert qu'en fin de course.
+ */
+export function shouldLinkCredits(credits: CreditsView | null | undefined): boolean {
   if (!credits) return false;
-  if (credits.total === null) return false;
-  return credits.total > 0 ? credits.remaining < credits.total * 0.2 : credits.remaining <= 0;
+  return credits.total === 0 || isCreditsLow(credits);
 }
 
 /**
  * Carte crédits de la sidebar (maître HubSidebar, 11/09/2026 : 14 / 16 → `space-3` / `space-4`, gap 8, titre display 15,
- * piste sur `--card`) : solde, barre, date de recharge. Solde bas (`isCreditsLow`) : LA MÊME carte devient un lien vers
- * Paramètres › Abonnement — aucun changement de mise en page, juste l'interaction. Gratuite : pas de barre (allocation 0,
- * `max=0` casserait la `Progress`) ni de date de recharge, « Offerts, non renouvelés » à la place.
+ * piste sur `--card`) : solde, barre, date de recharge. Gratuit toujours, abonné sous 20 % (`shouldLinkCredits`) : LA MÊME
+ * carte devient un lien vers Paramètres › Abonnement — aucun changement de mise en page, juste l'interaction. Gratuite :
+ * pas de barre (allocation 0, `max=0` casserait la `Progress`) ni de date de recharge, « Offerts, non renouvelés » à la place.
  */
 export function CreditsCard({ credits, href, linkAs }: CreditsCardProps): JSX.Element {
-  const low = !!href && isCreditsLow(credits);
+  const low = !!href && shouldLinkCredits(credits);
   const Comp = (low ? (linkAs ?? 'a') : 'div') as ElementType;
   const linkProps = low ? { ...(linkAs ? { to: href } : { href }), 'aria-label': fr.layout.creditsLowLink } : {};
   /* `total` 0 = Gratuite : pas de barre. `null` = inconnu : barre pleine, comme avant. */

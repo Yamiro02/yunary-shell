@@ -5,6 +5,18 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.2.1 — la carte crédits d'un gratuit mène toujours à l'abonnement (13/09/2026)
+
+- **Compte gratuit : la carte crédits de la sidebar est cliquable EN PERMANENCE**, quel que soit
+  le solde (décision Julien, 13/09/2026, renversant le « à zéro » de la 0.2.0) : un gratuit n'a
+  rien à recharger, sa seule issue est l'abonnement — le lien est toujours pertinent, et à zéro il
+  arrivait trop tard, après une action refusée. **La règle des 20 % reste pour les abonnés**, chez
+  qui la recharge arrive et où le lien ne sert qu'en fin de course. `isCreditsLow` redevient la
+  seule règle des 20 % (faux pour un gratuit) ; nouveau `shouldLinkCredits` = gratuit ∨ bas — c'est
+  lui que `CreditsCard` applique. Libellé accessible du lien : « Voir les formules ». Rien ne bouge
+  à la mise en page.
+- Vitrine : cartes « Gratuit à 37 → lien » et « Gratuit à zéro → lien ».
+
 ## 0.2.0 — parcours d'abonnement Stripe : catalogue en base, checkout embarqué, résiliation (13/09/2026)
 
 Un **minor** : trois ruptures d'API pour les apps (voir ⚠ en fin d'entrée). Contrat back de la

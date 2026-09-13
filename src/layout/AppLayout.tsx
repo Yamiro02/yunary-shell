@@ -142,7 +142,7 @@ export function AppLayout({
           toolsActive={isActive(toolsHref)}
           native={native}
           credits={creditsView}
-          /* Solde bas : la carte crédits mène à Paramètres › Abonnement (le natif n'a pas d'onglet Abonnement). */
+          /* La carte crédits mène à Paramètres › Abonnement — gratuit toujours, abonné sous 20 % (le natif n'a pas d'onglet Abonnement). */
           creditsHref={native ? undefined : `${settingsHref}?tab=abonnement`}
           account={account}
           linkAs={NavLink}
