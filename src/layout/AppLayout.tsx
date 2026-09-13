@@ -7,6 +7,8 @@ import { useProfile } from '../account/useProfile';
 import { useCredits } from '../account/useCredits';
 import { useSubscription } from '../account/useSubscription';
 import { planFor } from '../parametres/plans';
+import { useCheckoutActivation } from '../abonnement/useCheckoutActivation';
+import { PaymentFailedBanner } from '../abonnement/PaymentFailedBanner';
 import { initiales } from '../lib/format';
 import { HubSidebar, type ShellNavItem } from './HubSidebar';
 import type { AccountView } from './AccountCard';
@@ -103,6 +105,7 @@ export function AppLayout({
   const profile = useProfile();
   const credits = useCredits();
   const subscription = useSubscription();
+  const activation = useCheckoutActivation();
 
   /* Le tiroir se referme à chaque navigation. */
   useEffect(() => {
@@ -116,7 +119,8 @@ export function AppLayout({
     name: [profile.data?.prenom, profile.data?.nom].filter(Boolean).join(' ') || profile.data?.email || '',
     initials: initiales(profile.data?.prenom, profile.data?.nom, profile.data?.email),
     avatarUrl: profile.data?.avatar_url ?? null,
-    planLabel: fr.layout.planLabel(planFor(subscription.data?.plan).name),
+    /* Retour de Stripe, webhook pas encore passé : « Activation en cours… », jamais « Formule Gratuite » à qui vient de payer. */
+    planLabel: activation.state === 'pending' ? fr.layout.planActivating : fr.layout.planLabel(planFor(subscription.data?.plan).name),
   };
 
   const creditsView: CreditsView | null | undefined = credits.isPending
@@ -138,6 +142,8 @@ export function AppLayout({
           toolsActive={isActive(toolsHref)}
           native={native}
           credits={creditsView}
+          /* Solde bas : la carte crédits mène à Paramètres › Abonnement (le natif n'a pas d'onglet Abonnement). */
+          creditsHref={native ? undefined : `${settingsHref}?tab=abonnement`}
           account={account}
           linkAs={NavLink}
           open={open}
@@ -156,6 +162,9 @@ export function AppLayout({
           </IconButton>
           <Logo variant="wordmark" height="1.25rem" />
         </header>
+        {/* Paiement en échec (`past_due` / `unpaid`) : le bandeau en haut de l'APP, dans les gouttières, au-dessus du
+            contenu — l'accès n'est pas coupé. Ne rend rien sinon. Le natif n'a pas d'abonnement in-app. */}
+        {native ? null : <PaymentFailedBanner className={cn('mt-space-5', APP_GUTTER_X)} />}
         <AppContent>{children ?? <Outlet />}</AppContent>
       </div>
     </AppShell>

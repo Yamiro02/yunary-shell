@@ -5,6 +5,77 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.2.0 — parcours d'abonnement Stripe : catalogue en base, checkout embarqué, résiliation (13/09/2026)
+
+Un **minor** : trois ruptures d'API pour les apps (voir ⚠ en fin d'entrée). Contrat back de la
+session supabase : le **schéma est en base** (`plan_allocations.price_cents` / `signup_credits`,
+`launch_counter`, `subscriptions.cancel_at_period_end`, `stripe_events` — types Supabase
+resynchronisés sur la génération MCP, GRANT colonne-limité vérifié sur les colonnes lues), les Edge
+`create-checkout-session` / `cancel-subscription` / `resume-subscription` / `stripe-webhook` n'étaient
+**pas encore déployées** au moment du tag : la coque est écrite sur le contrat. La recette réelle du
+paiement (carte de test, webhook) reste à faire en revue commune — rien n'est simulé ici.
+
+- **🔒 Plus aucun prix ni allocation dans le paquet.** `plans.ts` passe à **deux** formules
+  (Gratuite, Créateur — Pro retirée) et ne garde que l'identité et les arguments de vente ;
+  `usePlanCatalog()` lit `plan_allocations` (label, `credits_per_month`, `price_cents`) et
+  `launch_counter` (offre fondateur) en parallèle. Le prix affiché de Créateur = le tarif fondateur
+  tant qu'il reste des places (« Tarif fondateur — il reste N places » + « Ce prix reste le tien
+  tant que tu es abonné »), sinon le prix plein seul. « 50 crédits offerts à l'inscription »
+  (`signup_credits`) et « 300 crédits par mois » (`credits_per_month`) viennent de la base
+  (`planFeatures`). Un seul nombre littéral subsiste, dicté : « Environ 30 analyses ou 12 scripts
+  complets » (un ordre de grandeur, pas un montant).
+- **Checkout embarqué, zéro redirection** : `useCheckoutSession` renvoie `{ clientSecret,
+  amountCents, isFondateur, slotsRemaining }` ; `<CheckoutModal>` (modale lg du DS) appelle l'Edge
+  à l'ouverture, charge Stripe.js paresseusement (`configureShell({ stripePublishableKey })`,
+  `VITE_STRIPE_PUBLISHABLE_KEY` côté app) et monte `EmbeddedCheckout` dedans ; préparation,
+  erreur (fermer / réessayer, codes `already_subscribed` / `rate_limited` / `unauthorized`
+  traduits), fermeture par la croix seule. Le montant en tête est **celui de l'Edge**. Exportée
+  pour Creator. `@stripe/stripe-js` + `@stripe/react-stripe-js` en **dépendances** du paquet
+  (seule la coque les importe), externes dans `tsup`.
+- **Écran de retour** (`?checkout=<session_id>`) : `useCheckoutActivation()` sonde
+  `subscriptions` chaque seconde, 20 s au plus (une seule sonde, react-query déduplique) ;
+  `<CheckoutActivationCard>` remplace l'onglet — « On active ton abonnement… », succès, ou le
+  message calme passé 20 s (« Ton paiement est bien passé… »), **jamais une erreur rouge**.
+  **Jamais « Formule Gratuite » à qui vient de payer** : pendant la sonde, `AppLayout` affiche
+  « Activation en cours… » dans la carte compte de la sidebar.
+- **Résiliation** : « Se désabonner » (bouton secondaire dans la carte « Ta formule », sous la
+  ligne de recharge — Julien, 13/09/2026), confirmation en une étape au texte exact (« Tu gardes
+  l'accès et tes crédits jusqu'au {date}. Ensuite tu repasses à la formule Gratuite. ») ; après,
+  « Se termine le {date} » + « Réactiver mon abonnement » (`resume-subscription`). « Gérer la
+  facturation » reste (carte, factures).
+- **Bandeau paiement en échec** (`past_due` / `unpaid`) : `<PaymentFailedBanner>` rendu par
+  `AppLayout` sous la barre haute, dans les gouttières — « Ton dernier paiement n'est pas passé.
+  Mets à jour ta carte pour garder ton accès. » + bouton vers le portail. **L'accès n'est pas
+  coupé.**
+- **La Gratuite n'a plus d'allocation** (`plan_allocations.free.credits_per_month = 0` : 50 crédits
+  une fois, jamais rechargés — Julien, 13/09/2026) : `useCredits` expose `creditsTotal` 0 et
+  `periodEnd` `null` pour un gratuit ; **pas de barre, pas de « X / Y », juste le solde** — dans
+  la carte crédits de la sidebar comme dans l'onglet (un `max=0` cassait la `Progress`) ;
+  « Recharge le… » remplacé par « Offerts, non renouvelés » (sidebar, court pour tenir sur une
+  ligne à 15 rem) et « Crédits offerts à l'inscription, non renouvelés. Passe à Créateur pour
+  recharger chaque mois. » (onglet). Pour un abonné, « Recharge le {date} » ne bouge pas (en date
+  longue dans l'onglet : « 13 oct.. » à deux points corrigé au passage).
+- **Carte crédits de la sidebar** : sous 20 % de l'allocation — ou à zéro pour un gratuit — la
+  même carte devient un lien vers `{settingsHref}?tab=abonnement` (`creditsHref` de `HubSidebar`,
+  `isCreditsLow`) ; DOM et mise en page identiques au-dessus (mesuré : mêmes hauteurs).
+- **CGU** : art. **4 « Droit de rétractation »** (14 jours, exécution immédiate, renonciation
+  expresse — le texte de la case cochée au checkout y est cité mot pour mot, identique à celui que
+  l'Edge passe à Stripe) et art. **5 « Politique de remboursement »** (pas de prorata, accès
+  jusqu'à la fin de la période, geste commercial possible en cas de dysfonctionnement) ; articles
+  suivants renumérotés 6-12, les deux renvois internes « article 8 » → « article 10 » corrigés
+  (aucun autre document ni texte de l'app ne renvoyait à un numéro d'article des CGU — vérifié) ;
+  `updated` **13 septembre 2026**. « TVA non applicable » n'est pas dupliquée.
+- Vitrine : les six états d'Abonnement (sans abonnement, actif, résilié, past_due, crédits à zéro,
+  places épuisées) + catalogue non lu, les trois états d'activation, les modales Stripe, les cartes
+  crédits abonné / solde bas / gratuit à zéro. Typecheck, build et démo verts (375 / bureau,
+  clair / sombre). Une valeur hors jeton, admise : le cadre du formulaire Stripe défile dans
+  `max-h-[65dvh]` — la modale du DS n'a pas de corps défilant (BACKLOG DS).
+- ⚠ **Pour les apps** : (1) `useCheckoutSession` ne redirige plus et renvoie un `CheckoutSession`
+  — ouvrir `<CheckoutModal>` à la place ; (2) `PlanDef` perd `priceMonthly` et `creditsPerMonth`
+  (prix et allocations via `usePlanCatalog`), `PlanId` perd `'pro'` ; (3) `AbonnementView` prend
+  `subscription`, `catalog`, `onCancel`, `onResume` à la place de `hasSubscription`. Poser
+  `VITE_STRIPE_PUBLISHABLE_KEY` et le passer à `configureShell({ stripePublishableKey })`.
+
 ## 0.1.15 — types Supabase régénérés après le nettoyage de la base (12/09/2026)
 
 - **`src/integrations/supabase/types.ts` régénéré** (1 951 → 1 436 lignes) après la purge du

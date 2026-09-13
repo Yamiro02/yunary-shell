@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.1.15';
+export const SHELL_VERSION = '0.2.0';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -39,15 +39,30 @@ export type { Profile, NotificationPrefs } from './account/useProfile';
 export { useUpdateProfile } from './account/useUpdateProfile';
 export type { ProfileUpdate } from './account/useUpdateProfile';
 export { useUpdateAvatar, useDeleteAvatar } from './account/useAvatar';
-export { useCredits, useActionCosts, creditsKey } from './account/useCredits';
+export { useCredits, useActionCosts, creditsKey, isPaidPlan } from './account/useCredits';
 export type { CreditsInfo, ActionCost } from './account/useCredits';
-export { useSubscription, subscriptionKey } from './account/useSubscription';
+export { useSubscription, subscriptionKey, isSubscriptionActive, isPaymentFailed } from './account/useSubscription';
 export type { SubscriptionInfo } from './account/useSubscription';
 export { useDeleteAccount } from './account/useDeleteAccount';
-export { usePortalSession, useCheckoutSession } from './account/useStripe';
+
+/* abonnement Stripe — catalogue en base, checkout embarqué, activation, résiliation */
+export { usePlanCatalog, planCatalogKey, allocationFor, signupCreditsFor, priceFor } from './account/usePlanCatalog';
+export type { PlanCatalog, PlanAllocation, FounderOffer } from './account/usePlanCatalog';
+export { usePortalSession, useCheckoutSession, useCancelSubscription, useResumeSubscription } from './account/useStripe';
+export type { CheckoutSession } from './account/useStripe';
+export { CheckoutModal } from './abonnement/CheckoutModal';
+export type { CheckoutModalProps } from './abonnement/CheckoutModal';
+export { useCheckoutActivation, CHECKOUT_PARAM } from './abonnement/useCheckoutActivation';
+export type { CheckoutActivationState } from './abonnement/useCheckoutActivation';
+export { CheckoutActivationCard } from './abonnement/CheckoutActivationCard';
+export type { CheckoutActivationCardProps } from './abonnement/CheckoutActivationCard';
+export { CancelSubscriptionModal } from './abonnement/CancelSubscriptionModal';
+export type { CancelSubscriptionModalProps } from './abonnement/CancelSubscriptionModal';
+export { PaymentFailedBanner, PaymentFailedBannerView } from './abonnement/PaymentFailedBanner';
+export type { PaymentFailedBannerViewProps } from './abonnement/PaymentFailedBanner';
 
 /* formules et outils */
-export { PLANS, FREE_PLAN, planFor } from './parametres/plans';
+export { PLANS, FREE_PLAN, CREATEUR_PLAN, planFor, planFeatures } from './parametres/plans';
 export type { PlanDef, PlanId } from './parametres/plans';
 export { TOOLS, toolById, toolUrl, toolFullName } from './layout/tools';
 export type { ToolDef } from './layout/tools';
@@ -73,7 +88,7 @@ export type { Voix, NiveauLangue, Vulgarite, Humour, AvatarCible, PrisesDePositi
 export { fr } from './i18n/fr';
 export type { Fr } from './i18n/fr';
 export { getErrorMessage } from './lib/errors';
-export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, initiales } from './lib/format';
+export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, formatEuros, initiales } from './lib/format';
 export { withGlyphSize, CARD_GLYPH_SIZE } from './lib/icon';
 
 /* layout */
@@ -82,8 +97,8 @@ export type { AppLayoutProps, AppContentProps, AppBleedProps } from './layout/Ap
 export { HubSidebar } from './layout/HubSidebar';
 export { ToolName } from './layout/ToolName';
 export type { HubSidebarProps, ShellNavItem } from './layout/HubSidebar';
-export { CreditsCard } from './layout/CreditsCard';
-export type { CreditsView } from './layout/CreditsCard';
+export { CreditsCard, isCreditsLow } from './layout/CreditsCard';
+export type { CreditsView, CreditsCardProps } from './layout/CreditsCard';
 export { AccountCard, UserAvatar } from './layout/AccountCard';
 export type { AccountView } from './layout/AccountCard';
 export { SegmentedControl } from './layout/SegmentedControl';
@@ -123,7 +138,7 @@ export type { InfosViewProps, ReseauView, SaveState } from './parametres/InfosTa
 export { NotificationsTab, NotificationsView } from './parametres/NotificationsTab';
 export type { NotificationsViewProps } from './parametres/NotificationsTab';
 export { AbonnementTab, AbonnementView } from './parametres/AbonnementTab';
-export type { AbonnementViewProps } from './parametres/AbonnementTab';
+export type { AbonnementViewProps, PaidPlanId } from './parametres/AbonnementTab';
 export { LegalTab, LegalView, DeleteAccountModal, DEFAULT_LEGAL_HREFS } from './parametres/LegalTab';
 export type { LegalViewProps, LegalHrefs, DeleteAccountModalProps } from './parametres/LegalTab';
 export { PasswordModal } from './parametres/PasswordModal';

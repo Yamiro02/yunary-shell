@@ -36,6 +36,10 @@ export const fr = {
     generic: 'Une erreur est survenue. Réessaie.',
     portalFailed: "Impossible d'ouvrir la gestion de facturation. Réessaie.",
     checkoutFailed: "Impossible d'ouvrir le paiement. Réessaie.",
+    checkoutAlreadySubscribed: 'Tu as déjà un abonnement actif.',
+    checkoutUnavailable: "Le paiement n'est pas disponible sur cette app pour le moment.",
+    cancelFailed: "La résiliation n'a pas pu être enregistrée. Réessaie.",
+    resumeFailed: "La réactivation n'a pas pu être enregistrée. Réessaie.",
     accountDeleteFailed: 'La suppression du compte a échoué. Réessaie.',
     insufficientCredits: 'Crédits insuffisants.',
     image: {
@@ -124,10 +128,17 @@ export const fr = {
     creditsLeft: (n: number) => `${n} crédit${n > 1 ? 's' : ''} restant${n > 1 ? 's' : ''}`,
     creditsUnknown: 'Crédits indisponibles',
     creditsResetOn: (date: string) => `Recharge le ${date}`,
+    /* Gratuite : 50 crédits une fois, jamais rechargés (13/09/2026) — plus de date de recharge. Court : la ligne
+       tient sur une seule ligne dans la sidebar à 15 rem (« Crédits offerts, non renouvelés » y passait à deux). */
+    creditsOffered: 'Offerts, non renouvelés',
+    /* Solde sous 20 % de l'allocation : la carte mène à Paramètres › Abonnement. */
+    creditsLowLink: 'Crédits bas : voir les formules',
+    planLabel: (plan: string) => `Formule ${plan}`,
+    /* Retour de Stripe, webhook pas encore passé : jamais « Formule Gratuite » à qui vient de payer. */
+    planActivating: 'Activation en cours…',
     menu: 'Menu',
     openMenu: 'Ouvrir le menu',
     closeMenu: 'Fermer le menu',
-    planLabel: (plan: string) => `Formule ${plan}`,
   },
 
   /* « Mes outils » (C1) — remontée du Hub le 11/09/2026, la page s'ouvre dans chaque outil. */
@@ -212,9 +223,14 @@ export const fr = {
       activationPlan: "Forfait d'activation · sans carte bleue",
       monthlyPlan: 'Rechargée chaque mois',
       creditsThisMonth: 'crédits ce mois-ci',
-      resetOnFree: (date: string) =>
-        `Recharge le ${date}. Passe à une formule payante pour recharger chaque mois.`,
+      creditsLeft: 'crédits restants',
+      /* Gratuite : plus de recharge ni de date (13/09/2026). */
+      offeredFree: "Crédits offerts à l'inscription, non renouvelés. Passe à Créateur pour recharger chaque mois.",
       resetOnPaid: (date: string) => `Recharge le ${date}.`,
+      endsOn: (date: string) => `Se termine le ${date}`,
+      endsOnBody: (date: string) => `Tu gardes l'accès et tes crédits jusqu'au ${date}. Ensuite tu repasses à la formule Gratuite.`,
+      unsubscribe: 'Se désabonner',
+      resume: 'Réactiver mon abonnement',
       changePlan: 'Changer de formule',
       currentPlan: 'Ta formule actuelle',
       choose: 'Choisir',
@@ -222,7 +238,36 @@ export const fr = {
       recommended: 'Recommandée',
       perMonth: '/mois',
       priceUnknown: '— €',
-      creditsUnknown: '— crédits/mois',
+      creditsPerMonth: (n: number | null) => (n === null ? '— crédits par mois' : `${n} crédits par mois`),
+      signupCredits: (n: number | null) => (n === null ? "— crédits offerts à l'inscription" : `${n} crédits offerts à l'inscription`),
+      /* Tarif fondateur (`launch_counter`) : visible tant qu'il reste des places, disparaît à 0. */
+      founderSlots: (n: number) => `Tarif fondateur — il reste ${n} place${n > 1 ? 's' : ''}`,
+      founderKeep: 'Ce prix reste le tien tant que tu es abonné',
+      cancelDialog: {
+        title: 'Se désabonner ?',
+        confirm: 'Se désabonner',
+        done: 'Abonnement résilié',
+        doneBody: (date: string) => `Tu gardes l'accès jusqu'au ${date}.`,
+      },
+      checkout: {
+        title: (plan: string) => `Passer à la formule ${plan}`,
+        founder: 'Tarif fondateur',
+        loading: 'Préparation du paiement…',
+      },
+      /* Retour de Stripe (`?checkout=`) : on sonde `subscriptions` jusqu'à 20 s. Jamais d'erreur rouge : le paiement a réussi. */
+      activation: {
+        title: 'On active ton abonnement…',
+        body: 'Quelques secondes, le temps que le paiement soit confirmé.',
+        doneTitle: 'Ton abonnement est actif',
+        doneBody: 'Tes crédits sont rechargés, tu peux y aller.',
+        lateTitle: 'Ton paiement est bien passé',
+        lateBody: "L'activation prend parfois une minute. Recharge la page dans un instant.",
+        continue: 'Continuer',
+      },
+      paymentFailed: {
+        text: "Ton dernier paiement n'est pas passé. Mets à jour ta carte pour garder ton accès.",
+        cta: 'Mettre à jour ma carte',
+      },
     },
     legal: {
       cgu: "Conditions générales d'utilisation",
@@ -250,18 +295,17 @@ export const fr = {
     },
   },
 
+  /* Deux offres depuis 0.2.0 (13/09/2026). Arguments de vente seulement : prix et allocation viennent de la base. */
   formules: {
+    /* La première ligne de chaque formule (« N crédits offerts à l'inscription », « N crédits par mois ») est
+       ajoutée par `planFeatures` depuis `plan_allocations` — jamais un nombre ici. */
     free: {
       name: 'Gratuite',
-      features: ["50 crédits offerts à l'inscription", 'Analyse et Création inclus', 'Sans carte bleue'],
+      features: ['Pour essayer', 'Sans carte bleue'],
     },
     createur: {
       name: 'Créateur',
-      features: ['— crédits/mois', "Tous les outils, sans limite d'accès", 'Recharge automatique chaque mois'],
-    },
-    pro: {
-      name: 'Pro',
-      features: ['— crédits/mois', 'Tout Créateur, en plus grand volume', 'Accès prioritaire aux nouveaux outils'],
+      features: ['Environ 30 analyses ou 12 scripts complets', "Tous les outils, sans limite d'accès"],
     },
   },
 

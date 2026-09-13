@@ -1,9 +1,11 @@
 /**
- * Contenu des pages légales — COPIE VERBATIM de `legacy-v1/app/src/i18n/locales/fr/legal.json`
- * (généré par script, jamais retouché à la main ici). Ces textes sont conformes aux reviews
- * Meta / TikTok et FIGÉS ; seul le médiateur de la consommation (art. 10 des CGU) reste à
- * compléter. Registre formel (vouvoiement). Une modification se fait dans la v1 puis se
- * régénère ici — jamais l'inverse.
+ * Contenu des pages légales. Base : COPIE VERBATIM de `legacy-v1/app/src/i18n/locales/fr/legal.json`
+ * (textes conformes aux reviews Meta / TikTok), complétée le 13/09/2026 au lot Stripe : CGU art. 4
+ * (droit de rétractation — le texte de la case cochée au checkout y est cité mot pour mot, il est
+ * identique à celui que l'Edge `create-checkout-session` passe à Stripe) et art. 5 (politique de
+ * remboursement), les articles suivants renumérotés. Seul le médiateur de la consommation (art. 12
+ * des CGU) reste à compléter. Registre formel (vouvoiement). La v1 est gelée : ce fichier est
+ * désormais la source.
  */
 export type LegalBlock = { type: 'p'; text: string } | { type: 'list'; items: string[] };
 export interface LegalSection { heading: string; blocks: LegalBlock[] }
@@ -13,7 +15,7 @@ export type LegalDocId = 'cgu' | 'mentions' | 'confidentialite';
 export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
   "cgu": {
     "title": "Conditions générales d'utilisation",
-    "updated": "9 août 2026",
+    "updated": "13 septembre 2026",
     "intro": "Les présentes conditions générales d'utilisation (les « CGU ») régissent l'accès et l'utilisation du service Yunary. En créant un compte ou en utilisant le service, vous acceptez les présentes CGU sans réserve.",
     "sections": [
       {
@@ -64,12 +66,54 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
           },
           {
             "type": "p",
-            "text": "Vous pouvez gérer ou résilier votre abonnement à tout moment depuis votre espace de facturation. Sauf indication contraire, la résiliation prend effet à la fin de la période en cours. Cas particulier : la suppression du compte entraîne la résiliation immédiate de l'abonnement, sans remboursement de la période restante (voir l'article 8)."
+            "text": "Vous pouvez gérer ou résilier votre abonnement à tout moment depuis votre espace de facturation. Sauf indication contraire, la résiliation prend effet à la fin de la période en cours. Cas particulier : la suppression du compte entraîne la résiliation immédiate de l'abonnement, sans remboursement de la période restante (voir l'article 10)."
           }
         ]
       },
       {
-        "heading": "4. Contenus analysés",
+        "heading": "4. Droit de rétractation",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "Conformément aux articles L. 221-18 et suivants du Code de la consommation, vous disposez en principe d'un délai de quatorze jours à compter de la souscription d'un abonnement pour exercer votre droit de rétractation, sans avoir à motiver votre décision."
+          },
+          {
+            "type": "p",
+            "text": "Toutefois, l'abonnement donne accès à un contenu numérique et à un service dont l'exécution commence immédiatement, dès la validation du paiement : vos crédits sont alloués et le service est utilisable sans attendre. En application des articles L. 221-25 et L. 221-28 du Code de la consommation, la souscription est donc subordonnée à votre demande expresse d'exécution immédiate et à votre renonciation expresse au droit de rétractation, recueillies au moment du paiement par la case que vous cochez, dont le texte est le suivant :"
+          },
+          {
+            "type": "p",
+            "text": "« J'accepte les CGU et je demande que mon abonnement démarre immédiatement. Je reconnais qu'en conséquence je renonce à mon droit de rétractation de 14 jours. »"
+          },
+          {
+            "type": "p",
+            "text": "Sans cette case cochée, le paiement ne peut pas être finalisé et aucun abonnement n'est souscrit. Une fois l'abonnement activé, vous pouvez à tout moment le résilier pour la fin de la période en cours dans les conditions de l'article 3, sans remboursement de la période entamée (voir l'article 5)."
+          }
+        ]
+      },
+      {
+        "heading": "5. Politique de remboursement",
+        "blocks": [
+          {
+            "type": "p",
+            "text": "L'abonnement est facturé d'avance pour chaque période mensuelle. En cas de résiliation en cours de période, l'accès au service et les crédits de la période restent acquis jusqu'à son terme ; aucun remboursement au prorata de la période non consommée n'est effectué et aucun renouvellement n'est facturé ensuite."
+          },
+          {
+            "type": "list",
+            "items": [
+              "Les crédits alloués au titre d'un abonnement n'ont aucune valeur monétaire et ne donnent lieu à aucun remboursement, qu'ils soient consommés ou non.",
+              "La suppression du compte entraîne la résiliation immédiate de l'abonnement, sans remboursement de la période restante (voir l'article 10).",
+              "Lorsque le tarif de lancement réservé aux premiers abonnés vous a été accordé, il vous reste acquis tant que votre abonnement est maintenu sans interruption ; une résiliation y met fin, et une nouvelle souscription se fait au tarif alors en vigueur."
+            ]
+          },
+          {
+            "type": "p",
+            "text": "En cas de dysfonctionnement du service qui vous serait imputable à l'éditeur et vous aurait empêché d'utiliser tout ou partie de votre abonnement, un geste commercial (crédits complémentaires, prolongation de la période ou remboursement partiel) peut être accordé sur demande écrite à hello@julienfernandes.com, au cas par cas et sans que cela constitue un droit acquis. Cette politique s'applique sans préjudice des garanties légales dont vous bénéficiez en tant que consommateur."
+          }
+        ]
+      },
+      {
+        "heading": "6. Contenus analysés",
         "blocks": [
           {
             "type": "p",
@@ -82,7 +126,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
         ]
       },
       {
-        "heading": "5. Contenus générés et propriété intellectuelle",
+        "heading": "7. Contenus générés et propriété intellectuelle",
         "blocks": [
           {
             "type": "p",
@@ -99,7 +143,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
         ]
       },
       {
-        "heading": "6. Usage acceptable",
+        "heading": "8. Usage acceptable",
         "blocks": [
           {
             "type": "p",
@@ -117,12 +161,12 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
           },
           {
             "type": "p",
-            "text": "Tout manquement peut entraîner la suspension ou la résiliation du compte dans les conditions de l'article 8."
+            "text": "Tout manquement peut entraîner la suspension ou la résiliation du compte dans les conditions de l'article 10."
           }
         ]
       },
       {
-        "heading": "7. Disponibilité et évolution du service",
+        "heading": "9. Disponibilité et évolution du service",
         "blocks": [
           {
             "type": "p",
@@ -135,7 +179,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
         ]
       },
       {
-        "heading": "8. Résiliation",
+        "heading": "10. Résiliation",
         "blocks": [
           {
             "type": "p",
@@ -148,7 +192,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
         ]
       },
       {
-        "heading": "9. Responsabilité",
+        "heading": "11. Responsabilité",
         "blocks": [
           {
             "type": "p",
@@ -165,7 +209,7 @@ export const LEGAL_DOCS: Record<LegalDocId, LegalDoc> = {
         ]
       },
       {
-        "heading": "10. Droit applicable et litiges",
+        "heading": "12. Droit applicable et litiges",
         "blocks": [
           {
             "type": "p",

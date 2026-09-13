@@ -1,13 +1,16 @@
 import { useQuery } from '@tanstack/react-query';
 import { getSupabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
-import { planFor } from '../parametres/plans';
 
 export interface CreditsInfo {
   creditsRemaining: number;
-  /** Allocation de la formule (dénominateur de la barre) — `null` = inconnue → barre pleine. */
+  /**
+   * Allocation MENSUELLE de la formule (`plan_allocations.credits_per_month`), dénominateur de la
+   * barre — `null` = inconnue. `0` pour la Gratuite (13/09/2026 : 50 crédits une fois à
+   * l'inscription, jamais rechargés) : pas de barre, pas de « X / Y », juste le solde.
+   */
   creditsTotal: number | null;
-  /** Date de recharge (`user_credits.period_end`, toujours renseignée par le back). */
+  /** Date de recharge (`user_credits.period_end`) — `null` sans abonnement payant : un gratuit n'est plus rechargé. */
   periodEnd: string | null;
   /** Code de la formule (`subscriptions.plan`), `null` = Gratuite. */
   plan: string | null;
@@ -15,11 +18,17 @@ export interface CreditsInfo {
 
 export const creditsKey = (userId: string | undefined) => ['credits', userId] as const;
 
+/** Un abonnement qui donne droit à la recharge mensuelle (valeurs `status` de Stripe). */
+export function isPaidPlan(plan: string | null | undefined, status: string | null | undefined): boolean {
+  return !!plan && plan !== 'free' && (status === 'active' || status === 'trialing' || status === 'past_due');
+}
+
 /**
- * Solde + date de recharge, lus dans `user_credits` (RLS own) ; allocation résolue depuis
- * `subscriptions.plan`. Les deux lectures partent en parallèle. `null` si aucune ligne de
- * crédits (compte pas encore provisionné) — l'UI affiche « — », jamais ne bloque.
- * Une lecture d'abonnement en échec ne casse pas le solde : le total retombe à `null`.
+ * Solde, allocation et date de recharge : `user_credits` (RLS own), `subscriptions` (own) et
+ * `plan_allocations` (catalogue serveur), lus en parallèle. `null` si aucune ligne de crédits
+ * (compte pas encore provisionné) — l'UI affiche « — », jamais ne bloque. Une lecture
+ * d'abonnement ou de catalogue en échec ne casse pas le solde : le total retombe à `null`.
+ * `periodEnd` n'est exposée que pour un abonné payant : la Gratuite n'a plus de recharge.
  */
 export function useCredits() {
   const { user } = useAuth();
@@ -28,17 +37,20 @@ export function useCredits() {
     enabled: !!user,
     queryFn: async (): Promise<CreditsInfo | null> => {
       const supabase = getSupabase();
-      const [creditsRes, subRes] = await Promise.all([
+      const [creditsRes, subRes, allocRes] = await Promise.all([
         supabase.from('user_credits').select('credits_remaining, period_end').eq('user_id', user!.id).maybeSingle(),
-        supabase.from('subscriptions').select('plan').eq('user_id', user!.id).maybeSingle(),
+        supabase.from('subscriptions').select('plan, status').eq('user_id', user!.id).maybeSingle(),
+        supabase.from('plan_allocations').select('plan, credits_per_month'),
       ]);
       if (creditsRes.error) throw creditsRes.error;
       if (!creditsRes.data) return null;
       const plan = subRes.error ? null : (subRes.data?.plan ?? null);
+      const paid = !subRes.error && isPaidPlan(plan, subRes.data?.status);
+      const allocation = allocRes.error ? null : (allocRes.data.find(a => a.plan === (plan ?? 'free'))?.credits_per_month ?? null);
       return {
         creditsRemaining: creditsRes.data.credits_remaining,
-        creditsTotal: subRes.error ? null : planFor(plan).creditsPerMonth,
-        periodEnd: creditsRes.data.period_end,
+        creditsTotal: subRes.error ? null : allocation,
+        periodEnd: paid ? creditsRes.data.period_end : null,
         plan,
       };
     },

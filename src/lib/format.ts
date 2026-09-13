@@ -5,8 +5,16 @@ const nombreCompact = new Intl.NumberFormat('fr-FR', { notation: 'compact', maxi
 const dateCourte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
 const dateLongue = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
 
+const eurosEntiers = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+const eurosCentimes = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
+
 export function formatNombre(n: number): string {
   return nombre.format(n);
+}
+
+/** Un prix en centimes → « 9 € » ou « 9,90 € » (pas de décimales inutiles). Le montant vient toujours de la base ou de l'Edge. */
+export function formatEuros(cents: number): string {
+  return cents % 100 === 0 ? eurosEntiers.format(cents / 100) : eurosCentimes.format(cents / 100);
 }
 
 /** 12 400 → « 12,4 k », comme les compteurs des réseaux. */

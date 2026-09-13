@@ -21,6 +21,12 @@ export interface ShellConfig {
    */
   cookieDomain?: string;
   /**
+   * `VITE_STRIPE_PUBLISHABLE_KEY` — la clé publiable Stripe (`pk_live_…` / `pk_test_…`), pour le
+   * checkout embarqué (`CheckoutModal`). Optionnelle : sans elle, la modale affiche « paiement
+   * indisponible » au lieu de planter ; rien n'est chargé tant qu'aucune modale ne s'ouvre.
+   */
+  stripePublishableKey?: string;
+  /**
    * Origines des outils quand elles ne sont pas `https://<sous-domaine>.yunary.com` — en
    * local, typiquement `{ creator: 'http://localhost:5175' }`. Le Hub vient de `hubUrl`.
    */
@@ -54,6 +60,7 @@ export function configureShell(config: ShellConfig): void {
     ...config,
     hubUrl: config.hubUrl.replace(/\/+$/, ''),
     cookieDomain: config.cookieDomain?.trim() || undefined,
+    stripePublishableKey: config.stripePublishableKey?.trim() || undefined,
   };
 }
 

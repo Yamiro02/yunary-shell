@@ -1,6 +1,6 @@
 {
   "name": "@yunary/shell",
-  "version": "0.1.15",
+  "version": "0.2.0",
   "description": "Coque partagée des apps Yunary — client Supabase unique, session, crédits, layout, pages Paramètres / auth / légales, bilan d'audit, cartes du profil créateur.",
   "license": "UNLICENSED",
   "private": false,
@@ -43,6 +43,8 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",
+    "@stripe/react-stripe-js": "^6.10.0",
+    "@stripe/stripe-js": "^9.16.0",
     "@supabase/ssr": "^0.12.6",
     "@supabase/supabase-js": "^2.115.0",
     "react-hook-form": "^7.87.0",

@@ -5,7 +5,7 @@ import {
   APP_GUTTER_X, AbonnementView, AppBleed, AppContent, HubSidebar, InfosView, OutilsView, ParametresLayout, planFor,
   type ParametresTab,
 } from '@yunary/shell';
-import { ACCOUNT, CREATOR_ITEMS, CREATOR_NATIVE_ITEMS, CREDITS } from '../fixtures';
+import { ACCOUNT, CATALOG, CREATOR_ITEMS, CREATOR_NATIVE_ITEMS, CREDITS, CREDITS_LOW, CREDITS_PAID, CREDITS_ZERO } from '../fixtures';
 import { Section } from '../ui';
 
 const noop = () => undefined;
@@ -34,7 +34,7 @@ export function LayoutPage(): JSX.Element {
             <AppContent>
               <ParametresLayout variant="web" tab={tab} onTabChange={setTab}>
                 {tab === 'abonnement' ? (
-                  <AbonnementView credits={CREDITS} plan={planFor('free')} hasSubscription={false} onPortal={noop} onChoose={noop} />
+                  <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
                 ) : (
                   <InfosView profile={{ prenom: 'Julien', nom: 'Fernandes', email: 'julien@julienfernandes.com', avatarUrl: null }} reseau={{ platform: 'instagram', handle: 'julien.crea' }} onSave={noop} saveState="saved" onChoosePhoto={noop} onRemovePhoto={noop} onChangePassword={noop} onLogout={noop} />
                 )}
@@ -102,11 +102,14 @@ export function LayoutPage(): JSX.Element {
           </AppFrame>
         </Bleed>
       </Section>
-      <Section title="États de la carte crédits" note="Chargement (squelette), solde indisponible, allocation inconnue (barre pleine).">
+      <Section title="États de la carte crédits" note="Chargement (squelette), solde indisponible, allocation inconnue (barre pleine). Depuis 0.2.0 : la Gratuite n'a plus d'allocation (barre et date retirées, « Offerts, non renouvelés ») ; l'abonné a sa barre sur l'allocation mensuelle ; sous 20 % de l'allocation — ou à zéro pour un gratuit — la même carte devient un lien vers Paramètres › Abonnement (`creditsHref`), sans changer de mise en page.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame label="Chargement"><HubSidebar tool="hub" toolsHref="/" credits={undefined} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
           <Frame label="Solde indisponible"><HubSidebar tool="hub" toolsHref="/" credits={null} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
           <Frame label="Allocation inconnue"><HubSidebar tool="hub" toolsHref="/" credits={{ remaining: 120, total: null, periodEnd: null }} account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
+          <Frame label="Abonné Créateur · 212 / 300"><HubSidebar tool="hub" toolsHref="/" credits={CREDITS_PAID} creditsHref="/parametres?tab=abonnement" account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
+          <Frame label="Solde bas · 41 / 300 → lien"><HubSidebar tool="hub" toolsHref="/" credits={CREDITS_LOW} creditsHref="/parametres?tab=abonnement" account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
+          <Frame label="Gratuit à zéro → lien"><HubSidebar tool="hub" toolsHref="/" credits={CREDITS_ZERO} creditsHref="/parametres?tab=abonnement" account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
         </div>
       </Section>
     </div>

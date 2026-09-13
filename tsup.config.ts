@@ -16,5 +16,6 @@ export default defineConfig({
     'react', 'react-dom', 'react/jsx-runtime', 'react-router-dom', '@yunary/ds',
     '@tanstack/react-query', 'lucide-react', 'tailwind-merge',
     '@supabase/supabase-js', '@supabase/ssr', 'react-hook-form', 'zod', '@hookform/resolvers',
+    '@stripe/stripe-js', '@stripe/react-stripe-js',
   ],
 });

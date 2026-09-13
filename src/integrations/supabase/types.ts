@@ -462,6 +462,27 @@ export type Database = {
           },
         ]
       }
+      launch_counter: {
+        Row: {
+          key: string
+          price_cents: number
+          taken: number
+          total: number
+        }
+        Insert: {
+          key: string
+          price_cents: number
+          taken?: number
+          total: number
+        }
+        Update: {
+          key?: string
+          price_cents?: number
+          taken?: number
+          total?: number
+        }
+        Relationships: []
+      }
       meta_deletion_requests: {
         Row: {
           confirmation_code: string
@@ -626,18 +647,24 @@ export type Database = {
           credits_per_month: number
           label: string
           plan: string
+          price_cents: number
+          signup_credits: number
           updated_at: string
         }
         Insert: {
           credits_per_month: number
           label: string
           plan: string
+          price_cents?: number
+          signup_credits?: number
           updated_at?: string
         }
         Update: {
           credits_per_month?: number
           label?: string
           plan?: string
+          price_cents?: number
+          signup_credits?: number
           updated_at?: string
         }
         Relationships: []
@@ -887,6 +914,24 @@ export type Database = {
           },
         ]
       }
+      stripe_events: {
+        Row: {
+          event_id: string
+          received_at: string
+          type: string
+        }
+        Insert: {
+          event_id: string
+          received_at?: string
+          type: string
+        }
+        Update: {
+          event_id?: string
+          received_at?: string
+          type?: string
+        }
+        Relationships: []
+      }
       structures: {
         Row: {
           beats: Json | null
@@ -942,27 +987,36 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
           current_period_end: string | null
           plan: string | null
           status: string | null
           stripe_customer_id: string | null
+          stripe_price_id: string | null
           stripe_subscription_id: string | null
+          updated_at: string
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
           current_period_end?: string | null
           plan?: string | null
           status?: string | null
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
+          updated_at?: string
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean
           current_period_end?: string | null
           plan?: string | null
           status?: string | null
           stripe_customer_id?: string | null
+          stripe_price_id?: string | null
           stripe_subscription_id?: string | null
+          updated_at?: string
           user_id?: string
         }
         Relationships: [

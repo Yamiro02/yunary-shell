@@ -32,6 +32,8 @@ export interface HubSidebarProps {
   /** Capacitor : pas de section « Mes outils » ; la nav réduite est celle passée en `items`. */
   native?: boolean;
   credits: CreditsView | null | undefined;
+  /** Solde bas : la carte crédits mène ici (Paramètres › Abonnement). Sans lui, jamais cliquable. */
+  creditsHref?: string;
   account: AccountView;
   /** Le lien du routeur (`NavLink`) — `href` lui arrive en `to`. */
   linkAs?: ElementType;
@@ -54,7 +56,7 @@ export interface HubSidebarProps {
  */
 export function HubSidebar({
   tool, items = [], settingsHref = '/parametres', settingsActive = false, toolsHref = '/outils', toolsActive = false,
-  native = false, credits, account, linkAs, open, onClose, staticLayout = false, className,
+  native = false, credits, creditsHref, account, linkAs, open, onClose, staticLayout = false, className,
 }: HubSidebarProps): JSX.Element {
   /* La nav = la nav de l'outil, puis « Mes outils » + Paramètres — rien d'autre (décision Julien,
      08/09/2026) : les outils ne vivent qu'en cartes sur la page « Mes outils ». */
@@ -95,7 +97,7 @@ export function HubSidebar({
       footerItems={footerItems}
       footer={
         <div className="flex w-full flex-col gap-space-3">
-          <CreditsCard credits={credits} />
+          <CreditsCard credits={credits} href={creditsHref} linkAs={linkAs} />
           <AccountCard account={account} />
         </div>
       }
