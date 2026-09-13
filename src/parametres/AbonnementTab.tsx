@@ -6,7 +6,7 @@ import { getErrorMessage } from '../lib/errors';
 import { useCredits } from '../account/useCredits';
 import { isSubscriptionActive, useSubscription, type SubscriptionInfo } from '../account/useSubscription';
 import { useCancelSubscription, usePortalSession, useResumeSubscription } from '../account/useStripe';
-import { allocationFor, priceFor, signupCreditsFor, usePlanCatalog, type PlanCatalog } from '../account/usePlanCatalog';
+import { allocationFor, isLaunchPrice, priceToShow, signupCreditsFor, usePlanCatalog, type PlanCatalog } from '../account/usePlanCatalog';
 import { CheckoutModal } from '../abonnement/CheckoutModal';
 import { CancelSubscriptionModal } from '../abonnement/CancelSubscriptionModal';
 import { CheckoutActivationCard } from '../abonnement/CheckoutActivationCard';
@@ -118,8 +118,16 @@ export function AbonnementView({
         {/* Artboard C4 (11/09/2026) : filet 1,5 px (hairline en px, comme le DS), la recommandée en `--primary` + `shadow-md` ; padding 24 gardé (l'artboard dit 22). */}
         {plans.map(p => {
           const current = p.id === plan.id;
-          const price = priceFor(catalog, p.id);
-          const founder = p.id === 'createur' ? catalog?.founder ?? null : null;
+          /* 🔒 LA RÈGLE DU PRIX : pas encore abonné → le catalogue (offre de lancement s'il reste des places, sinon prix
+             plein) ; DÉJÀ abonné → `subscriptions.amount_cents`, et rien d'autre. Le catalogue peut changer (places
+             écoulées, tarif revu) sans que son abonnement bouge : afficher 19 € à qui paie 12 € serait l'inverse de la
+             promesse « ce prix reste le tien tant que tu es abonné ». */
+          const subscribed = hasSubscription && subscription.plan === p.id;
+          const price = priceToShow(catalog, p.id, subscription);
+          /* La mention d'offre de lancement se décide sur `amount < prix plein` — jamais sur une égalité avec le tarif de
+             lancement, qui casserait s'il changeait. Abonné : « ce prix reste le tien » seul ; prospect : les places restantes. */
+          const founder = !subscribed && p.id === 'createur' ? catalog?.founder ?? null : null;
+          const keepsLaunchPrice = subscribed && isLaunchPrice(price, catalog, p.id);
           return (
             <Card key={p.id} gap={3} className={cn('border-[1.5px] px-space-5 py-space-5', p.recommended ? 'border-primary shadow-md' : 'shadow-none')}>
               <div className="flex flex-col gap-space-1">
@@ -130,10 +138,15 @@ export function AbonnementView({
                 <span className="caption">
                   <strong className="font-display text-subheading font-extrabold text-foreground">{price === null ? a.priceUnknown : formatEuros(price)}</strong> {a.perMonth}
                 </span>
-                {/* Tarif fondateur : tant qu'il reste des places ; à 0, tout disparaît et le prix plein s'affiche seul. */}
+                {/* Offre de lancement : tant qu'il reste des places ; à 0, tout disparaît et le prix plein s'affiche seul. */}
                 {founder ? (
                   <span className="flex flex-col gap-space-1">
                     <span className="text-body-sm font-semibold text-primary">{a.founderSlots(founder.slotsRemaining)}</span>
+                    <span className="text-caption text-text-muted">{a.founderKeep}</span>
+                  </span>
+                ) : keepsLaunchPrice ? (
+                  <span className="flex flex-col gap-space-1">
+                    <span className="text-body-sm font-semibold text-primary">{a.launchPriceKept}</span>
                     <span className="text-caption text-text-muted">{a.founderKeep}</span>
                   </span>
                 ) : null}

@@ -5,7 +5,7 @@ import {
   NotificationsView, ParametresLayout, PasswordModal, PaymentFailedBannerView, TabError, TabSkeleton, planFor,
   type ParametresTab, type ParametresVariant,
 } from '@yunary/shell';
-import { CATALOG, CATALOG_SOLD_OUT, CREDITS, CREDITS_LOW, CREDITS_PAID, CREDITS_ZERO, SUB_ACTIVE, SUB_ENDING, SUB_PAST_DUE } from '../fixtures';
+import { CATALOG, CATALOG_SOLD_OUT, CREDITS, CREDITS_LOW, CREDITS_PAID, CREDITS_ZERO, SUB_ACTIVE, SUB_ENDING, SUB_FULL_PRICE, SUB_PAST_DUE } from '../fixtures';
 import { Section } from '../ui';
 
 const noop = () => undefined;
@@ -34,13 +34,16 @@ export function ParametresPage(): JSX.Element {
         </Frame>
       </Section>
 
-      <Section title="Abonnement · les six états" note="0.2.0 — deux offres, prix et allocations lus en base (fixtures `CATALOG` : Créateur 19 € plein, 12 € en offre de lancement, 300 crédits/mois ; Gratuite 0). Sans abonnement : solde seul, « Crédits offerts à l'inscription, non renouvelés », offre de lancement avec les places restantes. Actif : barre sur l'allocation, « Recharge le… », « Se désabonner » sous la ligne de recharge. Résilié : « Se termine le… » + « Réactiver mon abonnement ». past_due : le bandeau (rendu par AppLayout en haut de l'app, ici au-dessus de la vue), rien d'autre ne change. Crédits à zéro. Places épuisées : le prix plein seul.">
+      <Section title="Abonnement · les six états" note="0.2.0 — deux offres, prix et allocations lus en base (fixtures `CATALOG` : Créateur 19 € plein, 12 € en offre de lancement, 300 crédits/mois ; Gratuite 0). Sans abonnement : solde seul, « Crédits offerts à l'inscription, non renouvelés », offre de lancement avec les places restantes. Actif : barre sur l'allocation, « Recharge le… », « Se désabonner » sous la ligne de recharge ; le prix d'un ABONNÉ vient de `subscriptions.amount_cents`, jamais du catalogue (0.2.3), la mention « Offre de lancement » se décide sur amount < prix plein. Résilié : « Se termine le… » + « Réactiver mon abonnement ». past_due : le bandeau (rendu par AppLayout en haut de l'app, ici au-dessus de la vue), rien d'autre ne change. Crédits à zéro. Places épuisées : le prix plein seul.">
         <div className="flex flex-col gap-space-5">
           <Frame label="Sans abonnement · offre de lancement">
             <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
           </Frame>
-          <Frame label="Abonnement actif">
-            <AbonnementView credits={CREDITS_PAID} plan={planFor('createur')} subscription={SUB_ACTIVE} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+          <Frame label="Abonné à 12 € · places écoulées depuis → le catalogue dit 19 €, la carte dit 12 € (amount_cents)">
+            <AbonnementView credits={CREDITS_PAID} plan={planFor('createur')} subscription={SUB_ACTIVE} catalog={CATALOG_SOLD_OUT} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+          </Frame>
+          <Frame label="Abonné à 19 € · plein tarif, sans mention de lancement">
+            <AbonnementView credits={CREDITS_PAID} plan={planFor('createur')} subscription={SUB_FULL_PRICE} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
           </Frame>
           <Frame label="Résilié en cours de période">
             <AbonnementView credits={CREDITS_PAID} plan={planFor('createur')} subscription={SUB_ENDING} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />

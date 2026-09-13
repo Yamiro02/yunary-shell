@@ -7,7 +7,7 @@ import { formatEuros } from '../lib/format';
 import { getStripe, hasStripeKey } from '../lib/stripe';
 import { DS_MOBILE_QUERY, useMediaQuery } from '../lib/useMediaQuery';
 import { useCheckoutSession, type CheckoutSession } from '../account/useStripe';
-import { priceFor, usePlanCatalog, type PlanCatalog } from '../account/usePlanCatalog';
+import { isLaunchPrice, priceFor, usePlanCatalog, type PlanCatalog } from '../account/usePlanCatalog';
 import { planFor, type PlanId } from '../parametres/plans';
 
 export interface CheckoutModalProps {
@@ -66,9 +66,11 @@ export function CheckoutModal({ open, onClose, plan = 'createur', inline, demo }
 
   const catalog = demo ? demo.catalog : catalogQuery.data;
   const name = planFor(plan).name;
-  /* Le sous-titre : l'Edge fait foi (montant facturé), le catalogue le précède le temps de la préparation. */
+  /* Le sous-titre : l'Edge fait foi (montant facturé), le catalogue le précède le temps de la préparation. La mention
+     d'offre de lancement se décide sur `amount < prix plein` (jamais sur une égalité avec le tarif de lancement) ;
+     sans catalogue, sur l'`isFondateur` de l'Edge. */
   const amount = session ? session.amountCents : priceFor(catalog, plan);
-  const launchOffer = session ? session.isFondateur : !!catalog?.founder;
+  const launchOffer = catalog ? isLaunchPrice(amount, catalog, plan) : !!session?.isFondateur;
   const subtitle = amount === null ? undefined : t.subtitle(formatEuros(amount), launchOffer);
 
   const body = error ? (

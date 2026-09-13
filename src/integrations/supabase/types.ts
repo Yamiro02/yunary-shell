@@ -987,6 +987,7 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          amount_cents: number | null
           cancel_at_period_end: boolean
           current_period_end: string | null
           plan: string | null
@@ -998,6 +999,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          amount_cents?: number | null
           cancel_at_period_end?: boolean
           current_period_end?: string | null
           plan?: string | null
@@ -1009,6 +1011,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          amount_cents?: number | null
           cancel_at_period_end?: boolean
           current_period_end?: string | null
           plan?: string | null

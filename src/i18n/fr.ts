@@ -243,6 +243,8 @@ export const fr = {
       /* Offre de lancement (`launch_counter`) : visible tant qu'il reste des places, disparaît à 0. « Tarif fondateur » → « Offre de lancement » (Julien, 13/09/2026). */
       founderSlots: (n: number) => `Offre de lancement — il reste ${n} place${n > 1 ? 's' : ''}`,
       founderKeep: 'Ce prix reste le tien tant que tu es abonné',
+      /* Abonné dont `amount_cents` est sous le prix plein du catalogue. */
+      launchPriceKept: 'Offre de lancement',
       cancelDialog: {
         title: 'Se désabonner ?',
         confirm: 'Se désabonner',

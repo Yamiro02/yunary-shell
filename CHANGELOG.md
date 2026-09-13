@@ -5,6 +5,28 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.2.3 — le vrai tarif de l'abonné : `amount_cents` (13/09/2026)
+
+- **`useSubscription` expose `amountCents`** (`subscriptions.amount_cents`, GRANT vérifié en base) :
+  le montant réellement facturé à cette personne.
+- **🔒 La règle du prix affiché** (commentée dans `AbonnementTab` et `priceToShow`) : personne **pas
+  encore abonnée → le catalogue** (`priceFor` / `fullPriceFor`) ; personne **déjà abonnée →
+  `amount_cents`, et rien d'autre**. L'onglet Abonnement montrait le catalogue à tout le monde : un
+  abonné de l'offre de lancement aurait vu 19 €/mois dès les places écoulées — l'inverse de la
+  promesse. Corrigé : `priceToShow(catalog, plan, subscription)`. Le seul autre montant du paquet
+  est le sous-titre du checkout, qui ne s'adresse qu'à un prospect (catalogue puis Edge).
+- **La mention « Offre de lancement » se décide sur `amount < prix plein du catalogue`**
+  (`isLaunchPrice`), jamais sur une égalité avec le tarif de lancement — qui casserait s'il
+  changeait. Abonné sous le prix plein : « Offre de lancement » + « Ce prix reste le tien tant que
+  tu es abonné » (plus de compteur de places, sans objet pour lui) ; abonné au plein tarif : rien ;
+  prospect : « Offre de lancement — il reste N places » comme avant. Même règle dans le sous-titre
+  du checkout (repli sur `isFondateur` de l'Edge sans catalogue).
+- **`PlanCatalog.launch`** (`LaunchCounter` : `total`, `taken`, `priceCents`) expose le compteur
+  **même à zéro place** — « Tu fais partie des N premiers » en a besoin surtout une fois les places
+  écoulées ; `founder` (l'offre en cours, `null` à 0) ne bouge pas.
+- Vitrine : « Abonné à 12 € · places écoulées » (catalogue à 19 €, carte à 12 €) et « Abonné à
+  19 € » ; rendu vérifié à l'écran pour un abonné à 12 €, un abonné à 19 € et un compte gratuit.
+
 ## 0.2.2 — finitions abonnement : « Offre de lancement », checkout D2 / D2b (13/09/2026)
 
 - **« Tarif fondateur » → « Offre de lancement »** dans tous les textes visibles : « Offre de

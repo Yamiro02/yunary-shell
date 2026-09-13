@@ -23,10 +23,14 @@ export const CATALOG: PlanCatalog = {
     { plan: 'createur', label: 'Créateur', creditsPerMonth: 300, signupCredits: 0, priceCents: 1900 },
   ],
   founder: { slotsRemaining: 37, total: 100, priceCents: 1200 },
+  launch: { total: 100, taken: 63, priceCents: 1200 },
 };
-export const CATALOG_SOLD_OUT: PlanCatalog = { ...CATALOG, founder: null };
+/* Places écoulées : l'offre passe à `null`, le compteur reste lisible (« Tu fais partie des 100 premiers »). */
+export const CATALOG_SOLD_OUT: PlanCatalog = { ...CATALOG, founder: null, launch: { total: 100, taken: 100, priceCents: 1200 } };
 
-export const SUB_ACTIVE: SubscriptionInfo = { plan: 'createur', status: 'active', currentPeriodEnd: '2026-10-13T00:00:00Z', cancelAtPeriodEnd: false };
+/* 🔒 `amountCents` = le montant réellement facturé : c'est LUI que l'onglet montre à un abonné, jamais le catalogue. */
+export const SUB_ACTIVE: SubscriptionInfo = { plan: 'createur', status: 'active', currentPeriodEnd: '2026-10-13T00:00:00Z', cancelAtPeriodEnd: false, amountCents: 1200 };
+export const SUB_FULL_PRICE: SubscriptionInfo = { ...SUB_ACTIVE, amountCents: 1900 };
 export const SUB_ENDING: SubscriptionInfo = { ...SUB_ACTIVE, cancelAtPeriodEnd: true };
 export const SUB_PAST_DUE: SubscriptionInfo = { ...SUB_ACTIVE, status: 'past_due' };
 

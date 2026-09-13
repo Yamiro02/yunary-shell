@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.2.2';
+export const SHELL_VERSION = '0.2.3';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -46,8 +46,8 @@ export type { SubscriptionInfo } from './account/useSubscription';
 export { useDeleteAccount } from './account/useDeleteAccount';
 
 /* abonnement Stripe — catalogue en base, checkout embarqué, activation, résiliation */
-export { usePlanCatalog, planCatalogKey, allocationFor, signupCreditsFor, priceFor, fullPriceFor } from './account/usePlanCatalog';
-export type { PlanCatalog, PlanAllocation, FounderOffer } from './account/usePlanCatalog';
+export { usePlanCatalog, planCatalogKey, allocationFor, signupCreditsFor, priceFor, fullPriceFor, priceToShow, isLaunchPrice } from './account/usePlanCatalog';
+export type { PlanCatalog, PlanAllocation, FounderOffer, LaunchCounter } from './account/usePlanCatalog';
 export { usePortalSession, useCheckoutSession, useCancelSubscription, useResumeSubscription } from './account/useStripe';
 export type { CheckoutSession } from './account/useStripe';
 export { CheckoutModal } from './abonnement/CheckoutModal';
