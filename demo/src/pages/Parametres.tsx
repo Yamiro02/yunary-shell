@@ -1,4 +1,5 @@
 import { useState, type JSX, type ReactNode } from 'react';
+import { Button } from '@yunary/ds';
 import {
   AbonnementView, CancelSubscriptionModal, CheckoutActivationCard, CheckoutModal, DeleteAccountModal, InfosView, LegalView,
   NotificationsView, ParametresLayout, PasswordModal, PaymentFailedBannerView, TabError, TabSkeleton, planFor,
@@ -33,9 +34,9 @@ export function ParametresPage(): JSX.Element {
         </Frame>
       </Section>
 
-      <Section title="Abonnement · les six états" note="0.2.0 — deux offres, prix et allocations lus en base (fixtures `CATALOG` : Créateur 19 € plein, 12 € fondateur, 300 crédits/mois ; Gratuite 0). Sans abonnement : solde seul, « Crédits offerts à l'inscription, non renouvelés », tarif fondateur avec les places restantes. Actif : barre sur l'allocation, « Recharge le… », « Se désabonner » sous la ligne de recharge. Résilié : « Se termine le… » + « Réactiver mon abonnement ». past_due : le bandeau (rendu par AppLayout en haut de l'app, ici au-dessus de la vue), rien d'autre ne change. Crédits à zéro. Places épuisées : le prix plein seul.">
+      <Section title="Abonnement · les six états" note="0.2.0 — deux offres, prix et allocations lus en base (fixtures `CATALOG` : Créateur 19 € plein, 12 € en offre de lancement, 300 crédits/mois ; Gratuite 0). Sans abonnement : solde seul, « Crédits offerts à l'inscription, non renouvelés », offre de lancement avec les places restantes. Actif : barre sur l'allocation, « Recharge le… », « Se désabonner » sous la ligne de recharge. Résilié : « Se termine le… » + « Réactiver mon abonnement ». past_due : le bandeau (rendu par AppLayout en haut de l'app, ici au-dessus de la vue), rien d'autre ne change. Crédits à zéro. Places épuisées : le prix plein seul.">
         <div className="flex flex-col gap-space-5">
-          <Frame label="Sans abonnement · fondateur">
+          <Frame label="Sans abonnement · offre de lancement">
             <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
           </Frame>
           <Frame label="Abonnement actif">
@@ -89,11 +90,28 @@ export function ParametresPage(): JSX.Element {
         </div>
       </Section>
 
-      <Section title="Modales Stripe" note="Checkout embarqué (0.2.0, modale lg) : préparation, erreur (fermer / réessayer), puis le formulaire Stripe monté dans la modale — ici sans Stripe.js, l'en-tête montre le montant renvoyé par l'Edge (`amountCents`, tarif fondateur). Résiliation : confirmation en une étape, au texte exact.">
+      <Section title="Checkout Stripe · en vrai" note="Ouvre le composant tel qu'une app le monte : modale sur bureau (> 64 rem), page plein écran sur mobile (≤ 64 rem) — redimensionne la fenêtre. Session factice, Stripe.js non chargé : le cadre du formulaire est vide, mais le plafond, l'en-tête fixe et le défilement sont les vrais.">
+        <CheckoutLive />
+      </Section>
+
+      <Section title="Checkout Stripe · bureau (artboard D2)" note="0.2.2 — la Modal lg du DS (520 px) plafonnée à ~80 % de la hauteur d'écran, en-tête fixe « S'abonner à Créateur » + « 12 €/mois — offre de lancement » (montant du catalogue, puis de l'Edge), corps défilant. Préparation, erreur (fermer / réessayer), session prête — ici sans Stripe.js.">
+        <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
+          <Frame label="Préparation"><CheckoutModal open inline onClose={noop} demo={{ layout: 'modal', loading: true, catalog: CATALOG }} /></Frame>
+          <Frame label="Erreur"><CheckoutModal open inline onClose={noop} demo={{ layout: 'modal', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></Frame>
+          <Frame label="Session prête (Stripe non chargé)"><CheckoutModal open inline onClose={noop} demo={{ layout: 'modal', catalog: CATALOG, session: { clientSecret: 'cs_test_demo', amountCents: 1200, isFondateur: true, slotsRemaining: 36 } }} /></Frame>
+        </div>
+      </Section>
+
+      <Section title="Checkout Stripe · mobile plein écran (artboard D2b)" note="Sous 64 rem, ce n'est plus une modale : la page occupe tout l'écran, aucun voile, en-tête fixe (titre, sous-titre, croix), zone Stripe qui défile, bord bas visible — exception assumée au traitement modal du DS : payer isole complètement (Julien, 13/09/2026). Cadres à 390 × 844 pour la vitrine.">
+        <div className="flex flex-wrap gap-space-5">
+          <PhoneFrame label="Préparation"><CheckoutModal open inline onClose={noop} demo={{ layout: 'fullscreen', loading: true, catalog: CATALOG }} /></PhoneFrame>
+          <PhoneFrame label="Erreur"><CheckoutModal open inline onClose={noop} demo={{ layout: 'fullscreen', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></PhoneFrame>
+          <PhoneFrame label="Session prête · places épuisées"><CheckoutModal open inline onClose={noop} demo={{ layout: 'fullscreen', catalog: CATALOG_SOLD_OUT, session: { clientSecret: 'cs_test_demo', amountCents: 1900, isFondateur: false, slotsRemaining: 0 } }} /></PhoneFrame>
+        </div>
+      </Section>
+
+      <Section title="Modale de résiliation" note="Confirmation en une étape, au texte exact ; puis le résultat.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-2">
-          <Frame label="Checkout · préparation"><CheckoutModal open inline onClose={noop} demo={{ loading: true }} /></Frame>
-          <Frame label="Checkout · erreur"><CheckoutModal open inline onClose={noop} demo={{ error: "Impossible d'ouvrir le paiement. Réessaie." }} /></Frame>
-          <Frame label="Checkout · session prête (Stripe non chargé)"><CheckoutModal open inline onClose={noop} demo={{ session: { clientSecret: 'cs_test_demo', amountCents: 1200, isFondateur: true, slotsRemaining: 36 } }} /></Frame>
           <Frame label="Se désabonner ?"><CancelSubscriptionModal open inline onClose={noop} onConfirm={never} periodEnd="2026-10-13T00:00:00Z" /></Frame>
           <Frame label="Résiliation · résultat"><CancelSubscriptionModal open inline onClose={noop} onConfirm={never} periodEnd="2026-10-13T00:00:00Z" phase="result" result={{ status: 'success', title: 'Abonnement résilié', message: "Tu gardes l'accès jusqu'au 13 octobre 2026." }} /></Frame>
         </div>
@@ -112,6 +130,27 @@ function NativeDemo(): JSX.Element {
         {tab === 'legal' ? <LegalView variant={variant} onDelete={noop} /> : null}
       </ParametresLayout>
     </Frame>
+  );
+}
+
+/* La modale / page réelle, ouverte par un bouton — avec un faux contenu de la hauteur d'un formulaire Stripe (~820 px) pour éprouver le défilement. */
+function CheckoutLive(): JSX.Element {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="flex flex-col gap-space-4">
+      <div className="flex"><Button variant="primary" onClick={() => setOpen(true)}>Ouvrir le checkout</Button></div>
+      <CheckoutModal open={open} onClose={() => setOpen(false)} demo={{ catalog: CATALOG, session: { clientSecret: 'cs_test_demo', amountCents: 1200, isFondateur: true, slotsRemaining: 36 }, filler: true }} />
+    </div>
+  );
+}
+
+/* Un téléphone de 390 × 844 (l'artboard D2b) : la page plein écran s'y rend en `inline`, sans `position: fixed`. */
+function PhoneFrame({ label, children }: { label: string; children: ReactNode }): JSX.Element {
+  return (
+    <div className="flex flex-col gap-space-3">
+      <span className="eyebrow">{label}</span>
+      <div className="h-[52.75rem] w-[24.375rem] overflow-hidden rounded-xl border border-border shadow-md">{children}</div>
+    </div>
   );
 }
 

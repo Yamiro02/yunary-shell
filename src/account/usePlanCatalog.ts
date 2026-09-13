@@ -76,8 +76,14 @@ export function allocationFor(catalog: PlanCatalog | undefined, plan: PlanId | s
   return row ? row.creditsPerMonth : null;
 }
 
+/** Le prix PLEIN d'une formule (`plan_allocations.price_cents`), en centimes — le prix barré à côté de l'offre de lancement. `null` = pas encore lu. */
+export function fullPriceFor(catalog: PlanCatalog | undefined, plan: PlanId | string | null | undefined): number | null {
+  const row = catalog?.allocations.find(a => a.plan === (plan ?? 'free'));
+  return row ? row.priceCents : null;
+}
+
 /**
- * Le prix affiché d'une formule, en centimes : le tarif fondateur de `launch_counter` s'il reste
+ * Le prix affiché d'une formule, en centimes : l'offre de lancement de `launch_counter` s'il reste
  * des places (Créateur seulement), sinon `plan_allocations.price_cents`. `null` = pas encore lu.
  */
 export function priceFor(catalog: PlanCatalog | undefined, plan: PlanId): number | null {

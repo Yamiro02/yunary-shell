@@ -240,8 +240,8 @@ export const fr = {
       priceUnknown: '— €',
       creditsPerMonth: (n: number | null) => (n === null ? '— crédits par mois' : `${n} crédits par mois`),
       signupCredits: (n: number | null) => (n === null ? "— crédits offerts à l'inscription" : `${n} crédits offerts à l'inscription`),
-      /* Tarif fondateur (`launch_counter`) : visible tant qu'il reste des places, disparaît à 0. */
-      founderSlots: (n: number) => `Tarif fondateur — il reste ${n} place${n > 1 ? 's' : ''}`,
+      /* Offre de lancement (`launch_counter`) : visible tant qu'il reste des places, disparaît à 0. « Tarif fondateur » → « Offre de lancement » (Julien, 13/09/2026). */
+      founderSlots: (n: number) => `Offre de lancement — il reste ${n} place${n > 1 ? 's' : ''}`,
       founderKeep: 'Ce prix reste le tien tant que tu es abonné',
       cancelDialog: {
         title: 'Se désabonner ?',
@@ -249,9 +249,10 @@ export const fr = {
         done: 'Abonnement résilié',
         doneBody: (date: string) => `Tu gardes l'accès jusqu'au ${date}.`,
       },
+      /* Artboards D2 / D2b du Hub : « S'abonner à Créateur » · « 12 €/mois — offre de lancement ». */
       checkout: {
-        title: (plan: string) => `Passer à la formule ${plan}`,
-        founder: 'Tarif fondateur',
+        title: (plan: string) => `S'abonner à ${plan}`,
+        subtitle: (price: string, launchOffer: boolean) => `${price}/mois${launchOffer ? ' — offre de lancement' : ''}`,
         loading: 'Préparation du paiement…',
       },
       /* Retour de Stripe (`?checkout=`) : on sonde `subscriptions` jusqu'à 20 s. Jamais d'erreur rouge : le paiement a réussi. */

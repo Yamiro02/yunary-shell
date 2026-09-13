@@ -5,6 +5,40 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.2.2 — finitions abonnement : « Offre de lancement », checkout D2 / D2b (13/09/2026)
+
+- **« Tarif fondateur » → « Offre de lancement »** dans tous les textes visibles : « Offre de
+  lancement — il reste N places » (grille des offres), sous-titre du checkout. Les identifiants
+  techniques ne bougent pas (`launch_counter`, `isFondateur`, `FounderOffer`, `founderSlots`…) :
+  aucune rupture d'API. Les CGU parlaient déjà de « tarif de lancement ».
+- **`CheckoutModal` : deux traitements selon l'écran** (artboards D2 / D2b du Hub, maquette
+  maîtresse). **Bureau** (> 64 rem) : la `Modal` lg du DS (520 px), en-tête « S'abonner à
+  Créateur » (palier `subheading`, comme l'artboard) + « 12 €/mois — offre de lancement » (le
+  montant vient du **catalogue** puis de l'Edge, jamais en dur), plafonnée à **~80 %** de la hauteur
+  d'écran — le cadre du formulaire porte `max-h-[calc(80dvh-8.5rem)]` (80dvh moins le cadre de la
+  modale, mesuré) et défile ; mesuré : 771 / 960 et 579 / 720 = 80 %. **Mobile** (≤ 64 rem) :
+  **plein écran, ce n'est plus une modale** — `fixed inset-0` au rang `--z-modal`, fond `--card`,
+  aucun voile ; en-tête fixe (titre `heading-sm`, sous-titre, croix `IconButton` ghost), zone Stripe
+  `flex-1 overflow-y-auto`, bord bas visible ; Échap ferme, focus sur la croix, document verrouillé.
+  ⚠ **Exception assumée au traitement modal du DS** (feuille basse) : payer isole complètement —
+  décision Julien 13/09/2026, commentée dans le composant pour que personne ne la « corrige ».
+  Le basculement est structurel (`useMediaQuery`, `matchMedia` en `useSyncExternalStore`) : Stripe
+  n'est monté qu'une fois. Écarts : la croix mobile est l'`IconButton` du DS (2,75 rem, cible
+  tactile) là où l'artboard dessine la croix de modale à 2 rem ; les 56 px du haut de D2b sont la
+  barre d'état de la maquette (ici `space-5` sous `env(safe-area-inset-top)`).
+- **Pour le Hub** (écran de choix de formule D1, bienvenue) : `fullPriceFor(catalog, plan)` — le
+  prix plein barré à côté de l'offre de lancement ; le reste existait (`usePlanCatalog`,
+  `allocationFor`, `signupCreditsFor`, `priceFor`, `catalog.founder.slotsRemaining`,
+  `CheckoutModal`, `useCheckoutActivation`, `CHECKOUT_PARAM`, `CheckoutActivationCard`,
+  `formatEuros`). `useMediaQuery` / `DS_MOBILE_QUERY` exportés au passage.
+- Vérification demandée par le back : `@stripe/stripe-js` **9.16.0** (≥ 7.3) et
+  `@stripe/react-stripe-js` **6.10.0** (≥ 3.7) — `ui_mode: embedded_page` pris en charge, rien à
+  monter.
+- Vitrine : « Checkout Stripe · en vrai » (bouton qui ouvre le composant réel — modale ou plein
+  écran selon la fenêtre, gabarit de 820 px pour éprouver le défilement), cadres D2 (trois états)
+  et D2b (téléphones 390 × 844). Rendu vérifié à l'écran (captures headless 1440 × 960, 1280 × 720,
+  390 × 844 ouvert et défilé).
+
 ## 0.2.1 — la carte crédits d'un gratuit mène toujours à l'abonnement (13/09/2026)
 
 - **Compte gratuit : la carte crédits de la sidebar est cliquable EN PERMANENCE**, quel que soit
