@@ -1,4 +1,4 @@
-# EXPORTS — l'API publique de `@yunary/shell` (0.3.1)
+# EXPORTS — l'API publique de `@yunary/shell` (0.3.2)
 
 Un seul point d'entrée : `import { … } from '@yunary/shell'`. Tout ce qui n'est pas listé ici
 est interne et peut changer sans bump majeur. Les **vues** (`*View`) sont pilotées par props et
@@ -31,12 +31,15 @@ que dans le web.
 | Export | Rôle |
 |---|---|
 | `useAuth()` → `{ session, user, loading }` | Source unique de la session (store module, un seul `onAuthStateChange`). |
-| `useLogin()` → `{ signInWithEmail, signInWithOAuth }` | Connexion e-mail et OAuth Google / Apple (retour sur `${hubUrl}/login?next=`). |
-| `useSignup()` → `{ signUpWithEmail }` | Inscription ; `needsConfirmation` quand aucune session n'est renvoyée. |
-| `usePasswordReset()` → `{ requestReset, updatePassword }` | E-mail de reset (vers `${hubUrl}/reset`) et nouveau mot de passe. |
+| `useLogin()` → `{ signInWithEmail, signInWithOAuth(provider, next) }` | Connexion e-mail et OAuth Google / Apple (retour sur `${hubUrl}/login?next=`). |
+| `useSignup()` → `{ signUpWithEmail(email, password, next?) }` | Inscription ; `needsConfirmation` quand aucune session n'est renvoyée ; le lien de confirmation ramène sur `${hubUrl}/login?next=` (0.3.2). |
+| `usePasswordReset()` → `{ requestReset(email, next?), updatePassword }` | E-mail de reset (vers `${hubUrl}/reset?next=`, 0.3.2) et nouveau mot de passe. |
 | `useLogout()` | Déconnexion via le client unique. |
 | `<ProtectedRoute requireOnboarding?>` · `<PageLoader />` | Non connecté ou onboarding non terminé → `hubUrl/login?next=<url>` ; loader pendant la résolution. |
-| `useAfterAuthRedirect({ next, onboardingPath?, homePath? })` | Après connexion : onboarding, puis `next` sûr, sinon l'accueil. |
+| `useAfterAuthRedirect({ next, onboardingPath?, homePath? })` | Après connexion : la règle de `resolveAfterAuth`. `next` vers `/autoriser` part dès que la session est là, le reste attend le profil. `homePath` par défaut `/outils`. |
+| `resolveAfterAuth({ next, onboardingCompleted, hubUrl, onboardingPath?, homePath? })` → `AfterAuthTarget \| null` | (0.3.2) 🔒 LA règle, dans l'ordre : 1. `next` sûr vers `/autoriser` (chemin exact, origine du hub, requête intacte) quel que soit l'onboarding ; 2. onboarding pas terminé → `onboardingPath` ; 3. `next` sûr → `next` ; 4. sinon `homePath` (`/outils`). `null` tant que le profil manque et qu'on en a besoin. `AfterAuthTarget` = `{ type: 'url', url }` (pleine page) ou `{ type: 'route', path }`. `AfterAuthInput`. |
+| `isAuthorizeNext(next, hubUrl)` · `AUTHORIZE_PATH` | (0.3.2) `next` sûr qui vise exactement `/autoriser` sur l'origine du hub : la seule exception à l'onboarding. |
+| `withNextParam(href, next)` | (0.3.2) Reporte `next` sur un lien ou une URL de retour (confirmation d'e-mail, OAuth, reset) s'il n'y est pas déjà ; garde les autres paramètres et le fragment. |
 | `isSafeNext(url)` · `readSafeNext(search)` · `buildLoginUrl(currentUrl)` | `?next=` accepté seulement en sous-domaine https de `yunary.com` (+ `extraNextOrigins`). |
 | `loginSchema` · `signupSchema` · `forgotSchema` · `newPasswordSchema` · `PASSWORD_MIN` · `PASSWORD_RULE` | Schémas zod — mot de passe : 8 caractères, minuscule + majuscule + chiffre, la politique du projet Supabase. |
 
@@ -44,11 +47,11 @@ que dans le web.
 
 | Export | Rôle |
 |---|---|
-| `<LoginPage>` / `<LoginView>` | A1. Props de page : `signupHref`, `forgotHref`, `onboardingPath`, `homePath`. |
-| `<SignupPage>` / `<SignupView>` | A2 ; confirmation d'e-mail → `LinkSentView kind="confirmation"`. |
-| `<ForgotPasswordPage>` / `<ForgotPasswordView>` | A3 → A4 avec « Renvoyer » (cooldown 30 s). |
+| `<LoginPage>` / `<LoginView>` | A1. Props de page : `signupHref`, `forgotHref`, `onboardingPath`, `homePath` (défaut `/outils`). La page reporte `?next=` sur ses liens (`withNextParam`, sans doubler celui que l'app a déjà mis). |
+| `<SignupPage>` / `<SignupView>` | A2 ; confirmation d'e-mail → `LinkSentView kind="confirmation"`. `next` part dans le lien de confirmation et sur « Se connecter ». |
+| `<ForgotPasswordPage>` / `<ForgotPasswordView>` | A3 → A4 avec « Renvoyer » (cooldown 30 s). Lit `?next=` et le met dans le lien de reset. |
 | `<LinkSentView kind="reset" \| "confirmation">` | A4. |
-| `<ResetPasswordPage>` / `<ResetPasswordView>` | `/reset` ; lien invalide (autre navigateur, expiré) → renvoi vers A3. |
+| `<ResetPasswordPage forgotHref? loginHref? onboardingPath? homePath?>` / `<ResetPasswordView>` | `/reset` ; lien invalide (autre navigateur, expiré) → renvoi vers A3 (avec `next`). Après le nouveau mot de passe : `resolveAfterAuth` avec le `next` du lien (0.3.2 ; avant : toujours l'accueil). |
 | `<AuthShell>` · `<AuthHeading>` · `<OAuthButtons>` · `<GoogleMark>` · `<AppleMark>` | La coque et les briques des pages d'auth. |
 
 ## Compte

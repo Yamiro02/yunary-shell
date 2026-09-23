@@ -2,23 +2,28 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { useProfile } from '../account/useProfile';
+import { getShellConfig } from '../config';
+import { resolveAfterAuth, type AfterAuthTarget } from '../lib/afterAuth';
+
+/** Suit une cible de `resolveAfterAuth` : URL absolue en pleine page (autre sous-domaine possible), route en navigation client. */
+export function followAfterAuth(target: AfterAuthTarget, navigate: (path: string, opts: { replace: boolean }) => void): void {
+  if (target.type === 'url') window.location.replace(target.url);
+  else navigate(target.path, { replace: true });
+}
 
 /**
- * Après connexion (ou session déjà présente sur une page d'auth) : `onboarding_completed`
- * faux → l'onboarding ; sinon `next` s'il est sûr (URL absolue, navigation pleine page
- * puisqu'il peut viser un autre sous-domaine) ; sinon l'accueil.
+ * Après connexion (ou session déjà présente sur une page d'auth) : la règle de `resolveAfterAuth`.
+ * `next` vers `/autoriser` part dès que la session est là, sans attendre le profil ; le reste
+ * attend `onboarding_completed`.
  */
-export function useAfterAuthRedirect({ next, onboardingPath = '/onboarding', homePath = '/' }: { next: string | null; onboardingPath?: string; homePath?: string }): void {
+export function useAfterAuthRedirect({ next, onboardingPath = '/onboarding', homePath = '/outils' }: { next: string | null; onboardingPath?: string; homePath?: string }): void {
   const { session } = useAuth();
   const profile = useProfile();
   const navigate = useNavigate();
+  const onboardingCompleted = profile.isSuccess ? profile.data.onboarding_completed : null;
   useEffect(() => {
-    if (!session || !profile.isSuccess) return;
-    if (!profile.data.onboarding_completed) {
-      navigate(onboardingPath, { replace: true });
-      return;
-    }
-    if (next) window.location.replace(next);
-    else navigate(homePath, { replace: true });
-  }, [session, profile.isSuccess, profile.data, next, onboardingPath, homePath, navigate]);
+    if (!session) return;
+    const target = resolveAfterAuth({ next, onboardingCompleted, hubUrl: getShellConfig().hubUrl, onboardingPath, homePath });
+    if (target) followAfterAuth(target, navigate);
+  }, [session, onboardingCompleted, next, onboardingPath, homePath, navigate]);
 }

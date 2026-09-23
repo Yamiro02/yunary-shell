@@ -5,6 +5,36 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.3.2 — après authentification, `/autoriser` passe avant l'onboarding ; `next` sur tous les chemins (23/09/2026)
+
+- **Bug** (constaté par la session hub) : une personne envoyée par Claude sur
+  `app.yunary.com/autoriser?authorization_id=…` sans session passait par `/login?next=…`, se
+  connectait ou s'inscrivait, puis `useAfterAuthRedirect` l'envoyait sur `/onboarding` (onboarding
+  pas terminé) en ignorant `next` : elle ne revenait jamais sur `/autoriser` et la connexion du
+  connecteur échouait. Modification du flux d'auth demandée explicitement par Julien.
+- **La règle** vit dans `resolveAfterAuth` (pure, exportée, testée), dans cet ordre : 1. `next` sûr
+  (`isSafeNext`) qui vise exactement `/autoriser` sur l'origine du hub, requête intacte, quel que soit
+  l'onboarding (sans attendre le profil) ; 2. onboarding pas terminé → `/onboarding` ; 3. `next` sûr →
+  `next` ; 4. sinon `/outils`. L'exception ne vaut que pour `/autoriser` (`isAuthorizeNext`,
+  `AUTHORIZE_PATH`). `homePath` passe par défaut de `/` à `/outils` (le hub le passait déjà).
+- **Chemins où `next` se perdait, corrigés** : inscription avec confirmation par e-mail
+  (`emailRedirectTo` était `/login` nu → `/login?next=`) ; mot de passe oublié → reset (`redirectTo`
+  était `/reset` nu → `/reset?next=`, la page d'oubli lit `next`, « Renvoyer » aussi) ; après le
+  nouveau mot de passe, `ResetPasswordPage` allait toujours sur l'accueil → la règle ; les liens de la
+  page de reset (« Mot de passe oublié », « Revenir à la connexion ») et les liens par défaut des pages
+  de connexion, d'inscription et d'oubli ne portaient pas `next` quand l'app ne le posait pas → reportés
+  par `withNextParam` (sans doubler celui que l'app met avec son propre `withNext`).
+- **Chemins vérifiés, déjà bons** : connexion par mot de passe et inscription sans confirmation (même
+  page, `next` lu dans l'URL) ; Google et Apple (`redirectTo` = `/login?next=`, Supabase y ajoute son
+  `code`, `next` relu intact).
+- `withNextParam(href, next)` exporté (route ou URL absolue, garde les autres paramètres et le
+  fragment). `signUpWithEmail(email, password, next?)` et `requestReset(email, next?)` prennent `next`.
+- **Tests** : vitest ajouté (`npm test`), 20 cas sur la règle (les quatre priorités, `next` non sûr
+  ignoré — autre domaine, `http`, relatif, `javascript:` —, chemin exact `/autoriser`,
+  `authorization_id` et `state` relus intacts après aller-retour et ajout du `code` de Supabase).
+
+---
+
 ## 0.3.1 — checkout multi-outils, pied de sidebar masquable, types du lot 1 ter (23/09/2026)
 
 - **Pourquoi** : le back accepte désormais `create-checkout-session { tools: [...] }` (1..10 outils, une

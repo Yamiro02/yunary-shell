@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.3.1';
+export const SHELL_VERSION = '0.3.2';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -32,6 +32,8 @@ export { useLogout } from './auth/useLogout';
 export { ProtectedRoute, PageLoader } from './auth/ProtectedRoute';
 export type { ProtectedRouteProps } from './auth/ProtectedRoute';
 export { isSafeNext, readSafeNext, buildLoginUrl } from './lib/next';
+export { resolveAfterAuth, isAuthorizeNext, withNextParam, AUTHORIZE_PATH } from './lib/afterAuth';
+export type { AfterAuthTarget, AfterAuthInput } from './lib/afterAuth';
 
 /* compte */
 export { useProfile, parseNotificationPrefs, DEFAULT_NOTIFICATION_PREFS, profileKey } from './account/useProfile';

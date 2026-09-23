@@ -1,6 +1,6 @@
 {
   "name": "@yunary/shell",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Coque partagée de la coquille web Yunary — client Supabase unique, session, auth, layout, Paramètres, légal, bilan d'audit, hooks outils / droits / abonnement par outil / règles / historique.",
   "license": "UNLICENSED",
   "private": false,
@@ -30,7 +30,8 @@
     "demo": "npm --prefix demo run dev",
     "demo:build": "npm --prefix demo run build",
     "demo:install": "npm --prefix demo install",
-    "prepare": "tsup"
+    "prepare": "tsup",
+    "test": "vitest run"
   },
   "peerDependencies": {
     "@tanstack/react-query": ">=5",
@@ -61,7 +62,8 @@
     "react-router-dom": "^7.18.3",
     "tailwind-merge": "^3.6.0",
     "tsup": "^8.3.5",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.7"
   },
   "engines": {
     "node": ">=18"

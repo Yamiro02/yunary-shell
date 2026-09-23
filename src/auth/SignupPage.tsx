@@ -6,6 +6,7 @@ import { Banner, Button, FormField, Input } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
 import { readSafeNext } from '../lib/next';
+import { withNextParam } from '../lib/afterAuth';
 import { AuthHeading, AuthShell } from './AuthShell';
 import { OAuthButtons } from './OAuthButtons';
 import { LinkSentView } from './LinkSentView';
@@ -72,7 +73,7 @@ export function SignupView({
   );
 }
 
-/** A2 câblée — montée par le Hub sur `/inscription`. Confirmation d'e-mail requise → vue « Vérifie ta boîte mail ». */
+/** A2 câblée — montée par le Hub sur `/inscription`. Confirmation d'e-mail requise → vue « Vérifie ta boîte mail » ; le lien de confirmation et le lien vers la connexion portent `?next=`. */
 export function SignupPage(props: AuthPageProps & { cguHref?: string; confidentialiteHref?: string } = {}): JSX.Element {
   const { signUpWithEmail } = useSignup();
   const { signInWithOAuth } = useLogin();
@@ -83,12 +84,13 @@ export function SignupPage(props: AuthPageProps & { cguHref?: string; confidenti
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
   useAfterAuthRedirect({ next, onboardingPath: props.onboardingPath, homePath: props.homePath });
+  const loginHref = withNextParam(props.loginHref ?? '/login', next);
 
   const onSubmit = async (values: SignupValues) => {
     setError(null);
     setLoading(true);
     try {
-      const { needsConfirmation } = await signUpWithEmail(values.email, values.password);
+      const { needsConfirmation } = await signUpWithEmail(values.email, values.password, next);
       if (needsConfirmation) setSentTo(values.email);
     } catch (e) {
       setError(getErrorMessage(e));
@@ -108,7 +110,7 @@ export function SignupPage(props: AuthPageProps & { cguHref?: string; confidenti
   };
 
   if (sentTo) {
-    return <LinkSentView kind="confirmation" email={sentTo} loginHref={props.loginHref} />;
+    return <LinkSentView kind="confirmation" email={sentTo} loginHref={loginHref} />;
   }
-  return <SignupView onSubmit={onSubmit} onOAuth={onOAuth} loading={loading} oauthLoading={oauthLoading} error={error} loginHref={props.loginHref} cguHref={props.cguHref} confidentialiteHref={props.confidentialiteHref} />;
+  return <SignupView onSubmit={onSubmit} onOAuth={onOAuth} loading={loading} oauthLoading={oauthLoading} error={error} loginHref={loginHref} cguHref={props.cguHref} confidentialiteHref={props.confidentialiteHref} />;
 }

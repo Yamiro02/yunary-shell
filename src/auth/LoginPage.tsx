@@ -6,6 +6,7 @@ import { Banner, Button, FormField, Input } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
 import { readSafeNext } from '../lib/next';
+import { withNextParam } from '../lib/afterAuth';
 import { AuthHeading, AuthShell } from './AuthShell';
 import { OAuthButtons } from './OAuthButtons';
 import { loginSchema, type LoginValues } from './schemas';
@@ -76,11 +77,11 @@ export interface AuthPageProps {
   forgotHref?: string;
   /** Où va un compte non onboardé. Défaut `/onboarding`. */
   onboardingPath?: string;
-  /** Où va un compte onboardé sans `?next=`. Défaut `/`. */
+  /** Où va un compte onboardé sans `?next=`. Défaut `/outils`. */
   homePath?: string;
 }
 
-/** A1 câblée — montée par le Hub sur `/login`. Une session déjà là redirige tout de suite. */
+/** A1 câblée — montée par le Hub sur `/login`. Une session déjà là redirige tout de suite (`resolveAfterAuth`). `?next=` est reporté sur les liens vers l'inscription et l'oubli. */
 export function LoginPage(props: AuthPageProps = {}): JSX.Element {
   const { signInWithEmail, signInWithOAuth } = useLogin();
   const location = useLocation();
@@ -116,5 +117,11 @@ export function LoginPage(props: AuthPageProps = {}): JSX.Element {
       setOauthLoading(null);
     }
   };
-  return <LoginView onSubmit={onSubmit} onOAuth={onOAuth} loading={loading} oauthLoading={oauthLoading} error={error} signupHref={props.signupHref} forgotHref={props.forgotHref} />;
+  return (
+    <LoginView
+      onSubmit={onSubmit} onOAuth={onOAuth} loading={loading} oauthLoading={oauthLoading} error={error}
+      signupHref={withNextParam(props.signupHref ?? '/inscription', next)}
+      forgotHref={withNextParam(props.forgotHref ?? '/mot-de-passe-oublie', next)}
+    />
+  );
 }

@@ -19,7 +19,7 @@ L'API publique, symbole par symbole → [`EXPORTS.md`](EXPORTS.md).
 Pas de registry : chaque app épingle une version par un tag git.
 
 ```bash
-npm i github:Yamiro02/yunary-shell#v0.3.1
+npm i github:Yamiro02/yunary-shell#v0.3.2
 ```
 
 Peer dependencies, à la charge de l'app : `react`, `react-dom`, `react-router-dom`,
@@ -59,7 +59,7 @@ lève une erreur explicite.
 ```bash
 npm run setup        # installe le paquet et la démo
 npm run demo         # la vitrine, sur http://localhost:5274
-npm run typecheck && npm run build && npm run demo:build
+npm run typecheck && npm test && npm run build && npm run demo:build
 ```
 
 La démo consomme la coque depuis ses sources et le design system depuis `node_modules`,

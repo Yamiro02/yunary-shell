@@ -5,6 +5,11 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Banner, Button, FormField, Input } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
+import { readSafeNext } from '../lib/next';
+import { resolveAfterAuth, withNextParam } from '../lib/afterAuth';
+import { getShellConfig } from '../config';
+import { useProfile } from '../account/useProfile';
+import { followAfterAuth } from './useAfterAuthRedirect';
 import { AuthHeading, AuthShell } from './AuthShell';
 import { PageLoader } from './ProtectedRoute';
 import { newPasswordSchema, type NewPasswordValues } from './schemas';
@@ -62,16 +67,21 @@ const LINK_GRACE_MS = 2_500;
 /**
  * `/reset` câblée. Le lien pose une session de recovery (PKCE, même navigateur) ; sans
  * session après la grâce, ou avec `?error=` dans l'URL, le lien est déclaré invalide.
+ * Après le nouveau mot de passe : la règle de `resolveAfterAuth` (`?next=` vient du lien de reset).
+ * Pas de `useAfterAuthRedirect` ici : la session de recovery existe AVANT la saisie, il
+ * redirigerait avant que la personne ait choisi son mot de passe.
  */
-export function ResetPasswordPage({ forgotHref, loginHref, homePath = '/' }: { forgotHref?: string; loginHref?: string; homePath?: string } = {}): JSX.Element {
+export function ResetPasswordPage({ forgotHref, loginHref, onboardingPath = '/onboarding', homePath = '/outils' }: { forgotHref?: string; loginHref?: string; onboardingPath?: string; homePath?: string } = {}): JSX.Element {
   const { updatePassword } = usePasswordReset();
   const { session, loading: authLoading } = useAuth();
+  const profile = useProfile();
   const location = useLocation();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [graceOver, setGraceOver] = useState(false);
   const urlError = new URLSearchParams(location.search).get('error') ?? new URLSearchParams(location.hash.replace(/^#/, '')).get('error');
+  const next = readSafeNext(location.search);
 
   useEffect(() => {
     const t = window.setTimeout(() => setGraceOver(true), LINK_GRACE_MS);
@@ -83,7 +93,12 @@ export function ResetPasswordPage({ forgotHref, loginHref, homePath = '/' }: { f
     setLoading(true);
     try {
       await updatePassword(values.password);
-      navigate(homePath, { replace: true });
+      /* Profil illisible : on ne bloque pas — `ProtectedRoute` rattrapera l'onboarding sur l'accueil. */
+      const data = profile.data ?? (await profile.refetch()).data;
+      const target = resolveAfterAuth({
+        next, onboardingCompleted: data ? data.onboarding_completed : true, hubUrl: getShellConfig().hubUrl, onboardingPath, homePath,
+      });
+      if (target) followAfterAuth(target, navigate);
     } catch (e) {
       setError(getErrorMessage(e));
       setLoading(false);
@@ -91,5 +106,11 @@ export function ResetPasswordPage({ forgotHref, loginHref, homePath = '/' }: { f
   };
 
   if (!urlError && !session && (authLoading || !graceOver)) return <PageLoader />;
-  return <ResetPasswordView onSubmit={onSubmit} loading={loading} error={error} linkInvalid={!!urlError || !session} forgotHref={forgotHref} loginHref={loginHref} />;
+  return (
+    <ResetPasswordView
+      onSubmit={onSubmit} loading={loading} error={error} linkInvalid={!!urlError || !session}
+      forgotHref={withNextParam(forgotHref ?? '/mot-de-passe-oublie', next)}
+      loginHref={withNextParam(loginHref ?? '/login', next)}
+    />
+  );
 }

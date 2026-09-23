@@ -1,5 +1,6 @@
 import { getSupabase } from '../lib/supabase';
 import { getShellConfig } from '../config';
+import { withNextParam } from '../lib/afterAuth';
 
 export type OAuthProvider = 'google' | 'apple';
 
@@ -16,7 +17,7 @@ export function useLogin() {
 
   async function signInWithOAuth(provider: OAuthProvider, next: string | null): Promise<void> {
     const { hubUrl } = getShellConfig();
-    const redirectTo = next ? `${hubUrl}/login?next=${encodeURIComponent(next)}` : `${hubUrl}/login`;
+    const redirectTo = withNextParam(`${hubUrl}/login`, next);
     const { error } = await getSupabase().auth.signInWithOAuth({ provider, options: { redirectTo } });
     if (error) throw error;
     /* Redirection pleine page imminente : l'appelant garde son état « loading ». */

@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState, type JSX } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Banner, Button, FormField, Input } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
+import { readSafeNext } from '../lib/next';
+import { withNextParam } from '../lib/afterAuth';
 import { AuthHeading, AuthShell } from './AuthShell';
 import { LinkSentView } from './LinkSentView';
 import { forgotSchema, type ForgotValues } from './schemas';
@@ -43,9 +45,12 @@ export function ForgotPasswordView({ onSubmit, loading = false, error = null, lo
 /* Anti-rafale sur « Renvoyer » : le bouton se rouvre après ce délai. */
 const RESEND_COOLDOWN_MS = 30_000;
 
-/** A3 → A4 câblées — montées par le Hub sur `/mot-de-passe-oublie`. */
-export function ForgotPasswordPage({ loginHref }: { loginHref?: string } = {}): JSX.Element {
+/** A3 → A4 câblées — montées par le Hub sur `/mot-de-passe-oublie`. `?next=` part dans le lien de reset et sur le retour à la connexion. */
+export function ForgotPasswordPage({ loginHref: loginHrefProp }: { loginHref?: string } = {}): JSX.Element {
   const { requestReset } = usePasswordReset();
+  const location = useLocation();
+  const next = readSafeNext(location.search);
+  const loginHref = withNextParam(loginHrefProp ?? '/login', next);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [sentTo, setSentTo] = useState<string | null>(null);
@@ -57,7 +62,7 @@ export function ForgotPasswordPage({ loginHref }: { loginHref?: string } = {}): 
     setError(null);
     setLoading(true);
     try {
-      await requestReset(values.email);
+      await requestReset(values.email, next);
       setSentTo(values.email);
     } catch (e) {
       setError(getErrorMessage(e));
@@ -69,7 +74,7 @@ export function ForgotPasswordPage({ loginHref }: { loginHref?: string } = {}): 
     if (!sentTo) return;
     setResendState('sending');
     try {
-      await requestReset(sentTo);
+      await requestReset(sentTo, next);
     } catch {
       /* L'e-mail est peut-être déjà parti : on ne casse pas l'écran, le bouton se rouvre. */
     }
