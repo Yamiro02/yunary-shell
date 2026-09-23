@@ -161,6 +161,10 @@ export const fr = {
     runStatus: { en_cours: 'En cours', termine: 'Terminé', abandonne: 'Abandonné', erreur: 'Erreur' },
     unlimited: 'Sans limite',
     usage: (used: number, total: number) => `${used} / ${total}`,
+    /* Le quota mensuel d'un outil du catalogue — « 50 par mois » : le mot d'unité n'existe pas en base (Julien, 23/09/2026). */
+    quotaPerMonth: (n: number | null) => (n === null ? 'Sans limite' : `${n} par mois`),
+    /* Le lockup d'un outil : « Yunary » puis le mot accentué (`ToolLabel`). */
+    brandPrefix: 'Yunary',
     remaining: (n: number) => (n > 1 ? `${n} restantes` : `${n} restante`),
     renewsOn: (date: string) => `Renouvelé le ${date}`,
     endsOn: (date: string) => `Se termine le ${date}`,
@@ -261,6 +265,8 @@ export const fr = {
       toolsSubtitle: 'Ce que tu peux utiliser dans Claude, et où tu en es de ton quota.',
       toolsEmpty: "Aucun outil pour le moment.",
       manageTools: 'Gérer mes outils',
+      /* Un prix pas encore lu (catalogue en route) : jamais un chiffre inventé. */
+      priceUnknown: '— €',
       cancelDialog: {
         title: 'Se désabonner ?',
         confirm: 'Se désabonner',
@@ -280,10 +286,20 @@ export const fr = {
         perMonth: (price: string) => `${price}/mois`,
         once: (price: string) => `${price}, en une fois`,
         loading: 'Préparation du paiement…',
-        /* `mode: 'added'` : abonnement vivant, l'article est ajouté au prorata — rien à payer ici. */
+        /* `mode: 'added'` : abonnement vivant, les articles sont ajoutés au prorata — rien à payer ici. */
         addedTitle: (tool: string) => `${tool} est ajouté à ton abonnement`,
+        addedTitleMany: (n: number) => `Tes ${n} outils sont ajoutés à ton abonnement`,
         addedBody: "Le prorata est calculé par Stripe et apparaîtra sur ta prochaine facture. Tu peux l'utiliser dès maintenant.",
+        addedBodyMany: 'Le prorata est calculé par Stripe et apparaîtra sur ta prochaine facture. Tu peux les utiliser dès maintenant.',
         continue: 'Continuer',
+        /* Artboards Hub-03-Abonnement-Paiement (bureau, récap latéral) et -Mobile (récap replié) : plusieurs outils. */
+        multiTitle: 'Activer tes outils',
+        multiSubtitle: 'Facturé chaque mois, résiliable en un clic.',
+        paymentHead: 'Paiement',
+        totalPerMonth: 'Total par mois',
+        toolsCount: (n: number) => `${n} outil${n > 1 ? 's' : ''}`,
+        secure: 'Paiement chiffré, géré par Stripe. On ne voit jamais ta carte.',
+        showRecap: 'Voir le détail',
       },
       /* Retour de Stripe (`?checkout=`) : on sonde les droits jusqu'à 20 s. Jamais d'erreur rouge : le paiement a réussi. */
       activation: {

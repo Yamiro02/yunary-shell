@@ -19,6 +19,8 @@ export interface AppLayoutProps {
    * pied de nav et le logo y mènent, et l'entrée est active dessus. Défaut `/outils`.
    */
   toolsHref?: string;
+  /** `false` masque « Mes outils » du pied de nav de la sidebar (le hub met Outils dans `items`). Défaut `true`. */
+  showToolsLink?: boolean;
   /** Sans enfants, rend l'`Outlet` du routeur. */
   children?: ReactNode;
 }
@@ -92,7 +94,7 @@ export function AppBleed({ children, className, flush = false }: AppBleedProps):
  * pour alimenter la sidebar — les pages, elles, n'ont rien à refaire.
  */
 export function AppLayout({
-  items = [], settingsHref = '/parametres', toolsHref = '/outils', children,
+  items = [], settingsHref = '/parametres', toolsHref = '/outils', showToolsLink = true, children,
 }: AppLayoutProps): JSX.Element {
   const location = useLocation();
   const [open, setOpen] = useState(false);
@@ -129,6 +131,7 @@ export function AppLayout({
           /* « Mes outils » et le logo naviguent en interne, dans l'app. */
           toolsHref={toolsHref}
           toolsActive={isActive(toolsHref)}
+          showToolsLink={showToolsLink}
           account={account}
           linkAs={NavLink}
           open={open}

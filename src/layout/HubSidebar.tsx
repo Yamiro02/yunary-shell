@@ -23,6 +23,8 @@ export interface HubSidebarProps {
    */
   toolsHref?: string;
   toolsActive?: boolean;
+  /** `false` masque « Mes outils » du pied de nav (le hub met Outils dans `items`) ; le lockup mène toujours à `toolsHref`. */
+  showToolsLink?: boolean;
   account: AccountView;
   /** Le lien du routeur (`NavLink`) — `href` lui arrive en `to`. */
   linkAs?: ElementType;
@@ -44,12 +46,12 @@ export interface HubSidebarProps {
  * `--sidebar-w` de la marque, son tiroir sous 64rem — rien n'est redessiné.
  */
 export function HubSidebar({
-  items = [], settingsHref = '/parametres', settingsActive = false, toolsHref = '/outils', toolsActive = false,
+  items = [], settingsHref = '/parametres', settingsActive = false, toolsHref = '/outils', toolsActive = false, showToolsLink = true,
   account, linkAs, open, onClose, staticLayout = false, className,
 }: HubSidebarProps): JSX.Element {
   const sections: SidebarSection[] = items.length ? [{ items: items.map(toSidebarItem) }] : [];
   const footerItems: SidebarItem[] = [
-    { label: fr.layout.tools, href: toolsHref, icon: <Icon glyph={Wrench} />, active: toolsActive },
+    ...(showToolsLink ? [{ label: fr.layout.tools, href: toolsHref, icon: <Icon glyph={Wrench} />, active: toolsActive }] : []),
     { label: fr.layout.settings, href: settingsHref, icon: <Icon name="settings" />, active: settingsActive },
   ];
   /* Le lockup en tête (maître HubSidebar, 11/09/2026) : le monogramme du `Logo` à 1,5 rem, puis

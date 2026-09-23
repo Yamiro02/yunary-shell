@@ -1,6 +1,6 @@
 /* Types générés par le MCP Supabase (generate_typescript_types) — projet drcxtkwmtceauwiiargz.
    JAMAIS édité à la main : régénéré après chaque migration du back.
-   État : lot 1 base du 23/09/2026 (exports/database.types-2026-09-23-lot1.ts). */
+   État : lot 1 ter du 23/09/2026 (exports/database.types-2026-09-23-lot1ter.ts). */
 
 export type Json =
   | string
@@ -942,6 +942,7 @@ export type Database = {
       tool_entitlements: {
         Row: {
           created_at: string
+          ends_at_period_end: boolean
           id: string
           period_end: string | null
           period_start: string
@@ -956,6 +957,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          ends_at_period_end?: boolean
           id?: string
           period_end?: string | null
           period_start?: string
@@ -970,6 +972,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          ends_at_period_end?: boolean
           id?: string
           period_end?: string | null
           period_start?: string

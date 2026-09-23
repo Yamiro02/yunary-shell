@@ -16,15 +16,25 @@ interface UrlResponse {
   message?: string;
 }
 
-/** Ce qu'on achète : un outil (article d'abonnement) ou un pack (achat unique). */
-export type CheckoutTarget = { tool: string; pack?: undefined } | { pack: string; tool?: undefined };
+/** Ce qu'on achète : un outil, plusieurs outils (articles d'abonnement) ou un pack (achat unique). */
+export type CheckoutTarget =
+  | { tool: string; tools?: undefined; pack?: undefined }
+  | { tools: string[]; tool?: undefined; pack?: undefined }
+  | { pack: string; tool?: undefined; tools?: undefined };
 
-/** La réponse de `create-checkout-session`. */
+/** Les outils d'une cible, dans l'ordre demandé (vide pour un pack). */
+export function checkoutTools(target: CheckoutTarget): string[] {
+  if (target.tools) return target.tools;
+  if (target.tool) return [target.tool];
+  return [];
+}
+
+/** La réponse de `create-checkout-session` — `tools` toujours présent, `tool` en plus quand il n'y en a qu'un. */
 export type CheckoutStart =
-  /** Abonnement vivant : l'article a été ajouté au prorata par l'API Stripe, PAS de Checkout — rafraîchir. */
-  | { mode: 'added'; tool: string; amountCents: number }
-  /** Checkout embarqué (nouvel abonnement, ou pack) : le `clientSecret` monte le formulaire Stripe, jamais dans une URL. */
-  | { mode: 'checkout'; clientSecret: string; amountCents: number; tool: string; pack?: string };
+  /** Abonnement vivant : les articles ont été ajoutés au prorata par l'API Stripe, PAS de Checkout — rafraîchir. */
+  | { mode: 'added'; tools: string[]; tool?: string; amountCents: number }
+  /** Checkout embarqué (nouvel abonnement, ou pack) : le `clientSecret` monte le formulaire Stripe, jamais dans une URL. `amountCents` = somme des articles. */
+  | { mode: 'checkout'; clientSecret: string; amountCents: number; tools: string[]; tool?: string; pack?: string };
 
 /** La réponse de `remove-subscription-item`. */
 export type RemoveToolResult =
@@ -85,9 +95,10 @@ export function usePortalSession() {
 }
 
 /**
- * Démarrer un achat via l'Edge `create-checkout-session` `{ tool }` ou `{ pack }` :
- * - `mode: 'added'` — abonnement vivant, l'article est ajouté au prorata côté Stripe et en base :
- *   rien à payer ici, les caches sont invalidés ;
+ * Démarrer un achat via l'Edge `create-checkout-session` `{ tools }` (1..10 outils publiés, distincts,
+ * non déjà souscrits — `{ tool }` vaut `{ tools: [tool] }`) ou `{ pack }` :
+ * - `mode: 'added'` — abonnement vivant, les articles sont ajoutés au prorata côté Stripe et en base
+ *   en UN appel : rien à payer ici, les caches sont invalidés ;
  * - `mode: 'checkout'` — un `clientSecret` pour le checkout EMBARQUÉ (`CheckoutModal`) : aucune
  *   redirection. Le retour de Stripe après paiement arrive sur `?checkout=<session_id>`
  *   (`useCheckoutActivation`).
@@ -97,7 +108,7 @@ export function useStartCheckout() {
   const invalidate = useInvalidateBilling();
   return useMutation({
     mutationFn: (target: CheckoutTarget): Promise<CheckoutStart> =>
-      invokeEdge<CheckoutStart>('create-checkout-session', target.pack ? { pack: target.pack } : { tool: target.tool }, fr.errors.checkoutFailed),
+      invokeEdge<CheckoutStart>('create-checkout-session', target.pack ? { pack: target.pack } : { tools: checkoutTools(target) }, fr.errors.checkoutFailed),
     onSuccess: result => (result.mode === 'added' ? invalidate() : undefined),
   });
 }

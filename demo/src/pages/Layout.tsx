@@ -15,7 +15,7 @@ export function LayoutPage(): JSX.Element {
   const [tab, setTab] = useState<ParametresTab>('abonnement');
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="HubSidebar" note="Maître HubSidebar.dc.html (11/09) · C6. Sidebar du DS, non repliable : lockup statique (monogramme 1,5 rem + « Yunary » en display 18), nav de l'app, Mes outils + Paramètres, carte compte. Depuis 0.3.0 : plus de carte crédits (les quotas sont par outil, dans Paramètres › Abonnement), plus de nom d'outil ni de variante native. État actif = celui du DS 0.1.5 : corail sur `--accent`, même graisse.">
+      <Section title="HubSidebar" note="Maître HubSidebar.dc.html (11/09) · C6. Sidebar du DS, non repliable : lockup statique (monogramme 1,5 rem + « Yunary » en display 18), nav de l'app, Mes outils + Paramètres, carte compte. Depuis 0.3.0 : plus de carte crédits (les quotas sont par outil, dans Paramètres › Abonnement), plus de nom d'outil ni de variante native. 0.3.1 : `showToolsLink={false}` retire « Mes outils » du pied quand l'app met Outils dans sa nav. État actif = celui du DS 0.1.5 : corail sur `--accent`, même graisse.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame label="Gratuit · Mes outils actif">
             <HubSidebar toolsActive account={ACCOUNT} linkAs={NavLink} staticLayout />
@@ -23,8 +23,8 @@ export function LayoutPage(): JSX.Element {
           <Frame label="Abonné · nav du hub · Mes règles actif">
             <HubSidebar items={HUB_ITEMS.map((it, i) => ({ ...it, active: i === 0 }))} account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />
           </Frame>
-          <Frame label="Paramètres actif">
-            <HubSidebar items={HUB_ITEMS} settingsActive account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />
+          <Frame label="showToolsLink={false} · Outils dans items, Paramètres actif">
+            <HubSidebar items={[{ label: 'Outils', href: '/outils', icon: <Icon name="zap" /> }, ...HUB_ITEMS]} showToolsLink={false} settingsActive account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />
           </Frame>
         </div>
       </Section>

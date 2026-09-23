@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.3.0';
+export const SHELL_VERSION = '0.3.1';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -56,11 +56,11 @@ export { useToolRuns, toolRunsKey } from './tools/useToolRuns';
 export type { ToolRun, ToolRunStatus } from './tools/useToolRuns';
 
 /* abonnement Stripe — un abonnement par client, un article par outil, packs ; checkout embarqué, activation, résiliation */
-export { usePortalSession, useStartCheckout, useRemoveTool, useCancelSubscription, useResumeSubscription } from './account/useStripe';
+export { usePortalSession, useStartCheckout, useRemoveTool, useCancelSubscription, useResumeSubscription, checkoutTools } from './account/useStripe';
 export type { CheckoutTarget, CheckoutStart, RemoveToolResult } from './account/useStripe';
 export { CheckoutModal } from './abonnement/CheckoutModal';
 export type { CheckoutModalProps } from './abonnement/CheckoutModal';
-export { useCheckoutActivation, CHECKOUT_PARAM, CHECKOUT_TOOL_PARAM, CHECKOUT_PACK_PARAM } from './abonnement/useCheckoutActivation';
+export { useCheckoutActivation, CHECKOUT_PARAM, CHECKOUT_TOOLS_PARAM, CHECKOUT_TOOL_PARAM, CHECKOUT_PACK_PARAM } from './abonnement/useCheckoutActivation';
 export type { CheckoutActivationState } from './abonnement/useCheckoutActivation';
 export { CheckoutActivationCard } from './abonnement/CheckoutActivationCard';
 export type { CheckoutActivationCardProps } from './abonnement/CheckoutActivationCard';
@@ -96,6 +96,8 @@ export { HubSidebar } from './layout/HubSidebar';
 export type { HubSidebarProps, ShellNavItem } from './layout/HubSidebar';
 export { AccountCard, UserAvatar } from './layout/AccountCard';
 export type { AccountView } from './layout/AccountCard';
+export { ToolLabel } from './layout/ToolLabel';
+export type { ToolLabelProps } from './layout/ToolLabel';
 export { SegmentedControl } from './layout/SegmentedControl';
 export type { SegmentedControlProps, SegmentedOption } from './layout/SegmentedControl';
 

@@ -18,10 +18,7 @@ export interface Entitlement {
   periodStart: string;
   /** `null` = à vie (gratuit, pack). */
   periodEnd: string | null;
-  /**
-   * Droit d'abonnement retiré, gardé jusqu'à la fin de la période (colonne `ends_at_period_end`,
-   * à venir côté back) — `false` tant que la colonne n'existe pas. Affiché « Se termine le … ».
-   */
+  /** Droit d'abonnement retiré, gardé jusqu'à la fin de la période (`ends_at_period_end`). Affiché « Se termine le … ». */
   endsAtPeriodEnd: boolean;
 }
 
@@ -98,7 +95,7 @@ export function summarizeEntitlements(rows: Entitlement[], now: number = Date.no
 /**
  * Les droits de l'utilisateur (`tool_entitlements`, RLS owner) + un résumé par outil. Ce que
  * l'onglet Abonnement affiche ; la vérité d'accès reste `can_use` (serveur) — ici on montre, on
- * ne décide pas. La colonne `ends_at_period_end` est lue si elle existe (`select *`), sinon `false`.
+ * ne décide pas.
  */
 export function useEntitlements() {
   const { user } = useAuth();
@@ -111,7 +108,7 @@ export function useEntitlements() {
       const rows: Entitlement[] = data.map(row => ({
         id: row.id, toolId: row.tool_id, source: parseSource(row.source), status: parseStatus(row.status),
         quotaTotal: row.quota_total, quotaUsed: row.quota_used, periodStart: row.period_start, periodEnd: row.period_end,
-        endsAtPeriodEnd: (row as { ends_at_period_end?: boolean | null }).ends_at_period_end === true,
+        endsAtPeriodEnd: row.ends_at_period_end,
       }));
       return { rows, summaries: summarizeEntitlements(rows) };
     },

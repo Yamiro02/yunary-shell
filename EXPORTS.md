@@ -1,4 +1,4 @@
-# EXPORTS — l'API publique de `@yunary/shell` (0.3.0)
+# EXPORTS — l'API publique de `@yunary/shell` (0.3.1)
 
 Un seul point d'entrée : `import { … } from '@yunary/shell'`. Tout ce qui n'est pas listé ici
 est interne et peut changer sans bump majeur. Les **vues** (`*View`) sont pilotées par props et
@@ -24,7 +24,7 @@ que dans le web.
 | `supabase` | Le client (`createBrowserClient` de `@supabase/ssr`, session en cookies `.yunary.com`). Singleton paresseux : l'utiliser avant `configureShell` lève. |
 | `getSupabase()` | Le même, en fonction. |
 | `signOut()` | La déconnexion — toujours par ici (`scope: 'global'`). |
-| `Database` · `Tables` · `TablesInsert` · `TablesUpdate` · `Json` | Types générés du projet (lot 1 base, 23/09/2026), jamais édités. |
+| `Database` · `Tables` · `TablesInsert` · `TablesUpdate` · `Json` | Types générés du projet (lot 1 ter, 23/09/2026 : `ends_at_period_end` typé), jamais édités. |
 
 ## Session, auth, garde
 
@@ -75,9 +75,9 @@ que dans le web.
 
 | Export | Rôle |
 |---|---|
-| `useStartCheckout()` | Edge `create-checkout-session` avec un `CheckoutTarget` (`{ tool }` ou `{ pack }`) → `CheckoutStart` : `{ mode: 'added', tool, amountCents }` (abonnement vivant, article ajouté au prorata, caches invalidés) ou `{ mode: 'checkout', clientSecret, amountCents, tool, pack? }` (checkout embarqué). Codes traduits : `not_published`, `already_subscribed`, `rate_limited`, `unauthorized`, `stripe_error`. |
-| `<CheckoutModal open onClose target inline? demo?>` | Le checkout Stripe **embarqué** : appelle l'Edge à l'ouverture, charge Stripe.js paresseusement (`stripePublishableKey`), gère préparation / erreur / fermeture / `added`. En-tête « S'abonner à {tools.name} » + « 9 €/mois », ou « {tool_packs.name} » + « 15 €, en une fois » — noms et montants du catalogue puis de l'Edge. **Bureau** : Modal lg du DS à ~80 % de la hauteur, corps défilant ; **mobile (≤ 64 rem) : page plein écran**, sans voile — exception assumée au modal du DS (artboards D2 / D2b). `CheckoutModalProps`. |
-| `useCheckoutActivation()` → `{ state, clear }` · `CHECKOUT_PARAM` · `CHECKOUT_TOOL_PARAM` · `CHECKOUT_PACK_PARAM` | Le retour de Stripe (`?checkout=<session_id>`, `&tool=` / `&pack=` facultatifs) : sonde `tool_entitlements` chaque seconde, 20 s au plus — le droit `subscription` de l'outil si `tool`, un droit `pack` de l'outil du pack si `pack`, sinon un droit `subscription` / `pack` écrit depuis l'arrivée sur la page — `pending` · `active` · `late` (`idle` sans paramètre). Invalide abonnement et droits à l'activation ; `clear()` retire les paramètres. `AppLayout` affiche « Activation en cours… » pendant `pending`. `CheckoutActivationState`. |
+| `useStartCheckout()` · `checkoutTools(target)` | Edge `create-checkout-session` avec un `CheckoutTarget` (`{ tool }`, **`{ tools: string[] }`** — 1..10 outils publiés, distincts, non souscrits — ou `{ pack }`) → `CheckoutStart` : `{ mode: 'added', tools, tool?, amountCents }` (abonnement vivant, articles ajoutés au prorata en un appel, caches invalidés) ou `{ mode: 'checkout', clientSecret, amountCents, tools, tool?, pack? }` (checkout embarqué à N line items ; `amountCents` = somme). `checkoutTools` rend les outils d'une cible. Codes traduits : `not_published`, `already_subscribed`, `invalid_input`, `rate_limited`, `unauthorized`, `stripe_error`. |
+| `<CheckoutModal open onClose target inline? demo?>` | Le checkout Stripe **embarqué** : appelle l'Edge à l'ouverture, charge Stripe.js paresseusement (`stripePublishableKey`), gère préparation / erreur / fermeture / `added` (singulier ou pluriel). **Un outil ou un pack, bureau** : Modal lg du DS (520) à ~80 % de la hauteur, en-tête « S'abonner à {tools.name} · 9 €/mois » ou « {tool_packs.name} · 5 €, en une fois » (artboard D2). **Plusieurs outils, bureau** (0.3.1, artboard Hub-03-Abonnement-Paiement) : la même Modal à `--container-wide` (900), deux colonnes — récap (`--container-aside`, fond secondary : « Activer tes outils », une ligne par outil avec `ToolLabel`, quota « 50 par mois », prix, total par mois, mention Stripe) et paiement (« Paiement » + croix, zone Stripe qui défile). **Mobile (≤ 64 rem) : page plein écran**, sans voile — exception assumée au modal du DS (D2b) ; plusieurs outils = récap **replié** dans l'en-tête (`<details>` natif, « 2 outils · 14 €/mois »). Noms, quotas et montants du catalogue puis de l'Edge. `CheckoutModalProps`. |
+| `useCheckoutActivation()` → `{ state, clear }` · `CHECKOUT_PARAM` · `CHECKOUT_TOOLS_PARAM` · `CHECKOUT_TOOL_PARAM` · `CHECKOUT_PACK_PARAM` | Le retour de Stripe (`?checkout=<session_id>&tools=a,b`, `&tool=` / `&pack=` selon l'achat) : sonde `tool_entitlements` chaque seconde, 20 s au plus — un droit `subscription` actif **pour chaque** outil de `tools` (ou `tool`), un droit `pack` de l'outil du pack si `pack`, sinon un droit `subscription` / `pack` écrit depuis l'arrivée sur la page — `pending` · `active` · `late` (`idle` sans paramètre). Invalide abonnement et droits à l'activation ; `clear()` retire les paramètres. `AppLayout` affiche « Activation en cours… » pendant `pending`. `CheckoutActivationState`. |
 | `<CheckoutActivationCard state onContinue>` | L'écran de retour : « On active ton outil… », succès, ou le message calme passé 20 s — jamais une erreur. |
 | `useRemoveTool()` | Edge `remove-subscription-item { tool }` → `RemoveToolResult` : `{ mode: 'removed' }`, `{ mode: 'ends_at_period_end', periodEnd }` (l'outil reste jusqu'à la fin de la période, sans avoir) ou `{ mode: 'cancel_at_period_end', currentPeriodEnd }` (dernier article : tout l'abonnement s'arrête en fin de période). Codes : `no_subscription`, `not_subscribed`. Libellés dans `fr.parametres.abonnement.remove`. |
 | `useCancelSubscription()` · `useResumeSubscription()` | Résiliation COMPLÈTE en fin de période (`cancel-subscription`) / réactivation (`resume-subscription`) ; invalident abonnement et droits. |
@@ -89,12 +89,13 @@ que dans le web.
 
 | Export | Rôle |
 |---|---|
-| `<AppLayout items? settingsHref? toolsHref?>` | `AppShell` + `HubSidebar` alimentés par le profil et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. `toolsHref` (défaut `/outils`) : la route locale de la page des outils du hub — l'entrée du pied de nav et le lockup y mènent. Rend le `PaymentFailedBanner` sous la barre haute ; carte compte « Gratuit » / « Abonné », « Activation en cours… » pendant un retour de checkout. |
+| `<AppLayout items? settingsHref? toolsHref? showToolsLink?>` | `AppShell` + `HubSidebar` alimentés par le profil et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. `toolsHref` (défaut `/outils`) : la route locale de la page des outils du hub — l'entrée du pied de nav et le lockup y mènent ; `showToolsLink={false}` (0.3.1) retire l'entrée du pied quand l'app met Outils dans `items`, le lockup garde sa cible. Rend le `PaymentFailedBanner` sous la barre haute ; carte compte « Gratuit » / « Abonné », « Activation en cours… » pendant un retour de checkout. |
 | `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières de la v1 — `space-4` de côté et `space-5` en vertical sous 64 rem, `space-5` partout dès que la sidebar est à demeure (`64.0625rem`). Colonne flex qui remplit la hauteur restante sous la barre dans `AppLayout` : un bloc se centre avec `m-auto`. |
 | `APP_GUTTER_X` · `APP_BLEED_X` · `APP_BLEED_TOP` | Les gouttières d'`AppContent` en classes : y rentrer, en sortir (le miroir négatif), coller au haut du contenu. Jamais recopiées dans une app. |
 | `<AppBleed flush? className?>` | Un bloc qui sort des gouttières latérales — le cas « page entière » ; `flush` colle aussi au haut. `AppBleedProps`. |
-| `<HubSidebar items? settingsHref? settingsActive? toolsHref? toolsActive? account linkAs? open? onClose? staticLayout?>` | La sidebar en vue : lockup en tête (monogramme 1,5 rem + « Yunary » en display 18, lien vers `toolsHref`), nav de l'app, Mes outils + Paramètres en pied de nav, carte compte ; jamais repliée ; `linkAs` pour le routeur. `HubSidebarProps`, `ShellNavItem`. |
+| `<HubSidebar items? settingsHref? settingsActive? toolsHref? toolsActive? showToolsLink? account linkAs? open? onClose? staticLayout?>` | La sidebar en vue : lockup en tête (monogramme 1,5 rem + « Yunary » en display 18, lien vers `toolsHref`), nav de l'app, Mes outils (sauf `showToolsLink={false}`) + Paramètres en pied de nav, carte compte ; jamais repliée ; `linkAs` pour le routeur. `HubSidebarProps`, `ShellNavItem`. |
 | `<AccountCard account>` · `<UserAvatar account>` | La carte du bas de sidebar (avatar, nom, « Gratuit » / « Abonné ») et l'avatar composé. `AccountView`. |
+| `<ToolLabel name className?>` | (0.3.1) Le nom d'un outil en lockup sur un nom LU EN BASE : « Yunary » puis le mot accentué en pochoir `.accent` ; un nom qui ne commence pas par « Yunary » est rendu tel quel. Aucune taille propre : celle de l'appelant. Le récap du checkout, les pages Outils du hub. `ToolLabelProps`. |
 | `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`), sélection à la convention des Tabs. Manque DS consigné. |
 
 ## Paramètres
@@ -132,7 +133,7 @@ que dans le web.
 
 | Export | Rôle |
 |---|---|
-| `fr` | Toutes les chaînes communes (erreurs, auth, layout, outils et droits — `fr.tools` : sources, statuts, « Sans limite », « utilisé / total », échéances —, paramètres, légal, audit). Jamais un nom d'outil : ils viennent de la base. |
+| `fr` | Toutes les chaînes communes (erreurs, auth, layout, outils et droits — `fr.tools` : sources, statuts, « Sans limite », « utilisé / total », « 50 par mois », échéances —, paramètres, checkout multi-outils, légal, audit). Jamais un nom d'outil : ils viennent de la base. |
 | `getErrorMessage(error)` | Une erreur (Supabase, réseau, code métier brut du back, inconnue) → une phrase FR. Jamais un message brut à l'écran. |
 | `messageForCode(code, fallback)` | 🔒 La phrase FR d'un code du back (`not_subscribed`, `quota_exhausted`, `not_published`, `already_subscribed`, `no_subscription`, `no_customer`, `unknown_tool`, `rate_limited`, `unauthorized`, `stripe_error`, `invalid_input`) ; inconnu → `fallback`. |
 | `formatNombre` · `formatCompact` · `formatDateCourte` · `formatDateLongue` · `formatEuros(cents)` · `initiales` | Formats FR via `Intl` ; `formatEuros` : centimes → « 9 € » / « 9,90 € ». |

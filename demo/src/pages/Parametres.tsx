@@ -92,20 +92,39 @@ export function ParametresPage(): JSX.Element {
         <CheckoutLive />
       </Section>
 
-      <Section title="Checkout Stripe · bureau (artboard D2)" note="La Modal lg du DS (520 px) plafonnée à ~80 % de la hauteur d'écran, en-tête fixe « S'abonner à Yunary Analyse » + « 9 €/mois » (nom et montant du catalogue, puis de l'Edge), corps défilant. Préparation, erreur (fermer / réessayer), session prête — ici sans Stripe.js — et `mode: 'added'` (abonnement vivant : l'outil est ajouté au prorata, rien à payer ici).">
+      <Section title="Checkout Stripe · un outil, bureau (artboard D2)" note="La Modal lg du DS (520 px) plafonnée à ~80 % de la hauteur d'écran, en-tête fixe « S'abonner à Yunary Analyse » + « 9 €/mois » (nom et montant du catalogue, puis de l'Edge), corps défilant. Préparation, erreur (fermer / réessayer), session prête — ici sans Stripe.js — et `mode: 'added'` (abonnement vivant : l'outil est ajouté au prorata, rien à payer ici).">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-2">
           <Frame label="Préparation"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', loading: true, catalog: CATALOG }} /></Frame>
           <Frame label="Erreur"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></Frame>
-          <Frame label="Session prête (Stripe non chargé)"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 900, tool: 'analyse' } }} /></Frame>
-          <Frame label="Ajouté au prorata (`mode: 'added'`)"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'added', tool: 'analyse', amountCents: 900 } }} /></Frame>
+          <Frame label="Session prête (Stripe non chargé)"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 900, tools: ['analyse'], tool: 'analyse' } }} /></Frame>
+          <Frame label="Ajouté au prorata (`mode: 'added'`)"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'added', tools: ['analyse'], tool: 'analyse', amountCents: 900 } }} /></Frame>
         </div>
       </Section>
 
-      <Section title="Checkout Stripe · mobile plein écran (artboard D2b)" note="Sous 64 rem, ce n'est plus une modale : la page occupe tout l'écran, aucun voile, en-tête fixe (titre, sous-titre, croix), zone Stripe qui défile, bord bas visible — exception assumée au traitement modal du DS : payer isole complètement (Julien, 13/09/2026). Cadres à 390 × 844 pour la vitrine. Le pack : son nom en titre, « 15 €, en une fois ».">
+      <Section title="Checkout Stripe · mobile plein écran (artboard D2b)" note="Sous 64 rem, ce n'est plus une modale : la page occupe tout l'écran, aucun voile, en-tête fixe (titre, sous-titre, croix), zone Stripe qui défile, bord bas visible — exception assumée au traitement modal du DS : payer isole complètement (Julien, 13/09/2026). Cadres à 390 × 844 pour la vitrine. Le pack : son nom en titre, « 5 €, en une fois ».">
         <div className="flex flex-wrap gap-space-5">
           <PhoneFrame label="Préparation · outil"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'fullscreen', loading: true, catalog: CATALOG }} /></PhoneFrame>
           <PhoneFrame label="Erreur"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'fullscreen', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></PhoneFrame>
-          <PhoneFrame label="Session prête · pack"><CheckoutModal open inline onClose={noop} target={{ pack: 'analyse-20' }} demo={{ layout: 'fullscreen', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 1500, tool: 'analyse', pack: 'analyse-20' } }} /></PhoneFrame>
+          <PhoneFrame label="Session prête · pack"><CheckoutModal open inline onClose={noop} target={{ pack: 'analyse-20' }} demo={{ layout: 'fullscreen', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 500, tools: [], tool: 'analyse', pack: 'analyse-20' } }} /></PhoneFrame>
+        </div>
+      </Section>
+
+      <Section title="Checkout multi-outils · bureau (artboard Hub-03-Abonnement-Paiement)" note="0.3.1 — `target={{ tools }}` à deux outils ou plus : la Modal à la largeur `--container-wide` (900 ; la maquette dit 920, écart validé), sans padding, deux colonnes — récap à gauche (`--container-aside`, fond secondary : « Activer tes outils », une ligne par outil avec son lockup, son quota « 50 par mois » et son prix, total par mois, mention Stripe avec cadenas), paiement à droite (en-tête « Paiement » + croix, zone Stripe qui défile). Préparation, erreur et `added` gardent la disposition 520.">
+        <div className="flex flex-col gap-space-5">
+          <WideFrame label="Session prête · Audit + Analyse (Stripe non chargé)">
+            <CheckoutModal open inline onClose={noop} target={{ tools: ['audit', 'analyse'] }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 1400, tools: ['audit', 'analyse'] }, filler: true }} />
+          </WideFrame>
+          <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-2">
+            <Frame label="Préparation · disposition 520"><CheckoutModal open inline onClose={noop} target={{ tools: ['audit', 'analyse'] }} demo={{ layout: 'modal', loading: true, catalog: CATALOG }} /></Frame>
+            <Frame label="Ajoutés au prorata (`mode: 'added'`, pluriel)"><CheckoutModal open inline onClose={noop} target={{ tools: ['audit', 'analyse'] }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'added', tools: ['audit', 'analyse'], amountCents: 1400 } }} /></Frame>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Checkout multi-outils · mobile (artboard Hub-03-Abonnement-Paiement-Mobile)" note="Plein écran, récap REPLIÉ dans l'en-tête : « 2 outils · 14 €/mois » déplie la même liste (un `<details>` natif, le DS n'a pas d'accordéon — consigné à son BACKLOG). Ouvre-le dans le cadre de droite.">
+        <div className="flex flex-wrap gap-space-5">
+          <PhoneFrame label="Replié"><CheckoutModal open inline onClose={noop} target={{ tools: ['audit', 'analyse'] }} demo={{ layout: 'fullscreen', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 1400, tools: ['audit', 'analyse'] }, filler: true }} /></PhoneFrame>
+          <PhoneFrame label="Déplié (clique sur la ligne)"><CheckoutModal open inline onClose={noop} target={{ tools: ['audit', 'analyse'] }} demo={{ layout: 'fullscreen', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 1400, tools: ['audit', 'analyse'] }, filler: true }} /></PhoneFrame>
         </div>
       </Section>
 
@@ -125,7 +144,17 @@ function CheckoutLive(): JSX.Element {
   return (
     <div className="flex flex-col gap-space-4">
       <div className="flex"><Button variant="primary" onClick={() => setOpen(true)}>Ouvrir le checkout</Button></div>
-      <CheckoutModal open={open} onClose={() => setOpen(false)} target={{ tool: 'analyse' }} demo={{ catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 900, tool: 'analyse' }, filler: true }} />
+      <CheckoutModal open={open} onClose={() => setOpen(false)} target={{ tool: 'analyse' }} demo={{ catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 900, tools: ['analyse'], tool: 'analyse' }, filler: true }} />
+    </div>
+  );
+}
+
+/* Un cadre à la largeur d'un écran : la modale large s'y rend en `inline`, centrée, comme sous son voile. */
+function WideFrame({ label, children }: { label: string; children: ReactNode }): JSX.Element {
+  return (
+    <div className="flex flex-col gap-space-3">
+      <span className="eyebrow">{label}</span>
+      <div className="flex h-[52rem] justify-center overflow-hidden rounded-xl border border-border bg-background p-space-6">{children}</div>
     </div>
   );
 }

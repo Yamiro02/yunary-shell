@@ -5,6 +5,36 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.3.1 — checkout multi-outils, pied de sidebar masquable, types du lot 1 ter (23/09/2026)
+
+- **Pourquoi** : le back accepte désormais `create-checkout-session { tools: [...] }` (1..10 outils, une
+  session Checkout à N line items ou N articles ajoutés au prorata en un appel) et met `&tools=a,b`
+  dans le `return_url` ; le hub (lot 2) laisse cocher plusieurs outils d'un coup.
+- `useStartCheckout` : `CheckoutTarget` = `{ tool } | { tools } | { pack }` ; `CheckoutStart` porte
+  toujours `tools` (+ `tool` pour un seul) ; `checkoutTools(target)` exporté. `useCheckoutActivation`
+  lit `?tools=` et attend un droit `subscription` actif POUR CHAQUE outil ; `CHECKOUT_TOOLS_PARAM`.
+- `CheckoutModal target={{ tools }}` : à deux outils ou plus, la variante LARGE (artboard
+  Hub-03-Abonnement-Paiement) — la Modal lg du DS à `--container-wide` (900 ; la maquette dit 920,
+  écart validé par Julien), sans padding, récap à gauche (`--container-aside`, fond secondary,
+  padding `space-6` pour 28 : « Activer tes outils », « Facturé chaque mois, résiliable en un clic. »,
+  une ligne par outil — lockup, quota « 50 par mois » (pas de mot d'unité en base, Julien), prix —,
+  total par mois, « Paiement chiffré, géré par Stripe… » avec le cadenas lucide), paiement à droite
+  (« Paiement » + croix, zone Stripe qui défile). Sur mobile (artboard …-Mobile), plein écran avec le
+  récap REPLIÉ dans l'en-tête : un `<details>` natif « 2 outils · 14 €/mois » (le DS n'a pas
+  d'accordéon, consigné à son BACKLOG). Un outil ou un pack : la disposition 520 inchangée ;
+  préparation, erreur et `added` (pluriel : « Tes 2 outils sont ajoutés… ») restent en 520.
+- **`<ToolLabel name>`** exporté : « Yunary » + le mot accentué en pochoir sur un nom lu en base
+  (`tools.name`) — le hub l'utilise à la place de son `ToolName` local.
+- `HubSidebar` / `AppLayout` : prop `showToolsLink` (défaut `true`) ; `false` retire « Mes outils » du
+  pied (le hub met Outils dans `items`), le lockup garde `toolsHref`.
+- Types régénérés depuis la base (MCP `generate_typescript_types`) : `ends_at_period_end` typé, la
+  tolérance de 0.3.0 retirée ; export posé dans `apps/supabase/exports/database.types-2026-09-23-lot1ter.ts`.
+- Démo : fixture du catalogue alignée sur la base (audit 5 € / 2, analyse 9 € / 50, pack 5 €),
+  sections « Checkout multi-outils » bureau et mobile, sidebar `showToolsLink={false}`. Rendu vérifié
+  à l'écran en clair et en sombre.
+
+---
+
 ## 0.3.0 — pivot MCP : l'ancien modèle sort, le modèle par outil entre (23/09/2026)
 
 - **Pourquoi** : Yunary n'est plus une suite d'apps web à crédits (Hub, Creator, Metrics) mais un

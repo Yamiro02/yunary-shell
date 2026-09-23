@@ -8,7 +8,8 @@ import { entitlementsKey } from '../tools/useEntitlements';
 
 /** Le paramètre que Stripe ajoute au retour du checkout embarqué : `?checkout=<session_id>`. */
 export const CHECKOUT_PARAM = 'checkout';
-/** Facultatifs dans l'URL de retour (le back les ajoutera au `return_url`) : la sonde vise alors le droit précis. */
+/** Dans l'URL de retour (le back les met dans le `return_url`) : la sonde vise alors les droits précis. */
+export const CHECKOUT_TOOLS_PARAM = 'tools';
 export const CHECKOUT_TOOL_PARAM = 'tool';
 export const CHECKOUT_PACK_PARAM = 'pack';
 
@@ -31,18 +32,26 @@ interface Probe {
   at: number;
 }
 
-const activationKey = (userId: string | undefined, sessionId: string | null, tool: string | null, pack: string | null) =>
-  ['checkout-activation', userId, sessionId, tool, pack] as const;
+const activationKey = (userId: string | undefined, sessionId: string | null, tools: string[], pack: string | null) =>
+  ['checkout-activation', userId, sessionId, tools.join(','), pack] as const;
+
+/** `?tools=analyse,audit` → `['analyse', 'audit']` ; `?tool=analyse` → `['analyse']` ; rien → `[]`. */
+function readTools(params: URLSearchParams): string[] {
+  const list = (params.get(CHECKOUT_TOOLS_PARAM) ?? '').split(',').map(s => s.trim()).filter(Boolean);
+  if (list.length) return Array.from(new Set(list));
+  const one = params.get(CHECKOUT_TOOL_PARAM);
+  return one ? [one] : [];
+}
 
 /**
  * Le retour de Stripe. Le webhook qui écrit les droits arrive une à trois secondes APRÈS le
  * navigateur : tant qu'il n'est pas passé, la base ne connaît pas encore le nouvel outil. On sonde
  * donc `tool_entitlements` chaque seconde jusqu'à voir le droit (20 s au plus), puis on invalide
  * abonnement et droits. Ce qu'on cherche :
- * - `?tool=` présent → le droit `subscription` actif de cet outil ;
+ * - `?tools=a,b` (ou `?tool=a`) présent → un droit `subscription` actif POUR CHAQUE outil de la liste ;
  * - `?pack=` présent → un droit `pack` actif de l'outil du pack, écrit depuis l'arrivée sur la page ;
  * - sinon → un droit `subscription` ou `pack` actif écrit depuis l'arrivée sur la page (moins une
- *   minute de marge, le `return_url` du back ne dit pas encore ce qui a été acheté).
+ *   minute de marge) — le repli d'un retour sans paramètres.
  * Pendant la sonde, `AppLayout` affiche « Activation en cours… » à la place du libellé de formule.
  * Une seule sonde quel que soit le nombre de consommateurs (react-query déduplique sur la clé) ;
  * `?checkout=` reste dans l'URL jusqu'à `clear()`.
@@ -54,9 +63,9 @@ export function useCheckoutActivation(): { state: CheckoutActivationState; clear
   const { user } = useAuth();
   const params = new URLSearchParams(location.search);
   const sessionId = params.get(CHECKOUT_PARAM);
-  const tool = params.get(CHECKOUT_TOOL_PARAM);
+  const tools = readTools(params);
   const pack = params.get(CHECKOUT_PACK_PARAM);
-  const key = activationKey(user?.id, sessionId, tool, pack);
+  const key = activationKey(user?.id, sessionId, tools, pack);
   /* Repli si la sonde elle-même échoue (réseau) : la fenêtre de 20 s court quand même. */
   const [mountedAt] = useState(() => Date.now());
 
@@ -69,10 +78,11 @@ export function useCheckoutActivation(): { state: CheckoutActivationState; clear
       const previous = qc.getQueryData<Probe>(key);
       const startedAt = previous?.startedAt ?? Date.now();
       const supabase = getSupabase();
-      let query = supabase.from('tool_entitlements').select('id').eq('user_id', user!.id).eq('status', 'active').limit(1);
-      if (tool) {
-        query = query.eq('tool_id', tool).eq('source', 'subscription');
+      let query = supabase.from('tool_entitlements').select('tool_id').eq('user_id', user!.id).eq('status', 'active');
+      if (tools.length) {
+        query = query.in('tool_id', tools).eq('source', 'subscription');
       } else {
+        query = query.limit(1);
         const since = new Date(mountedAt - LOOKBACK_MS).toISOString();
         query = query.gte('updated_at', since);
         if (pack) {
@@ -84,7 +94,9 @@ export function useCheckoutActivation(): { state: CheckoutActivationState; clear
         }
       }
       const { data } = await query;
-      const active = !!data && data.length > 0;
+      const active = tools.length
+        ? !!data && new Set(data.map(r => r.tool_id)).size >= tools.length
+        : !!data && data.length > 0;
       if (active && !previous?.active) {
         await Promise.all([
           qc.invalidateQueries({ queryKey: subscriptionKey(user!.id) }),
@@ -105,6 +117,7 @@ export function useCheckoutActivation(): { state: CheckoutActivationState; clear
   const clear = () => {
     const next = new URLSearchParams(location.search);
     next.delete(CHECKOUT_PARAM);
+    next.delete(CHECKOUT_TOOLS_PARAM);
     next.delete(CHECKOUT_TOOL_PARAM);
     next.delete(CHECKOUT_PACK_PARAM);
     const search = next.toString();

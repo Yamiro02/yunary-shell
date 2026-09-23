@@ -10,4 +10,4 @@ décrits dans `PROJECT-CONTEXT.md` § 3 et constituent le lot shell (0.3.0).
 
 | Manque | Demandé par | Aujourd'hui | Ce que la coque devra faire |
 |---|---|---|---|
-| — | — | — | — |
+| **`useAccountAudit({ poll })` ne re-interroge que tant qu'AUCUNE ligne n'existe** — après une correction d'identifiant, l'ancienne ligne `error` reste la plus récente : le polling s'arrête et la nouvelle ligne n'est jamais vue | hub (Audit en cours, lot 2) | le hub relance `refetch()` lui-même toutes les 4 s tant que la ligne pertinente manque (`isAuditRelevant` sur `sessionStorage`, `apps/hub/src/pages/parcours/AuditEnCoursPage.tsx`) | un `poll` qui accepte `{ since }` (ou un `until`) et continue tant que la ligne la plus récente est antérieure |
