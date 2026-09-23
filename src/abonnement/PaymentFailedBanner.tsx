@@ -28,11 +28,12 @@ export function PaymentFailedBannerView({ onPortal, portalBusy = false, classNam
  * Paiement en échec (`subscriptions.status` = `past_due` ou `unpaid`) : le bandeau en haut de
  * l'APP, pas seulement dans Paramètres — `AppLayout` le rend sous la barre haute. Le bouton ouvre
  * le portail Stripe (changer de carte). L'ACCÈS N'EST PAS COUPÉ pendant ce temps : rien d'autre
- * ne change. Ne rend rien dans tous les autres cas.
+ * ne change (le back reporte le statut, l'accès s'éteint de lui-même à `period_end`). Ne rend rien
+ * dans tous les autres cas.
  */
 export function PaymentFailedBanner({ className }: { className?: string }): JSX.Element | null {
   const subscription = useSubscription();
   const portal = usePortalSession();
-  if (!isPaymentFailed(subscription.data)) return null;
+  if (!isPaymentFailed(subscription.data?.subscription)) return null;
   return <PaymentFailedBannerView className={className} onPortal={() => portal.mutate()} portalBusy={portal.isPending} />;
 }

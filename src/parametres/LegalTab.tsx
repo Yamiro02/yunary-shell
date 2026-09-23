@@ -4,7 +4,6 @@ import { Button, Card, FormField, Icon, Input, Modal, type ModalResult } from '@
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
 import { useDeleteAccount } from '../account/useDeleteAccount';
-import type { ParametresVariant } from './ParametresLayout';
 
 export interface LegalHrefs {
   cgu: string;
@@ -15,7 +14,6 @@ export interface LegalHrefs {
 export const DEFAULT_LEGAL_HREFS: LegalHrefs = { cgu: '/cgu', mentions: '/mentions-legales', confidentialite: '/confidentialite' };
 
 export interface LegalViewProps {
-  variant?: ParametresVariant;
   hrefs?: LegalHrefs;
   onDelete: () => void;
 }
@@ -122,12 +120,12 @@ export function DeleteAccountModal({ open, onClose, onConfirm, phase: forcedPhas
 }
 
 /** C5 câblée : liens légaux + suppression via `delete-account`. */
-export function LegalTab({ variant = 'web', hrefs, onDeleted }: { variant?: ParametresVariant; hrefs?: LegalHrefs; onDeleted?: () => void }): JSX.Element {
+export function LegalTab({ hrefs, onDeleted }: { hrefs?: LegalHrefs; onDeleted?: () => void }): JSX.Element {
   const del = useDeleteAccount();
   const [open, setOpen] = useState(false);
   return (
     <>
-      <LegalView variant={variant} hrefs={hrefs} onDelete={() => setOpen(true)} />
+      <LegalView hrefs={hrefs} onDelete={() => setOpen(true)} />
       <DeleteAccountModal
         open={open}
         onClose={() => {

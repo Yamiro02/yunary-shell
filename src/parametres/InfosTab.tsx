@@ -13,7 +13,6 @@ import { useLogout } from '../auth/useLogout';
 import { usePasswordReset } from '../auth/usePasswordReset';
 import { PasswordModal } from './PasswordModal';
 import { TabError, TabSkeleton } from './states';
-import type { ParametresVariant } from './ParametresLayout';
 
 export type SaveState = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -23,7 +22,6 @@ export interface ReseauView {
 }
 
 export interface InfosViewProps {
-  variant?: ParametresVariant;
   profile: { prenom: string | null; nom: string | null; email: string; avatarUrl: string | null };
   /** Réseau + handle, lecture seule (`profiles.platform` / `profiles.handle`). `null` = rien renseigné. */
   reseau: ReseauView | null;
@@ -44,7 +42,7 @@ const AUTOSAVE_MS = 600;
 
 /** C2 — la vue. Prénom / nom en autosave (débounce), e-mail verrouillé, réseau en lecture seule, déconnexion. */
 export function InfosView({
-  variant = 'web', profile, reseau, onSave, saveState = 'idle', onChoosePhoto, onRemovePhoto, photoBusy = false, photoError = null,
+  profile, reseau, onSave, saveState = 'idle', onChoosePhoto, onRemovePhoto, photoBusy = false, photoError = null,
   onChangePassword, onLogout, logoutBusy = false,
 }: InfosViewProps): JSX.Element {
   const [prenom, setPrenom] = useState(profile.prenom ?? '');
@@ -69,7 +67,6 @@ export function InfosView({
   };
 
   const account = { name: [prenom, nom].filter(Boolean).join(' ') || profile.email, initials: initiales(prenom, nom, profile.email), avatarUrl: profile.avatarUrl };
-  const web = variant === 'web';
 
   return (
     <div className="flex max-w-read flex-col gap-space-5">
@@ -77,8 +74,7 @@ export function InfosView({
           « Enregistré » n'occupe aucune place tant qu'elle est vide. */}
       <Card gap={4} className="shadow-none">
         {/* Sous 64 rem, la rangée photo et ses deux boutons passent à la ligne (64 + 264 px ne tiennent pas dans une carte à 375 px). */}
-        {web ? (
-          <div className="flex flex-wrap items-center gap-space-5">
+        <div className="flex flex-wrap items-center gap-space-5">
             <UserAvatar account={account} size="4rem" className="text-subheading" />
             <div className="flex min-w-0 flex-col items-start gap-space-2">
               <div className="flex flex-wrap gap-space-2">
@@ -90,7 +86,6 @@ export function InfosView({
               <span className="caption">{t.photoHint}</span>
             </div>
           </div>
-        ) : null}
         {photoError ? <Banner tone="danger">{photoError}</Banner> : null}
         <div className="grid grid-cols-1 gap-space-4 sm:grid-cols-2">
           <FormField label={t.prenom} htmlFor="infos-prenom">
@@ -118,8 +113,7 @@ export function InfosView({
           Instagram / TikTok à filet 1,5 px --input sur --background, note. La rangée connectée porte le pseudo (lecture seule, depuis
           `profiles`) ; la rangée non connectée porte le bouton « Connecter » de l'artboard, désactivé
           tant qu'OAuth est au frigo (état en attente d'arbitrage). */}
-      {web ? (
-        <Card className="shadow-none" title={t.comptes.title} titleSize="lg" subtitle={t.comptes.subtitle}>
+      <Card className="shadow-none" title={t.comptes.title} titleSize="lg" subtitle={t.comptes.subtitle}>
           {/* Le slot de titre porte déjà sa gouttière (16) : pas de gap de carte en plus. */}
           <div className="flex flex-col gap-space-4">
             {(['instagram', 'tiktok'] as const).map(platform => {
@@ -139,7 +133,6 @@ export function InfosView({
             <p className="caption font-regular">{t.comptes.note}</p>
           </div>
         </Card>
-      ) : null}
 
       <Card className="shadow-none" title={t.logoutTitle}>
         <div className="flex">
@@ -151,7 +144,7 @@ export function InfosView({
 }
 
 /** C2 câblée : profil (dont réseau + handle), avatar, mot de passe, déconnexion. */
-export function InfosTab({ variant = 'web' }: { variant?: ParametresVariant }): JSX.Element {
+export function InfosTab(): JSX.Element {
   const profile = useProfile();
   const update = useUpdateProfile();
   const updateAvatar = useUpdateAvatar();
@@ -176,7 +169,6 @@ export function InfosTab({ variant = 'web' }: { variant?: ParametresVariant }): 
   return (
     <>
       <InfosView
-        variant={variant}
         profile={{ prenom: p.prenom, nom: p.nom, email: p.email, avatarUrl: p.avatar_url }}
         reseau={p.platform && p.handle ? { platform: p.platform, handle: p.handle } : null}
         saveState={saveState}

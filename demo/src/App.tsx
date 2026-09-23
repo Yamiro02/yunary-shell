@@ -6,7 +6,7 @@ import { LayoutPage } from './pages/Layout';
 import { AuthPage } from './pages/Auth';
 import { ParametresPage } from './pages/Parametres';
 import { AuditPage } from './pages/Audit';
-import { ProfilPage } from './pages/Profil';
+import { OutilsPage } from './pages/Outils';
 import { LegalPage } from './pages/Legal';
 
 document.title = 'Yunary — Shell';
@@ -16,7 +16,7 @@ const PAGES: { value: string; label: string; render: () => JSX.Element }[] = [
   { value: 'auth', label: 'Auth', render: () => <AuthPage /> },
   { value: 'parametres', label: 'Paramètres', render: () => <ParametresPage /> },
   { value: 'audit', label: 'Audit', render: () => <AuditPage /> },
-  { value: 'profil', label: 'Profil créateur', render: () => <ProfilPage /> },
+  { value: 'outils', label: 'Outils & droits', render: () => <OutilsPage /> },
   { value: 'legal', label: 'Légal', render: () => <LegalPage /> },
   { value: 'accueil', label: 'À propos', render: () => <p className="caption">Coque {SHELL_VERSION} — la vitrine rend les vues avec des fixtures, sans back.</p> },
 ];

@@ -2,11 +2,9 @@
  * La configuration de la coque, fournie UNE fois par l'app au démarrage.
  *
  * Pourquoi une fonction et pas `import.meta.env` : Vite ne remplace les `VITE_*` que dans
- * le code de l'app, pas de façon garantie dans un paquet de `node_modules`. Les quatre
- * variables restent donc côté app (PROJECT-CONTEXT §3) ; l'app les lit et les passe ici.
+ * le code de l'app, pas de façon garantie dans un paquet de `node_modules`. Les variables
+ * restent donc côté app (PROJECT-CONTEXT § 4) ; l'app les lit et les passe ici.
  */
-export type ToolId = 'hub' | 'creator' | 'metrics';
-
 export interface ShellConfig {
   /** `VITE_SUPABASE_URL`. */
   supabaseUrl: string;
@@ -26,11 +24,6 @@ export interface ShellConfig {
    * indisponible » au lieu de planter ; rien n'est chargé tant qu'aucune modale ne s'ouvre.
    */
   stripePublishableKey?: string;
-  /**
-   * Origines des outils quand elles ne sont pas `https://<sous-domaine>.yunary.com` — en
-   * local, typiquement `{ creator: 'http://localhost:5175' }`. Le Hub vient de `hubUrl`.
-   */
-  toolUrls?: Partial<Record<Exclude<ToolId, 'hub'>, string>>;
   /**
    * Origines acceptées pour `?next=` EN PLUS des sous-domaines de `yunary.com` — en local
    * seulement (`['http://localhost:5175']`). En prod, ne rien passer.

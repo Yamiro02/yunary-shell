@@ -2,27 +2,29 @@ import { useState, type JSX, type ReactNode } from 'react';
 import { Button } from '@yunary/ds';
 import {
   AbonnementView, CancelSubscriptionModal, CheckoutActivationCard, CheckoutModal, DeleteAccountModal, InfosView, LegalView,
-  NotificationsView, ParametresLayout, PasswordModal, PaymentFailedBannerView, TabError, TabSkeleton, planFor,
-  type ParametresTab, type ParametresVariant,
+  NotificationsView, ParametresLayout, PasswordModal, PaymentFailedBannerView, TabError, TabSkeleton,
+  type ParametresTab,
 } from '@yunary/shell';
-import { CATALOG, CATALOG_SOLD_OUT, CREDITS, CREDITS_LOW, CREDITS_PAID, CREDITS_ZERO, SUB_ACTIVE, SUB_ENDING, SUB_FULL_PRICE, SUB_PAST_DUE } from '../fixtures';
+import {
+  CATALOG, SUB_ACTIVE, SUB_ENDING, SUB_PAST_DUE, SUMMARIES_ENDING, SUMMARIES_FREE, SUMMARIES_SUBSCRIBED, SUMMARIES_WITH_PACK,
+} from '../fixtures';
 import { Section } from '../ui';
 
 const noop = () => undefined;
 const never = () => new Promise<void>(() => undefined);
 const PROFILE = { prenom: 'Julien', nom: 'Fernandes', email: 'julien@julienfernandes.com', avatarUrl: null };
 
-/* C2-C5 : chaque onglet dans la page, en repos ; puis les états chargement / erreur, la variante native, les modales. */
+/* C2-C5 : chaque onglet dans la page, en repos ; puis les états chargement / erreur, les modales, le checkout. */
 export function ParametresPage(): JSX.Element {
   const [tab, setTab] = useState<ParametresTab>('infos');
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="Paramètres · web" note="Artboards C2 à C5 (11/09) : « Comptes connectés » en subheading, rangées et cartes de formule en filet 1,5 px, nom / solde / prix en 800, recommandée en shadow-md ; padding des cartes gardé à 24. Change d'onglet ici comme dans l'app ; les données sont des fixtures.">
+      <Section title="Paramètres" note="Artboards C2 à C5 (11/09) : « Comptes connectés » en subheading, rangées en filet 1,5 px, titre d'abonnement en 800 ; padding des cartes gardé à 24. Change d'onglet ici comme dans l'app ; les données sont des fixtures. Plus de variante native depuis 0.3.0.">
         <Frame>
-          <ParametresLayout variant="web" tab={tab} onTabChange={setTab}>
+          <ParametresLayout tab={tab} onTabChange={setTab}>
             {tab === 'infos' ? <InfosView profile={PROFILE} reseau={{ platform: 'instagram', handle: 'julien.crea' }} onSave={noop} saveState="saved" onChoosePhoto={noop} onRemovePhoto={noop} onChangePassword={noop} onLogout={noop} /> : null}
             {tab === 'notifications' ? <NotificationsView prefs={{ analyse_terminee: true, nouveaux_templates: true }} onToggle={noop} /> : null}
-            {tab === 'abonnement' ? <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} /> : null}
+            {tab === 'abonnement' ? <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} /> : null}
             {tab === 'legal' ? <LegalView onDelete={noop} /> : null}
           </ParametresLayout>
         </Frame>
@@ -34,39 +36,36 @@ export function ParametresPage(): JSX.Element {
         </Frame>
       </Section>
 
-      <Section title="Abonnement · les six états" note="0.2.0 — deux offres, prix et allocations lus en base (fixtures `CATALOG` : Créateur 19 € plein, 12 € en offre de lancement, 300 crédits/mois ; Gratuite 0). Sans abonnement : solde seul, « Crédits offerts à l'inscription, non renouvelés », offre de lancement avec les places restantes. Actif : barre sur l'allocation, « Recharge le… », « Se désabonner » sous la ligne de recharge ; le prix d'un ABONNÉ vient de `subscriptions.amount_cents`, jamais du catalogue (0.2.3), la mention « Offre de lancement » se décide sur amount < prix plein. Résilié : « Se termine le… » + « Réactiver mon abonnement ». past_due : le bandeau (rendu par AppLayout en haut de l'app, ici au-dessus de la vue), rien d'autre ne change. Crédits à zéro. Places épuisées : le prix plein seul.">
+      <Section title="Abonnement · les six états" note="0.3.0 — un abonnement Stripe par client, un article par outil, packs en achat unique. L'onglet montre trois choses et rien d'autre : la ligne d'abonnement (statut, échéance, résiliation), les outils (nom lu en base, source Inclus / Abonnement / Pack, quota utilisé / total, échéance) et « Gérer mes outils » vers la page des outils du hub. 🔒 Aucun prix ni chiffre d'offre dans la coque. Les noms viennent du catalogue (fixture `CATALOG`, valeurs de la base).">
         <div className="flex flex-col gap-space-5">
-          <Frame label="Sans abonnement · offre de lancement">
-            <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+          <Frame label="Gratuit · jamais abonné : droits « Inclus » (1 / 1 audit, 2 / 5 analyses)">
+            <AbonnementView subscription={null} entitlements={SUMMARIES_FREE} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
           </Frame>
-          <Frame label="Abonné à 12 € · places écoulées depuis → le catalogue dit 19 €, la carte dit 12 € (amount_cents)">
-            <AbonnementView credits={CREDITS_PAID} plan={planFor('createur')} subscription={SUB_ACTIVE} catalog={CATALOG_SOLD_OUT} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+          <Frame label="Abonné à Analyse · 12 / 50 · renouvelé le 23 octobre">
+            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
           </Frame>
-          <Frame label="Abonné à 19 € · plein tarif, sans mention de lancement">
-            <AbonnementView credits={CREDITS_PAID} plan={planFor('createur')} subscription={SUB_FULL_PRICE} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+          <Frame label="Abonnement épuisé + pack : le résumé montre le pack (3 / 20), celui que le serveur consomme">
+            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_WITH_PACK} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
           </Frame>
-          <Frame label="Résilié en cours de période">
-            <AbonnementView credits={CREDITS_PAID} plan={planFor('createur')} subscription={SUB_ENDING} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+          <Frame label="Outil retiré, gardé jusqu'à la fin de période (`ends_at_period_end`) : « Se termine le … »">
+            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_ENDING} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
           </Frame>
-          <Frame label="Paiement en échec (past_due)">
+          <Frame label="Résiliation complète en cours de période · « Réactiver mon abonnement »">
+            <AbonnementView subscription={SUB_ENDING} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
+          </Frame>
+          <Frame label="Paiement en échec (past_due) : le bandeau (rendu par AppLayout en haut de l'app), rien d'autre ne change">
             <div className="flex flex-col gap-space-5">
               <PaymentFailedBannerView onPortal={noop} />
-              <AbonnementView credits={CREDITS_LOW} plan={planFor('createur')} subscription={SUB_PAST_DUE} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+              <AbonnementView subscription={SUB_PAST_DUE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
             </div>
           </Frame>
-          <Frame label="Crédits à zéro (gratuit)">
-            <AbonnementView credits={CREDITS_ZERO} plan={planFor('free')} subscription={null} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-          <Frame label="Places épuisées · prix plein seul">
-            <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} catalog={CATALOG_SOLD_OUT} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-          <Frame label="Catalogue pas encore lu · « — € »">
-            <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+          <Frame label="Catalogue pas encore lu : l'identifiant de l'outil en attendant son nom">
+            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
           </Frame>
         </div>
       </Section>
 
-      <Section title="Retour de Stripe · activation" note="`?checkout=<session_id>` dans l'URL : l'onglet cède la place à cette carte. Sonde de `subscriptions` chaque seconde, 20 s au plus ; pendant ce temps la sidebar dit « Activation en cours… », jamais « Formule Gratuite ». Passé 20 s : le message calme — le paiement a réussi, pas d'erreur rouge.">
+      <Section title="Retour de Stripe · activation" note="`?checkout=<session_id>` dans l'URL : l'onglet cède la place à cette carte. Sonde de `tool_entitlements` chaque seconde, 20 s au plus (le droit précis si `?tool=` ou `?pack=` est là) ; pendant ce temps la sidebar dit « Activation en cours… », jamais « Gratuit ». Passé 20 s : le message calme — le paiement a réussi, pas d'erreur rouge.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame label="pending"><CheckoutActivationCard state="pending" onContinue={noop} /></Frame>
           <Frame label="active"><CheckoutActivationCard state="active" onContinue={noop} /></Frame>
@@ -81,10 +80,6 @@ export function ParametresPage(): JSX.Element {
         </div>
       </Section>
 
-      <Section title="Paramètres · natif" note="Creator sous Capacitor : Infos sans photo ni réseau, Légal, pas d'Abonnement ; slot `extra` pour la clé de partage.">
-        <NativeDemo />
-      </Section>
-
       <Section title="Modales" note="Mot de passe (saisie) · suppression de compte (saisie, puis résultat d'erreur). Sans pastille depuis 0.1.9 : le titre partage la ligne de la croix (DS 0.1.4), « Annuler » en secondary.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame><PasswordModal open inline onClose={noop} onSubmit={never} /></Frame>
@@ -97,42 +92,30 @@ export function ParametresPage(): JSX.Element {
         <CheckoutLive />
       </Section>
 
-      <Section title="Checkout Stripe · bureau (artboard D2)" note="0.2.2 — la Modal lg du DS (520 px) plafonnée à ~80 % de la hauteur d'écran, en-tête fixe « S'abonner à Créateur » + « 12 €/mois — offre de lancement » (montant du catalogue, puis de l'Edge), corps défilant. Préparation, erreur (fermer / réessayer), session prête — ici sans Stripe.js.">
-        <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
-          <Frame label="Préparation"><CheckoutModal open inline onClose={noop} demo={{ layout: 'modal', loading: true, catalog: CATALOG }} /></Frame>
-          <Frame label="Erreur"><CheckoutModal open inline onClose={noop} demo={{ layout: 'modal', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></Frame>
-          <Frame label="Session prête (Stripe non chargé)"><CheckoutModal open inline onClose={noop} demo={{ layout: 'modal', catalog: CATALOG, session: { clientSecret: 'cs_test_demo', amountCents: 1200, isFondateur: true, slotsRemaining: 36 } }} /></Frame>
-        </div>
-      </Section>
-
-      <Section title="Checkout Stripe · mobile plein écran (artboard D2b)" note="Sous 64 rem, ce n'est plus une modale : la page occupe tout l'écran, aucun voile, en-tête fixe (titre, sous-titre, croix), zone Stripe qui défile, bord bas visible — exception assumée au traitement modal du DS : payer isole complètement (Julien, 13/09/2026). Cadres à 390 × 844 pour la vitrine.">
-        <div className="flex flex-wrap gap-space-5">
-          <PhoneFrame label="Préparation"><CheckoutModal open inline onClose={noop} demo={{ layout: 'fullscreen', loading: true, catalog: CATALOG }} /></PhoneFrame>
-          <PhoneFrame label="Erreur"><CheckoutModal open inline onClose={noop} demo={{ layout: 'fullscreen', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></PhoneFrame>
-          <PhoneFrame label="Session prête · places épuisées"><CheckoutModal open inline onClose={noop} demo={{ layout: 'fullscreen', catalog: CATALOG_SOLD_OUT, session: { clientSecret: 'cs_test_demo', amountCents: 1900, isFondateur: false, slotsRemaining: 0 } }} /></PhoneFrame>
-        </div>
-      </Section>
-
-      <Section title="Modale de résiliation" note="Confirmation en une étape, au texte exact ; puis le résultat.">
+      <Section title="Checkout Stripe · bureau (artboard D2)" note="La Modal lg du DS (520 px) plafonnée à ~80 % de la hauteur d'écran, en-tête fixe « S'abonner à Yunary Analyse » + « 9 €/mois » (nom et montant du catalogue, puis de l'Edge), corps défilant. Préparation, erreur (fermer / réessayer), session prête — ici sans Stripe.js — et `mode: 'added'` (abonnement vivant : l'outil est ajouté au prorata, rien à payer ici).">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-2">
-          <Frame label="Se désabonner ?"><CancelSubscriptionModal open inline onClose={noop} onConfirm={never} periodEnd="2026-10-13T00:00:00Z" /></Frame>
-          <Frame label="Résiliation · résultat"><CancelSubscriptionModal open inline onClose={noop} onConfirm={never} periodEnd="2026-10-13T00:00:00Z" phase="result" result={{ status: 'success', title: 'Abonnement résilié', message: "Tu gardes l'accès jusqu'au 13 octobre 2026." }} /></Frame>
+          <Frame label="Préparation"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', loading: true, catalog: CATALOG }} /></Frame>
+          <Frame label="Erreur"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></Frame>
+          <Frame label="Session prête (Stripe non chargé)"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 900, tool: 'analyse' } }} /></Frame>
+          <Frame label="Ajouté au prorata (`mode: 'added'`)"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'added', tool: 'analyse', amountCents: 900 } }} /></Frame>
+        </div>
+      </Section>
+
+      <Section title="Checkout Stripe · mobile plein écran (artboard D2b)" note="Sous 64 rem, ce n'est plus une modale : la page occupe tout l'écran, aucun voile, en-tête fixe (titre, sous-titre, croix), zone Stripe qui défile, bord bas visible — exception assumée au traitement modal du DS : payer isole complètement (Julien, 13/09/2026). Cadres à 390 × 844 pour la vitrine. Le pack : son nom en titre, « 15 €, en une fois ».">
+        <div className="flex flex-wrap gap-space-5">
+          <PhoneFrame label="Préparation · outil"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'fullscreen', loading: true, catalog: CATALOG }} /></PhoneFrame>
+          <PhoneFrame label="Erreur"><CheckoutModal open inline onClose={noop} target={{ tool: 'analyse' }} demo={{ layout: 'fullscreen', error: "Impossible d'ouvrir le paiement. Réessaie.", catalog: CATALOG }} /></PhoneFrame>
+          <PhoneFrame label="Session prête · pack"><CheckoutModal open inline onClose={noop} target={{ pack: 'analyse-20' }} demo={{ layout: 'fullscreen', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 1500, tool: 'analyse', pack: 'analyse-20' } }} /></PhoneFrame>
+        </div>
+      </Section>
+
+      <Section title="Modale de résiliation" note="Résiliation COMPLÈTE (tous les outils) en une étape, au texte exact ; puis le résultat. Retirer un seul outil se fait sur la page des outils du hub (`useRemoveTool`).">
+        <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-2">
+          <Frame label="Se désabonner ?"><CancelSubscriptionModal open inline onClose={noop} onConfirm={never} periodEnd="2026-10-23T10:00:00Z" /></Frame>
+          <Frame label="Résiliation · résultat"><CancelSubscriptionModal open inline onClose={noop} onConfirm={never} periodEnd="2026-10-23T10:00:00Z" phase="result" result={{ status: 'success', title: 'Abonnement résilié', message: "Tu gardes l'accès jusqu'au 23 octobre 2026." }} /></Frame>
         </div>
       </Section>
     </div>
-  );
-}
-
-function NativeDemo(): JSX.Element {
-  const [tab, setTab] = useState<ParametresTab>('infos');
-  const variant: ParametresVariant = 'native';
-  return (
-    <Frame>
-      <ParametresLayout variant={variant} tab={tab} onTabChange={setTab}>
-        {tab === 'infos' ? <InfosView variant={variant} profile={PROFILE} reseau={null} onSave={noop} onChangePassword={noop} onLogout={noop} /> : null}
-        {tab === 'legal' ? <LegalView variant={variant} onDelete={noop} /> : null}
-      </ParametresLayout>
-    </Frame>
   );
 }
 
@@ -142,7 +125,7 @@ function CheckoutLive(): JSX.Element {
   return (
     <div className="flex flex-col gap-space-4">
       <div className="flex"><Button variant="primary" onClick={() => setOpen(true)}>Ouvrir le checkout</Button></div>
-      <CheckoutModal open={open} onClose={() => setOpen(false)} demo={{ catalog: CATALOG, session: { clientSecret: 'cs_test_demo', amountCents: 1200, isFondateur: true, slotsRemaining: 36 }, filler: true }} />
+      <CheckoutModal open={open} onClose={() => setOpen(false)} target={{ tool: 'analyse' }} demo={{ catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 900, tool: 'analyse' }, filler: true }} />
     </div>
   );
 }

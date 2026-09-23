@@ -2,29 +2,23 @@ import { useEffect, useState, type JSX, type ReactNode } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { AppShell, Icon, IconButton, Logo, cn } from '@yunary/ds';
 import { fr } from '../i18n/fr';
-import type { ToolId } from '../config';
 import { useProfile } from '../account/useProfile';
-import { useCredits } from '../account/useCredits';
-import { useSubscription } from '../account/useSubscription';
-import { planFor } from '../parametres/plans';
+import { isSubscriptionActive, useSubscription } from '../account/useSubscription';
 import { useCheckoutActivation } from '../abonnement/useCheckoutActivation';
 import { PaymentFailedBanner } from '../abonnement/PaymentFailedBanner';
 import { initiales } from '../lib/format';
 import { HubSidebar, type ShellNavItem } from './HubSidebar';
 import type { AccountView } from './AccountCard';
-import type { CreditsView } from './CreditsCard';
 
 export interface AppLayoutProps {
-  tool: ToolId;
-  /** La nav de l'outil. `active` se déduit de la route quand il n'est pas passé. */
+  /** La nav de l'app. `active` se déduit de la route quand il n'est pas passé. */
   items?: ShellNavItem[];
   settingsHref?: string;
   /**
-   * La route LOCALE de « Mes outils » — l'entrée du pied de nav et le logo y mènent, et l'entrée est
-   * active dessus. Défaut `/outils` (chaque outil monte `OutilsPage` dessus) ; le Hub passe `/`.
+   * La route LOCALE de « Mes outils » (la page des outils du hub : abonnements, packs) — l'entrée du
+   * pied de nav et le logo y mènent, et l'entrée est active dessus. Défaut `/outils`.
    */
   toolsHref?: string;
-  native?: boolean;
   /** Sans enfants, rend l'`Outlet` du routeur. */
   children?: ReactNode;
 }
@@ -94,16 +88,15 @@ export function AppBleed({ children, className, flush = false }: AppBleedProps):
 
 /**
  * Le squelette d'une app : `AppShell` + `HubSidebar` du DS, tiroir sous 64rem ouvert par
- * une barre haute, contenu dans `AppContent` (pleine largeur). Lit le profil, les crédits et
- * l'abonnement pour alimenter la sidebar — les pages, elles, n'ont rien à refaire.
+ * une barre haute, contenu dans `AppContent` (pleine largeur). Lit le profil et l'abonnement
+ * pour alimenter la sidebar — les pages, elles, n'ont rien à refaire.
  */
 export function AppLayout({
-  tool, items = [], settingsHref = '/parametres', toolsHref = '/outils', native = false, children,
+  items = [], settingsHref = '/parametres', toolsHref = '/outils', children,
 }: AppLayoutProps): JSX.Element {
   const location = useLocation();
   const [open, setOpen] = useState(false);
   const profile = useProfile();
-  const credits = useCredits();
   const subscription = useSubscription();
   const activation = useCheckoutActivation();
 
@@ -119,31 +112,23 @@ export function AppLayout({
     name: [profile.data?.prenom, profile.data?.nom].filter(Boolean).join(' ') || profile.data?.email || '',
     initials: initiales(profile.data?.prenom, profile.data?.nom, profile.data?.email),
     avatarUrl: profile.data?.avatar_url ?? null,
-    /* Retour de Stripe, webhook pas encore passé : « Activation en cours… », jamais « Formule Gratuite » à qui vient de payer. */
-    planLabel: activation.state === 'pending' ? fr.layout.planActivating : fr.layout.planLabel(planFor(subscription.data?.plan).name),
+    /* Retour de Stripe, webhook pas encore passé : « Activation en cours… », jamais « Gratuit » à qui vient de payer.
+       Sinon « Gratuit » / « Abonné » — le détail (outils, quotas) est dans Paramètres › Abonnement. */
+    planLabel: activation.state === 'pending'
+      ? fr.layout.planActivating
+      : isSubscriptionActive(subscription.data?.subscription) ? fr.layout.planSubscribed : fr.layout.planFree,
   };
-
-  const creditsView: CreditsView | null | undefined = credits.isPending
-    ? undefined
-    : credits.data
-      ? { remaining: credits.data.creditsRemaining, total: credits.data.creditsTotal, periodEnd: credits.data.periodEnd }
-      : null;
 
   return (
     <AppShell
       sidebar={
         <HubSidebar
-          tool={tool}
           items={items.map(it => ({ ...it, active: it.active ?? isActive(it.href) }))}
           settingsHref={settingsHref}
           settingsActive={isActive(settingsHref)}
-          /* « Mes outils » et le logo naviguent en interne, dans l'outil courant — plus jamais vers le Hub. */
+          /* « Mes outils » et le logo naviguent en interne, dans l'app. */
           toolsHref={toolsHref}
           toolsActive={isActive(toolsHref)}
-          native={native}
-          credits={creditsView}
-          /* La carte crédits mène à Paramètres › Abonnement — gratuit toujours, abonné sous 20 % (le natif n'a pas d'onglet Abonnement). */
-          creditsHref={native ? undefined : `${settingsHref}?tab=abonnement`}
           account={account}
           linkAs={NavLink}
           open={open}
@@ -163,8 +148,8 @@ export function AppLayout({
           <Logo variant="wordmark" height="1.25rem" />
         </header>
         {/* Paiement en échec (`past_due` / `unpaid`) : le bandeau en haut de l'APP, dans les gouttières, au-dessus du
-            contenu — l'accès n'est pas coupé. Ne rend rien sinon. Le natif n'a pas d'abonnement in-app. */}
-        {native ? null : <PaymentFailedBanner className={cn('mt-space-5', APP_GUTTER_X)} />}
+            contenu — l'accès n'est pas coupé. Ne rend rien sinon. */}
+        <PaymentFailedBanner className={cn('mt-space-5', APP_GUTTER_X)} />
         <AppContent>{children ?? <Outlet />}</AppContent>
       </div>
     </AppShell>

@@ -2,24 +2,34 @@ import { useQuery } from '@tanstack/react-query';
 import { getSupabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 
+/** La ligne `subscriptions` : UN abonnement Stripe par client. */
 export interface SubscriptionInfo {
-  plan: string | null;
   /** Valeurs Stripe : `active`, `trialing`, `past_due`, `unpaid`, `canceled`, `incomplete`… */
   status: string | null;
   currentPeriodEnd: string | null;
-  /** Résilié en cours de période : l'accès court jusqu'à `currentPeriodEnd`, puis retour à la Gratuite. */
+  /** Résilié en cours de période (résiliation complète) : l'accès court jusqu'à `currentPeriodEnd`. */
   cancelAtPeriodEnd: boolean;
-  /**
-   * 🔒 Le montant RÉELLEMENT facturé à cette personne, en centimes (`subscriptions.amount_cents`).
-   * Pour un abonné, c'est LE prix à afficher — jamais le catalogue, qui peut avoir changé (places
-   * de lancement écoulées, tarif revu) sans que son abonnement bouge. `null` = pas encore écrit.
-   */
+}
+
+/** Un article de l'abonnement (`subscription_items`) : un outil souscrit. */
+export interface SubscriptionItem {
+  id: string;
+  toolId: string;
+  /** Le montant réellement facturé pour cet article, en centimes — `null` tant que Stripe ne l'a pas dit. */
   amountCents: number | null;
+  status: 'active' | 'canceled';
+}
+
+export interface SubscriptionState {
+  /** `null` = jamais abonné (compte gratuit). */
+  subscription: SubscriptionInfo | null;
+  /** Les articles ACTIFS, dans l'ordre d'ajout. Vide sans abonnement. */
+  items: SubscriptionItem[];
 }
 
 export const subscriptionKey = (userId: string | undefined) => ['subscription', userId] as const;
 
-/** Abonnement en cours (accès ouvert, recharge mensuelle). */
+/** Abonnement en cours (accès ouvert). */
 export function isSubscriptionActive(sub: SubscriptionInfo | null | undefined): boolean {
   return !!sub && (sub.status === 'active' || sub.status === 'trialing');
 }
@@ -30,24 +40,28 @@ export function isPaymentFailed(sub: SubscriptionInfo | null | undefined): boole
 }
 
 /**
- * L'abonnement du user. `null` = pas de ligne → formule Gratuite.
- * ⚠️ GRANT SELECT colonne-limité (user_id, plan, status, current_period_end, cancel_at_period_end, amount_cents) :
- * la sélection est EXPLICITE — un `select *` (stripe_customer_id inclus) serait rejeté par PostgREST.
+ * L'abonnement du user et ses articles, lus en parallèle.
+ * ⚠️ `subscriptions` : GRANT SELECT colonne-limité (hors ids Stripe) — la sélection est EXPLICITE,
+ * un `select *` serait rejeté par PostgREST. `subscription_items` : owner SELECT.
  */
 export function useSubscription() {
   const { user } = useAuth();
   return useQuery({
     queryKey: subscriptionKey(user?.id),
     enabled: !!user,
-    queryFn: async (): Promise<SubscriptionInfo | null> => {
-      const { data, error } = await getSupabase()
-        .from('subscriptions')
-        .select('user_id, plan, status, current_period_end, cancel_at_period_end, amount_cents')
-        .eq('user_id', user!.id)
-        .maybeSingle();
-      if (error) throw error;
-      if (!data) return null;
-      return { plan: data.plan, status: data.status, currentPeriodEnd: data.current_period_end, cancelAtPeriodEnd: data.cancel_at_period_end, amountCents: data.amount_cents };
+    queryFn: async (): Promise<SubscriptionState> => {
+      const supabase = getSupabase();
+      const [subRes, itemsRes] = await Promise.all([
+        supabase.from('subscriptions').select('user_id, status, current_period_end, cancel_at_period_end').eq('user_id', user!.id).maybeSingle(),
+        supabase.from('subscription_items').select('id, tool_id, amount_cents, status').eq('user_id', user!.id).eq('status', 'active').order('created_at'),
+      ]);
+      if (subRes.error) throw subRes.error;
+      if (itemsRes.error) throw itemsRes.error;
+      const s = subRes.data;
+      return {
+        subscription: s ? { status: s.status, currentPeriodEnd: s.current_period_end, cancelAtPeriodEnd: s.cancel_at_period_end } : null,
+        items: itemsRes.data.map(row => ({ id: row.id, toolId: row.tool_id, amountCents: row.amount_cents, status: row.status === 'canceled' ? 'canceled' : 'active' })),
+      };
     },
   });
 }

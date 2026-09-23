@@ -11,8 +11,8 @@ import { configureShell } from '@yunary/shell';
 import { App } from './App';
 
 /* La vitrine ne parle à aucun back : la configuration est factice, aucune requête ne part
-   (les vues sont rendues avec des fixtures). Elle existe parce que le registre des outils
-   et les liens de la coque lisent `hubUrl`. */
+   (les vues sont rendues avec des fixtures). Elle existe parce que les liens de la coque
+   lisent `hubUrl`. */
 configureShell({
   supabaseUrl: 'https://demo.invalid',
   supabasePublishableKey: 'sb_publishable_demo',

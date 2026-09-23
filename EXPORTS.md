@@ -1,16 +1,21 @@
-# EXPORTS — l'API publique de `@yunary/shell`
+# EXPORTS — l'API publique de `@yunary/shell` (0.3.0)
 
 Un seul point d'entrée : `import { … } from '@yunary/shell'`. Tout ce qui n'est pas listé ici
 est interne et peut changer sans bump majeur. Les **vues** (`*View`) sont pilotées par props et
 ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les hooks.
 
+🔒 Rien du catalogue dans le paquet : noms d'outils, quotas, prix viennent de la base (`tools`,
+`tool_packs`), l'accès de `can_use`, l'abonnement de `subscriptions` / `subscription_items` /
+`tool_entitlements`. Aucun achat n'est possible depuis Claude : tout ce qui touche Stripe ne vit
+que dans le web.
+
 ## Configuration
 
 | Export | Rôle |
 |---|---|
-| `configureShell(config)` | À appeler UNE fois dans `main.tsx`, avant tout rendu. `supabaseUrl`, `supabasePublishableKey`, `hubUrl`, `cookieDomain?` (absent en local), `stripePublishableKey?` (`VITE_STRIPE_PUBLISHABLE_KEY`, pour le checkout embarqué), `toolUrls?`, `extraNextOrigins?` (local seulement). |
+| `configureShell(config)` | À appeler UNE fois dans `main.tsx`, avant tout rendu. `supabaseUrl`, `supabasePublishableKey`, `hubUrl`, `cookieDomain?` (absent en local), `stripePublishableKey?` (`VITE_STRIPE_PUBLISHABLE_KEY`, pour le checkout embarqué), `extraNextOrigins?` (local seulement). |
 | `getShellConfig()` · `isShellConfigured()` | Lecture de la config (lève si absente). |
-| `ShellConfig` · `ToolId` | Types. |
+| `ShellConfig` | Type. |
 
 ## Client Supabase — le seul de l'écosystème
 
@@ -19,7 +24,7 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | `supabase` | Le client (`createBrowserClient` de `@supabase/ssr`, session en cookies `.yunary.com`). Singleton paresseux : l'utiliser avant `configureShell` lève. |
 | `getSupabase()` | Le même, en fonction. |
 | `signOut()` | La déconnexion — toujours par ici (`scope: 'global'`). |
-| `Database` · `Tables` · `TablesInsert` · `TablesUpdate` · `Json` | Types générés du projet, jamais édités. |
+| `Database` · `Tables` · `TablesInsert` · `TablesUpdate` · `Json` | Types générés du projet (lot 1 base, 23/09/2026), jamais édités. |
 
 ## Session, auth, garde
 
@@ -35,7 +40,7 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | `isSafeNext(url)` · `readSafeNext(search)` · `buildLoginUrl(currentUrl)` | `?next=` accepté seulement en sous-domaine https de `yunary.com` (+ `extraNextOrigins`). |
 | `loginSchema` · `signupSchema` · `forgotSchema` · `newPasswordSchema` · `PASSWORD_MIN` · `PASSWORD_RULE` | Schémas zod — mot de passe : 8 caractères, minuscule + majuscule + chiffre, la politique du projet Supabase. |
 
-## Pages d'auth (montées par le Hub seul)
+## Pages d'auth (montées par le hub seul)
 
 | Export | Rôle |
 |---|---|
@@ -53,63 +58,54 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 | `useProfile()` | `profiles` de l'utilisateur (`Profile` : identité, `notification_prefs` parsées, `role`, `platform`, `handle`). `profileKey`, `parseNotificationPrefs`, `DEFAULT_NOTIFICATION_PREFS`. |
 | `useUpdateProfile()` | Prénom, nom, `notification_prefs`. |
 | `useUpdateAvatar()` · `useDeleteAvatar()` | Photo : recadrage carré 512 px WebP → bucket `avatars` → `profiles.avatar_url`. |
-| `useCredits()` → `CreditsInfo \| null` | Solde (`user_credits`), allocation mensuelle lue dans `plan_allocations` (`0` pour la Gratuite : pas de barre), `periodEnd` pour un abonné payant seulement. `creditsKey`, `isPaidPlan`. |
-| `useActionCosts()` → `ActionCost[]` | 🔒 Les coûts par action, lus dans `actions`. Jamais un coût en dur. |
-| `useSubscription()` → `SubscriptionInfo \| null` | `subscriptions` (colonnes autorisées seulement) : `plan`, `status`, `currentPeriodEnd`, `cancelAtPeriodEnd`, **`amountCents`** (le montant réellement facturé — le prix à montrer à un abonné). `subscriptionKey`, `isSubscriptionActive`, `isPaymentFailed`. |
+| `useSubscription()` → `SubscriptionState` | `{ subscription: SubscriptionInfo \| null, items: SubscriptionItem[] }` — la ligne `subscriptions` (colonnes autorisées seulement : `status`, `currentPeriodEnd`, `cancelAtPeriodEnd`) et les articles ACTIFS de `subscription_items` (`id`, `toolId`, `amountCents`, `status`). `null` = jamais abonné. `subscriptionKey`, `isSubscriptionActive(sub)`, `isPaymentFailed(sub)`. |
 | `useDeleteAccount()` | Edge `delete-account`, puis déconnexion locale. |
 
-## Abonnement Stripe (0.2.0)
-
-🔒 Aucun prix ni allocation dans le paquet : tout vient de `plan_allocations` et `launch_counter`. Aucune redirection au checkout : il est embarqué.
+## Outils, droits, règles, historique (0.3.0 — tout vient de la base)
 
 | Export | Rôle |
 |---|---|
-| `usePlanCatalog()` → `PlanCatalog` | `plan_allocations` (label, `creditsPerMonth`, `signupCredits`, `priceCents`) + `launch_counter` (offre de lancement : `slotsRemaining`, `priceCents`, `null` à 0 place) + `actions.analyse` (`analyseCost`), en parallèle. `planCatalogKey`, `allocationFor(catalog, plan)`, `signupCreditsFor(catalog, plan)`, `priceFor(catalog, plan)` (offre de lancement s'il reste des places, sinon prix plein), `fullPriceFor(catalog, plan)` (le prix plein, à barrer à côté de l'offre), **`priceToShow(catalog, plan, subscription)`** (🔒 la règle : prospect → catalogue, abonné → `amountCents`), **`isLaunchPrice(amount, catalog, plan)`** (mention d'offre de lancement = `amount < prix plein`, jamais une égalité avec le tarif). `PlanCatalog.launch` (`LaunchCounter` : `total`, `taken`, `priceCents`) reste lisible à zéro place — « Tu fais partie des N premiers ». `PlanAllocation`, `FounderOffer`, `LaunchCounter`. |
-| `useCheckoutSession()` → `CheckoutSession` | Edge `create-checkout-session` `{ plan }` → `{ clientSecret, amountCents, isFondateur, slotsRemaining }`. Codes d'erreur (`already_subscribed`, `rate_limited`, `unauthorized`) traduits. |
-| `<CheckoutModal open onClose plan? inline? demo?>` | Le checkout Stripe **embarqué** : appelle l'Edge à l'ouverture, charge Stripe.js paresseusement (`stripePublishableKey`), gère préparation / erreur / fermeture. En-tête « S'abonner à Créateur » + « 12 €/mois — offre de lancement » (catalogue, puis Edge). **Bureau** : Modal lg du DS à ~80 % de la hauteur, corps défilant ; **mobile (≤ 64 rem) : page plein écran**, sans voile — exception assumée au modal du DS (artboards D2 / D2b). Utilisable depuis Creator. |
-| `useCheckoutActivation()` → `{ state, clear }` · `CHECKOUT_PARAM` | Le retour de Stripe (`?checkout=<session_id>`) : sonde `subscriptions` chaque seconde, 20 s au plus — `pending` · `active` · `late` (`idle` sans paramètre). Invalide abonnement, crédits et catalogue à l'activation ; `clear()` retire le paramètre. `AppLayout` affiche « Activation en cours… » pendant `pending`. |
-| `<CheckoutActivationCard state onContinue>` | L'écran de retour : « On active ton abonnement… », succès, ou le message calme passé 20 s — jamais une erreur. |
-| `useCancelSubscription()` · `useResumeSubscription()` | Edge `cancel-subscription` (fin de période) / `resume-subscription` ; invalident abonnement, crédits, catalogue. |
+| `useToolCatalog({ enabled? })` → `ToolCatalog` | `tools` (`ToolDef` : `id`, `name`, `description`, `position`, `monthlyQuota`, `priceCents`, `isPublished`, `status`) + `tool_packs` (`ToolPackDef` : `id`, `toolId`, `name`, `units`, `priceCents`, `isPublished`), lecture publique, triés par `position`. `toolCatalogKey`, `toolByIdIn(catalog, id)`, `packByIdIn(catalog, id)`. |
+| `useEntitlements()` → `EntitlementsInfo` | `rows` : les lignes `tool_entitlements` de l'utilisateur (`Entitlement` : `toolId`, `source`, `status`, `quotaTotal`, `quotaUsed`, `periodStart`, `periodEnd`, `endsAtPeriodEnd`) ; `summaries` : un `EntitlementSummary` par outil (`toolId`, `source`, `status`, `used`, `total`, `remaining`, `periodEnd`, `endsAtPeriodEnd`, `usable`) = le droit que le serveur consommerait (`subscription` → `pack` → `free`, actif, en période, non épuisé), sinon le premier actif. `entitlementsKey`, `isEntitlementUsable(row)`, `summarizeEntitlements(rows)`. Types `EntitlementSource`, `EntitlementStatus`. |
+| `useCanUse(tool)` → `CanUseResult` | 🔒 `select can_use(tool)` avec le jeton de l'utilisateur, lecture seule : `{ allowed, reason, source, remaining, link }`. `canUseKey`, `CanUseReason` (`ok`, `not_subscribed`, `quota_exhausted`, `unknown_tool`, `unauthorized`). |
+| `useToolRules({ tool? })` → `ToolRule[]` | `user_tool_rules` (owner), les plus récentes d'abord. `useAddToolRule()` (`{ toolId, stepKey?, text }`), `useUpdateToolRule()` (`{ id, text, stepKey? }`), `useDeleteToolRule()` (`{ id }`) ; texte nettoyé, 1..`RULE_TEXT_MAX` (500). `toolRulesKey`. |
+| `useToolRuns({ tool?, limit? })` → `ToolRun[]` | `tool_runs` (owner), plus récent d'abord, 50 par défaut. `ToolRun` : `toolId`, `status` (`ToolRunStatus`), `currentStepKey`, `data`, `refId`, `startedAt`, `updatedAt`, `finishedAt`. `toolRunsKey`. |
+
+## Abonnement Stripe — un abonnement par client, un article par outil, packs (web seulement)
+
+| Export | Rôle |
+|---|---|
+| `useStartCheckout()` | Edge `create-checkout-session` avec un `CheckoutTarget` (`{ tool }` ou `{ pack }`) → `CheckoutStart` : `{ mode: 'added', tool, amountCents }` (abonnement vivant, article ajouté au prorata, caches invalidés) ou `{ mode: 'checkout', clientSecret, amountCents, tool, pack? }` (checkout embarqué). Codes traduits : `not_published`, `already_subscribed`, `rate_limited`, `unauthorized`, `stripe_error`. |
+| `<CheckoutModal open onClose target inline? demo?>` | Le checkout Stripe **embarqué** : appelle l'Edge à l'ouverture, charge Stripe.js paresseusement (`stripePublishableKey`), gère préparation / erreur / fermeture / `added`. En-tête « S'abonner à {tools.name} » + « 9 €/mois », ou « {tool_packs.name} » + « 15 €, en une fois » — noms et montants du catalogue puis de l'Edge. **Bureau** : Modal lg du DS à ~80 % de la hauteur, corps défilant ; **mobile (≤ 64 rem) : page plein écran**, sans voile — exception assumée au modal du DS (artboards D2 / D2b). `CheckoutModalProps`. |
+| `useCheckoutActivation()` → `{ state, clear }` · `CHECKOUT_PARAM` · `CHECKOUT_TOOL_PARAM` · `CHECKOUT_PACK_PARAM` | Le retour de Stripe (`?checkout=<session_id>`, `&tool=` / `&pack=` facultatifs) : sonde `tool_entitlements` chaque seconde, 20 s au plus — le droit `subscription` de l'outil si `tool`, un droit `pack` de l'outil du pack si `pack`, sinon un droit `subscription` / `pack` écrit depuis l'arrivée sur la page — `pending` · `active` · `late` (`idle` sans paramètre). Invalide abonnement et droits à l'activation ; `clear()` retire les paramètres. `AppLayout` affiche « Activation en cours… » pendant `pending`. `CheckoutActivationState`. |
+| `<CheckoutActivationCard state onContinue>` | L'écran de retour : « On active ton outil… », succès, ou le message calme passé 20 s — jamais une erreur. |
+| `useRemoveTool()` | Edge `remove-subscription-item { tool }` → `RemoveToolResult` : `{ mode: 'removed' }`, `{ mode: 'ends_at_period_end', periodEnd }` (l'outil reste jusqu'à la fin de la période, sans avoir) ou `{ mode: 'cancel_at_period_end', currentPeriodEnd }` (dernier article : tout l'abonnement s'arrête en fin de période). Codes : `no_subscription`, `not_subscribed`. Libellés dans `fr.parametres.abonnement.remove`. |
+| `useCancelSubscription()` · `useResumeSubscription()` | Résiliation COMPLÈTE en fin de période (`cancel-subscription`) / réactivation (`resume-subscription`) ; invalident abonnement et droits. |
 | `<CancelSubscriptionModal open onClose onConfirm periodEnd>` | « Se désabonner ? » en une étape, texte exact ; 3 phases. |
-| `usePortalSession()` | Edge `create-portal-session` → redirection vers le portail (carte, factures). Inchangée. |
+| `usePortalSession()` | Edge `create-portal-session` → redirection vers le portail (carte, factures). |
 | `<PaymentFailedBanner>` / `<PaymentFailedBannerView onPortal>` | `past_due` / `unpaid` : bandeau « Ton dernier paiement n'est pas passé… » + bouton portail. Rendu par `AppLayout` en haut de l'app ; l'accès n'est pas coupé. |
-
-## Formules et outils
-
-| Export | Rôle |
-|---|---|
-| `PLANS` · `FREE_PLAN` · `CREATEUR_PLAN` · `planFor(code)` · `planFeatures(plan, catalog)` · `PlanDef` · `PlanId` | Deux formules, identité seulement — **plus de `priceMonthly` ni `creditsPerMonth`** (0.2.0). **`planFeatures(plan, catalog)` est LA source unique des arguments de vente** (maquette D1, 0.2.4) — onglet Abonnement et écran de choix du Hub : Gratuite « N crédits, offerts une fois » · « Environ N analyses » (`signup_credits ÷ actions.analyse`) · « Pas de recharge mensuelle » ; Créateur « N crédits par mois » · « Tous les outils, sans limite d'accès » · « Tes crédits se rechargent chaque mois ». |
-| `TOOLS` · `toolById` · `toolUrl` · `toolFullName` · `ToolDef` | Le registre des outils (Hub, Creator `live`, Metrics `soon`). Ajouter un outil = une entrée. |
 
 ## Layout
 
 | Export | Rôle |
 |---|---|
-| `<AppLayout tool items? settingsHref? toolsHref? native?>` | `AppShell` + `HubSidebar` alimentés par le profil, les crédits et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. `toolsHref` : la route locale de « Mes outils » (défaut `/outils`, le Hub passe `/`) — l'entrée et le logo y mènent, l'entrée est active dessus. Rend le `PaymentFailedBanner` sous la barre haute, passe `creditsHref` (`{settingsHref}?tab=abonnement`) à la sidebar et « Activation en cours… » comme libellé de formule pendant un retour de checkout. |
-| `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières de la v1 — `space-4` de côté et `space-5` en vertical sous 64 rem, `space-5` partout dès que la sidebar est à demeure (`64.0625rem`). Colonne flex qui remplit la hauteur restante sous la barre dans `AppLayout` : un bloc se centre avec `m-auto`. Pour une page hors `AppLayout` qui veut les mêmes bords. |
-| `APP_GUTTER_X` · `APP_BLEED_X` · `APP_BLEED_TOP` | Les gouttières d'`AppContent` en classes : y rentrer (`px-space-4 min-[64.0625rem]:px-space-5`, ce qu'`AppContent` pose), en sortir (le miroir négatif), coller au haut du contenu (`-mt-space-5`). Pour une barre collante bord à bord ; jamais recopiées dans une app. |
-| `<AppBleed flush? className?>` | Un bloc qui sort des gouttières latérales (`APP_BLEED_X`) — le cas « page entière » : fiche, script, assistant ; `flush` colle aussi au haut (`APP_BLEED_TOP`). Ses enfants rentrent avec `APP_GUTTER_X`. `AppBleedProps`. |
-| `<HubSidebar tool …>` | La sidebar en vue : lockup en tête (monogramme 1,5 rem + `ToolName` de `tool`, au bord des pilules, lien vers « Mes outils »), nav de l'outil, Mes outils + Paramètres en pied de nav, crédits, compte ; jamais repliée ; `native` sans « Mes outils » ; `linkAs` pour le routeur ; `toolsHref` local (défaut `/outils`), jamais le Hub ; `creditsHref?` : la cible de la carte crédits (gratuit toujours, abonné sous 20 %). |
-| `<ToolName tool className?>` | Le nom d'un outil en display 18 : « Yunary » puis le mot accentué en pochoir `.accent`. Le lockup de la sidebar et la carte de « Mes outils ». |
-| `<CreditsCard credits href? linkAs?>` · `shouldLinkCredits(credits)` · `isCreditsLow(credits)` · `<AccountCard account>` · `<UserAvatar account>` | Les cartes du bas de sidebar. `CreditsView` (`total` 0 = Gratuite : pas de barre ni de date, « Offerts, non renouvelés »), `CreditsCardProps`, `AccountView`. La même carte devient un lien vers `href` quand `shouldLinkCredits` : gratuit **toujours**, abonné sous 20 % de l'allocation (`isCreditsLow`). |
-| `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`), sélection à la convention des Tabs (`--primary` sur `--accent`, même graisse). Manque DS consigné. |
-
-## « Mes outils » (montée par chaque app sur `/outils`, le Hub sur `/`)
-
-| Export | Rôle |
-|---|---|
-| `<OutilsPage tool homeHref?>` | La page câblée (C1) : prénom du profil, cartes du registre `TOOLS` sauf le Hub. `homeHref` = l'accueil de l'outil courant (`/videos` pour Creator) : sa carte navigue en interne, les autres ouvrent leur sous-domaine. `OutilsPageProps`. |
-| `<OutilsView tool homeHref? prenom>` | La vue, props seules. `OutilsViewProps`. |
+| `<AppLayout items? settingsHref? toolsHref?>` | `AppShell` + `HubSidebar` alimentés par le profil et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. `toolsHref` (défaut `/outils`) : la route locale de la page des outils du hub — l'entrée du pied de nav et le lockup y mènent. Rend le `PaymentFailedBanner` sous la barre haute ; carte compte « Gratuit » / « Abonné », « Activation en cours… » pendant un retour de checkout. |
+| `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières de la v1 — `space-4` de côté et `space-5` en vertical sous 64 rem, `space-5` partout dès que la sidebar est à demeure (`64.0625rem`). Colonne flex qui remplit la hauteur restante sous la barre dans `AppLayout` : un bloc se centre avec `m-auto`. |
+| `APP_GUTTER_X` · `APP_BLEED_X` · `APP_BLEED_TOP` | Les gouttières d'`AppContent` en classes : y rentrer, en sortir (le miroir négatif), coller au haut du contenu. Jamais recopiées dans une app. |
+| `<AppBleed flush? className?>` | Un bloc qui sort des gouttières latérales — le cas « page entière » ; `flush` colle aussi au haut. `AppBleedProps`. |
+| `<HubSidebar items? settingsHref? settingsActive? toolsHref? toolsActive? account linkAs? open? onClose? staticLayout?>` | La sidebar en vue : lockup en tête (monogramme 1,5 rem + « Yunary » en display 18, lien vers `toolsHref`), nav de l'app, Mes outils + Paramètres en pied de nav, carte compte ; jamais repliée ; `linkAs` pour le routeur. `HubSidebarProps`, `ShellNavItem`. |
+| `<AccountCard account>` · `<UserAvatar account>` | La carte du bas de sidebar (avatar, nom, « Gratuit » / « Abonné ») et l'avatar composé. `AccountView`. |
+| `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`), sélection à la convention des Tabs. Manque DS consigné. |
 
 ## Paramètres
 
 | Export | Rôle |
 |---|---|
-| `<ParametresPage variant? tab? onTabChange? hrefs? extra? onDeleted?>` | C2–C5. `web` (4 onglets) ou `native` (Infos, Légal + slot `extra`). Sans `tab`, lit `?tab=`. |
-| `<ParametresLayout>` · `parametresTabs(variant)` | En-tête + onglets. |
-| `<InfosTab>` / `<InfosView>` | Photo, prénom / nom en autosave, e-mail verrouillé, mot de passe, réseau + handle (lecture seule depuis `profiles`, `onReseauChange` réservé), déconnexion. |
+| `<ParametresPage tab? onTabChange? hrefs? toolsHref? onDeleted?>` | C2–C5, quatre onglets. Sans `tab`, lit `?tab=`. `toolsHref` (défaut `/outils`) : la cible de « Gérer mes outils ». |
+| `<ParametresLayout tab onTabChange>` · `parametresTabs()` | En-tête + onglets. `ParametresTab`. |
+| `<InfosTab>` / `<InfosView>` | Photo, prénom / nom en autosave, e-mail verrouillé, mot de passe, carte « Comptes connectés » (réseau + handle en lecture seule depuis `profiles`, `onReseauChange` réservé), déconnexion. |
 | `<NotificationsTab>` / `<NotificationsView>` | Deux préférences, interrupteurs du DS. |
-| `<AbonnementTab>` / `<AbonnementView credits plan subscription catalog? …>` | Portail (si abonnement), formule + solde (barre seulement face à une allocation mensuelle), « Se désabonner » / « Se termine le… » + « Réactiver mon abonnement », grille des deux offres aux prix du catalogue, tarif fondateur tant qu'il reste des places. Le conteneur ouvre `CheckoutModal` et `CancelSubscriptionModal`, et rend `CheckoutActivationCard` sur `?checkout=`. `AbonnementViewProps`, `PaidPlanId`. |
+| `<AbonnementTab toolsHref?>` / `<AbonnementView subscription entitlements catalog? toolsHref onPortal onCancel onResume …>` | Trois blocs et rien d'autre : la ligne d'abonnement (statut, prochaine échéance, « Se termine le… » + « Réactiver » ou « Se désabonner », « Gérer le paiement »), « Tes outils » (une ligne par résumé de droit : nom lu en base, source `Inclus` / `Abonnement` / `Pack`, utilisé / total ou « Sans limite », barre, échéance — « Se termine le… » pour un droit `endsAtPeriodEnd`), « Gérer mes outils » → `toolsHref`. 🔒 Aucun prix. Le conteneur ouvre `CancelSubscriptionModal` et rend `CheckoutActivationCard` sur `?checkout=`. `AbonnementViewProps`, `subscriptionStatusLabel(status)`. |
 | `<LegalTab>` / `<LegalView>` · `DEFAULT_LEGAL_HREFS` | Liens légaux + zone danger. |
 | `<PasswordModal>` · `<DeleteAccountModal>` | Modales du DS en 3 phases (confirm → loading → result). |
 | `<TabSkeleton>` · `<TabError>` | États de chargement et d'erreur d'un onglet. |
@@ -119,38 +115,31 @@ ne parlent pas au back ; les **pages** et **conteneurs** les câblent sur les ho
 
 | Export | Rôle |
 |---|---|
-| `<AuditBilan audit minSample? nonEvaluableNote?>` | Le bilan complet, la variante `non_evaluable` (jauge « n / min · Plus qu'une »), l'erreur. Une métrique absente = une tuile absente. La photo de profil retombe sur l'initiale du handle quand le CDN la bloque. `nonEvaluableNote` : appoint de l'hôte sous la jauge (le Hub y passe `fr.audit.nonEvaluable.profilReady`, Creator ne passe rien). |
-| `<AuditStateCard tone? icon title description?>` | La carte d'état héros — la `StateCard` du DS (0.1.4 : `Card lg` centrée, pastille héros outlined carrée) — attente, indisponible, erreur, non évaluable ; `brand` ou `danger`. API de la coque inchangée. |
+| `<AuditBilan audit minSample? nonEvaluableNote?>` | Le bilan complet, la variante `non_evaluable` (jauge « n / min · Plus qu'une »), l'erreur. Une métrique absente = une tuile absente. `nonEvaluableNote` : appoint de l'hôte sous la jauge. |
+| `<AuditStateCard tone? icon title description?>` | La carte d'état héros — la `StateCard` du DS — attente, indisponible, erreur, non évaluable ; `brand` ou `danger`. |
 | `useAccountAudit({ poll? })` | Le dernier `account_audits`, parsé ; polling tant qu'aucune ligne. `accountAuditKey`. |
 | `parseAccountAudit` · `parseAuditStats` · `parseAuditVerdicts` · `parseAuditPoints` · `parseAuditProfil` · `AUDIT_MIN_SAMPLE` | Le contrat, en lecture tolérante. Types `ParsedAccountAudit`, `AuditStats`, `AuditVerdicts`, `AuditPoints`, `AuditProfil`… |
-
-## Profil créateur (cartes contrôlées, autosave dans l'app)
-
-| Export | Rôle |
-|---|---|
-| `<NicheCard value onChange>` | Grille de `RadioTile` (DS 0.1.4) des `NICHES` + « Autre » → champ libre. |
-| `<VoixCard voix onChange expressionsDetectees? expressions? onExpressionsChange?>` | Niveau de langue, vulgarité, humour (`aucun` exclusif), expressions signature — affichées dès que captées ∪ retenues (`expressions`, `voix.tics`) n'est pas vide, même sans empreinte. |
-| `<AvatarCibleCard value onChange>` | Qui / Quoi / Son problème (`AvatarCible`). |
-| `<PrisesDePositionCard value onChange>` | 01–03 (`PrisesDePosition`). |
-| `<ProfilCard icon title description?>` · `<ChoiceChip variant? selected? onToggle>` | La coque des cartes (pastille de marque outlined au glyphe de 18 px posé par la carte, titre `heading-sm`, phrase à `space-4` du titre, pile `space-5`) et la chip : `choix` (filet 1,5 px, `--primary` cochée, `aria-pressed`) ou `ajout` (pointillés, muted, « + », jamais cochée). |
-| `NICHES` · `NICHE_OTHER` · `NIVEAUX_LANGUE` · `VULGARITES` · `HUMOURS` · `HUMOUR_EXCLUSIF` | 🔒 Valeurs canoniques (v1), jamais traduites. |
-| `parseVoix` · `EMPTY_VOIX` · types `Voix`, `NiveauLangue`, `Vulgarite`, `Humour` | `personas.voix`. |
 
 ## Pages légales (publiques)
 
 | Export | Rôle |
 |---|---|
-| `<CguPage>` · `<MentionsLegalesPage>` · `<ConfidentialitePage>` | Contenu verbatim de la v1 (figé App Review). Prop `homeHref`. |
-| `<SuppressionDonneesPage>` / `<SuppressionDonneesView state>` | `/suppression-donnees?code=` via GET `meta-data-deletion` (exigence Meta). |
+| `<CguPage>` · `<MentionsLegalesPage>` · `<ConfidentialitePage>` | Contenu figé. Prop `homeHref`. |
+| `<SuppressionDonneesPage>` / `<SuppressionDonneesView state>` | `/suppression-donnees?code=` via GET `meta-data-deletion` (exigence Meta, frigo). |
 | `<LegalPageLayout>` · `<LegalDocView doc>` · `LEGAL_DOCS` | La coque de lecture et les documents. |
 
 ## Chaînes, erreurs, formats
 
 | Export | Rôle |
 |---|---|
-| `fr` | Toutes les chaînes communes (erreurs, auth, layout, paramètres, formules, légal, audit, profil). |
-| `getErrorMessage(error)` | Une erreur (Supabase, réseau, inconnue) → une phrase FR. Jamais un message brut à l'écran. |
+| `fr` | Toutes les chaînes communes (erreurs, auth, layout, outils et droits — `fr.tools` : sources, statuts, « Sans limite », « utilisé / total », échéances —, paramètres, légal, audit). Jamais un nom d'outil : ils viennent de la base. |
+| `getErrorMessage(error)` | Une erreur (Supabase, réseau, code métier brut du back, inconnue) → une phrase FR. Jamais un message brut à l'écran. |
+| `messageForCode(code, fallback)` | 🔒 La phrase FR d'un code du back (`not_subscribed`, `quota_exhausted`, `not_published`, `already_subscribed`, `no_subscription`, `no_customer`, `unknown_tool`, `rate_limited`, `unauthorized`, `stripe_error`, `invalid_input`) ; inconnu → `fallback`. |
 | `formatNombre` · `formatCompact` · `formatDateCourte` · `formatDateLongue` · `formatEuros(cents)` · `initiales` | Formats FR via `Intl` ; `formatEuros` : centimes → « 9 € » / « 9,90 € ». |
-| `useMediaQuery(query)` · `DS_MOBILE_QUERY` | `matchMedia` en `useSyncExternalStore` ; `DS_MOBILE_QUERY` = `(max-width: 64rem)`, le seuil unique du DS. Pour un rendu qui change de STRUCTURE selon l'écran. |
-| `withGlyphSize(icon, size?)` · `CARD_GLYPH_SIZE` | Pose `size` (18 px par défaut) sur un `<Icon />` reçu en prop, sauf si l'appelant l'a fixé — le geste des pastilles `carte` de la coque (`--ds-icon-size` n'hérite pas). |
+| `useMediaQuery(query)` · `DS_MOBILE_QUERY` | `matchMedia` en `useSyncExternalStore` ; `DS_MOBILE_QUERY` = `(max-width: 64rem)`, le seuil unique du DS. |
+| `withGlyphSize(icon, size?)` · `CARD_GLYPH_SIZE` | Pose `size` (18 px par défaut) sur un `<Icon />` reçu en prop, sauf si l'appelant l'a fixé. |
 | `SHELL_VERSION` | La version du paquet. |
+
+## Retiré en 0.3.0 (pivot MCP)
+
+`ToolId`, `toolUrls` de la config · `useCredits`, `useActionCosts`, `creditsKey`, `isPaidPlan` · `usePlanCatalog` et ses helpers (`allocationFor`, `signupCreditsFor`, `priceFor`, `fullPriceFor`, `priceToShow`, `isLaunchPrice`) · `useCheckoutSession` (→ `useStartCheckout`) · `PLANS`, `FREE_PLAN`, `CREATEUR_PLAN`, `planFor`, `planFeatures` · `TOOLS`, `toolById`, `toolUrl`, `toolFullName`, `<ToolName>` · `<CreditsCard>`, `isCreditsLow`, `shouldLinkCredits` · `<OutilsPage>` / `<OutilsView>` · prop `native` d'`AppLayout` / `HubSidebar`, `ParametresVariant`, prop `extra` de `ParametresPage` · `PaidPlanId` · tout le profil créateur (`NicheCard`, `VoixCard`, `AvatarCibleCard`, `PrisesDePositionCard`, `ProfilCard`, `ChoiceChip`, `NICHES`, `NICHE_OTHER`, `NIVEAUX_LANGUE`, `VULGARITES`, `HUMOURS`, `HUMOUR_EXCLUSIF`, `parseVoix`, `EMPTY_VOIX`, types `Voix`…).

@@ -1,6 +1,7 @@
 /**
- * Les chaînes FR communes à toutes les apps — erreurs, auth, layout, paramètres,
- * formules, légal, audit, profil créateur. Français seul : pas de mécanisme i18n, un objet.
+ * Les chaînes FR communes — erreurs, auth, layout, paramètres, outils et droits, légal, audit.
+ * Français seul : pas de mécanisme i18n, un objet. Les NOMS d'outils ne sont jamais ici : ils
+ * viennent de la base (`tools.name`).
  * Les libellés viennent des MAQUETTES (maîtres) ; la v1 a servi de repli quand la maquette
  * ne disait rien. Les interpolations sont des fonctions, pas des gabarits.
  */
@@ -40,8 +41,24 @@ export const fr = {
     checkoutUnavailable: "Le paiement n'est pas disponible sur cette app pour le moment.",
     cancelFailed: "La résiliation n'a pas pu être enregistrée. Réessaie.",
     resumeFailed: "La réactivation n'a pas pu être enregistrée. Réessaie.",
+    removeToolFailed: "L'outil n'a pas pu être retiré. Réessaie.",
     accountDeleteFailed: 'La suppression du compte a échoué. Réessaie.',
-    insufficientCredits: 'Crédits insuffisants.',
+    stripe: 'Le service de paiement ne répond pas. Réessaie dans un instant.',
+    invalidInput: 'Demande incomplète ou mal formée.',
+    /* 🔒 Les codes métier du back (`can_use.reason`, `{ success:false, code }`) — le front branche sur le code, jamais sur le message. */
+    tools: {
+      notSubscribed: "Cet outil n'est pas dans ton abonnement.",
+      quotaExhausted: 'Ton quota pour cet outil est épuisé.',
+      notPublished: "Cet outil n'est pas encore disponible à l'achat.",
+      alreadySubscribed: 'Cet outil est déjà dans ton abonnement.',
+      noSubscription: 'Aucun abonnement en cours.',
+      noCustomer: 'Aucun moyen de paiement enregistré pour le moment.',
+      unknownTool: 'Outil inconnu.',
+    },
+    rules: {
+      empty: 'Écris ta règle avant de l\'enregistrer.',
+      tooLong: 'Une règle fait 500 caractères au plus.',
+    },
     image: {
       canvas: 'Canvas indisponible dans ce navigateur.',
       prepare: "Impossible de préparer l'image.",
@@ -122,36 +139,40 @@ export const fr = {
   },
 
   layout: {
+    /* Le lockup de la sidebar : la coquille web s'appelle « Yunary » (les outils vivent en base). */
+    brand: 'Yunary',
     tools: 'Mes outils',
     openTools: 'Ouvrir Mes outils',
     settings: 'Paramètres',
-    creditsLeft: (n: number) => `${n} crédit${n > 1 ? 's' : ''} restant${n > 1 ? 's' : ''}`,
-    creditsUnknown: 'Crédits indisponibles',
-    creditsResetOn: (date: string) => `Recharge le ${date}`,
-    /* Gratuite : 50 crédits une fois, jamais rechargés (13/09/2026) — plus de date de recharge. Court : la ligne
-       tient sur une seule ligne dans la sidebar à 15 rem (« Crédits offerts, non renouvelés » y passait à deux). */
-    creditsOffered: 'Offerts, non renouvelés',
-    /* La carte mène à Paramètres › Abonnement : gratuit toujours, abonné sous 20 % de l'allocation. */
-    creditsLowLink: 'Voir les formules',
-    planLabel: (plan: string) => `Formule ${plan}`,
-    /* Retour de Stripe, webhook pas encore passé : jamais « Formule Gratuite » à qui vient de payer. */
+    /* La carte compte : « Gratuit » sans abonnement actif, « Abonné » avec — le détail est dans Paramètres › Abonnement. */
+    planFree: 'Gratuit',
+    planSubscribed: 'Abonné',
+    /* Retour de Stripe, webhook pas encore passé : jamais « Gratuit » à qui vient de payer. */
     planActivating: 'Activation en cours…',
     menu: 'Menu',
     openMenu: 'Ouvrir le menu',
     closeMenu: 'Fermer le menu',
   },
 
-  /* « Mes outils » (C1) — remontée du Hub le 11/09/2026, la page s'ouvre dans chaque outil. */
-  outils: {
-    hello: (prenom: string | null) => (prenom ? `Salut ${prenom}` : 'Salut'),
-    lead: "Par quoi tu commences aujourd'hui ?",
-    open: 'Ouvrir',
-    soon: 'Bientôt',
+  /* Outils, droits (`tool_entitlements`), règles et historique — libellés communs ; les noms d'outils viennent de la base. */
+  tools: {
+    source: { free: 'Inclus', subscription: 'Abonnement', pack: 'Pack' },
+    entitlementStatus: { active: 'Actif', canceled: 'Résilié', expired: 'Expiré' },
+    runStatus: { en_cours: 'En cours', termine: 'Terminé', abandonne: 'Abandonné', erreur: 'Erreur' },
+    unlimited: 'Sans limite',
+    usage: (used: number, total: number) => `${used} / ${total}`,
+    remaining: (n: number) => (n > 1 ? `${n} restantes` : `${n} restante`),
+    renewsOn: (date: string) => `Renouvelé le ${date}`,
+    endsOn: (date: string) => `Se termine le ${date}`,
+    freeOnce: 'Offert, une fois pour toutes',
+    packNoDeadline: 'Sans date limite',
+    ruleWholeTool: "Tout l'outil",
+    ruleStep: (step: string) => `Étape ${step}`,
   },
 
   parametres: {
     title: 'Paramètres',
-    subtitle: 'Ton compte, ton réseau, ta formule.',
+    subtitle: 'Ton compte, ton réseau, tes outils.',
     tabsAria: 'Sections des paramètres',
     tabs: {
       infos: 'Infos',
@@ -214,65 +235,68 @@ export const fr = {
       },
     },
     abonnement: {
-      loadError: 'Impossible de charger ta formule.',
-      billingTitle: 'Gérer ma facturation et mes factures',
-      billingSubtitle: 'Moyen de paiement, historique et reçus, sur le portail sécurisé.',
-      billingCta: 'Gérer ma facturation',
-      billingLocked: 'Disponible avec une formule payante',
-      yourPlan: 'Ta formule',
-      /* Gratuite : ce qui est vrai — pas de recharge (l'ancien « Forfait d'activation · sans carte bleue » était obscur, 13/09/2026). */
-      activationPlan: 'Sans recharge mensuelle',
-      monthlyPlan: 'Rechargée chaque mois',
-      creditsThisMonth: 'crédits ce mois-ci',
-      /* Accord français : 0 et 1 au singulier — « 0 crédit restant », « 1 crédit restant ». */
-      creditsLeft: (n: number) => (n > 1 ? 'crédits restants' : 'crédit restant'),
-      /* Gratuite : plus de recharge ni de date (13/09/2026). */
-      offeredFree: "Crédits offerts à l'inscription, non renouvelés. Passe à Créateur pour recharger chaque mois.",
-      resetOnPaid: (date: string) => `Recharge le ${date}.`,
+      loadError: 'Impossible de charger ton abonnement.',
+      yourSubscription: 'Ton abonnement',
+      /* Les statuts Stripe de `subscriptions.status` ; `none` = pas de ligne. */
+      status: {
+        none: 'Aucun abonnement',
+        active: 'Abonnement actif',
+        trialing: "Période d'essai",
+        past_due: 'Paiement en attente',
+        unpaid: 'Paiement en échec',
+        canceled: 'Abonnement résilié',
+        incomplete: 'Paiement incomplet',
+        incomplete_expired: 'Paiement expiré',
+        paused: 'Abonnement en pause',
+      },
+      noneBody: "Tes droits gratuits sont là ; ajoute un outil quand tu veux, ça se passe sur la page des outils.",
+      inactiveBody: "Ton abonnement n'est plus actif. Tes outils restent visibles ci-dessous.",
+      nextBilling: (date: string) => `Prochaine échéance le ${date}`,
       endsOn: (date: string) => `Se termine le ${date}`,
-      endsOnBody: (date: string) => `Tu gardes l'accès et tes crédits jusqu'au ${date}. Ensuite tu repasses à la formule Gratuite.`,
+      endsOnBody: (date: string) => `Tu gardes tes outils jusqu'au ${date}. Ensuite tu repasses à tes droits gratuits.`,
       unsubscribe: 'Se désabonner',
       resume: 'Réactiver mon abonnement',
-      changePlan: 'Changer de formule',
-      currentPlan: 'Ta formule actuelle',
-      choose: 'Choisir',
-      soon: 'Bientôt',
-      recommended: 'Recommandée',
-      perMonth: '/mois',
-      priceUnknown: '— €',
-      /* Arguments des formules (maquette D1) — les chiffres viennent du catalogue, `null` = pas encore lu. */
-      creditsPerMonth: (n: number | null) => (n === null ? '— crédits par mois' : `${n} crédit${n > 1 ? 's' : ''} par mois`),
-      signupOnce: (n: number | null) => (n === null ? '— crédits, offerts une fois' : `${n} crédit${n > 1 ? 's' : ''}, offert${n > 1 ? 's' : ''} une fois`),
-      analysesApprox: (n: number | null) => (n === null ? 'Environ — analyses' : `Environ ${n} analyse${n > 1 ? 's' : ''}`),
-      /* Offre de lancement (`launch_counter`) : visible tant qu'il reste des places, disparaît à 0. « Tarif fondateur » → « Offre de lancement » (Julien, 13/09/2026). */
-      founderSlots: (n: number) => `Offre de lancement — il reste ${n} place${n > 1 ? 's' : ''}`,
-      founderKeep: 'Ce prix reste le tien tant que tu es abonné',
-      /* Abonné dont `amount_cents` est sous le prix plein du catalogue. */
-      launchPriceKept: 'Offre de lancement',
+      portalCta: 'Gérer le paiement',
+      toolsTitle: 'Tes outils',
+      toolsSubtitle: 'Ce que tu peux utiliser dans Claude, et où tu en es de ton quota.',
+      toolsEmpty: "Aucun outil pour le moment.",
+      manageTools: 'Gérer mes outils',
       cancelDialog: {
         title: 'Se désabonner ?',
         confirm: 'Se désabonner',
         done: 'Abonnement résilié',
         doneBody: (date: string) => `Tu gardes l'accès jusqu'au ${date}.`,
       },
-      /* Artboards D2 / D2b du Hub : « S'abonner à Créateur » · « 12 €/mois — offre de lancement ». */
-      checkout: {
-        title: (plan: string) => `S'abonner à ${plan}`,
-        subtitle: (price: string, launchOffer: boolean) => `${price}/mois${launchOffer ? ' — offre de lancement' : ''}`,
-        loading: 'Préparation du paiement…',
+      /* `remove-subscription-item` : les trois formes du back. Le nom de l'outil vient de la base. */
+      remove: {
+        removed: (tool: string) => `${tool} a été retiré de ton abonnement.`,
+        keptUntil: (tool: string, date: string) => `Tu gardes ${tool} jusqu'au ${date}.`,
+        subscriptionEnds: (date: string) => `C'était ton dernier outil : ton abonnement se termine le ${date}.`,
       },
-      /* Retour de Stripe (`?checkout=`) : on sonde `subscriptions` jusqu'à 20 s. Jamais d'erreur rouge : le paiement a réussi. */
+      /* Artboards D2 / D2b du Hub : « S'abonner à Yunary Analyse » · « 9 €/mois » ; pack : son nom · « 15 € ». Noms et montants viennent de la base puis de l'Edge. */
+      checkout: {
+        subscribeTitle: (tool: string) => `S'abonner à ${tool}`,
+        packTitle: (pack: string) => pack,
+        perMonth: (price: string) => `${price}/mois`,
+        once: (price: string) => `${price}, en une fois`,
+        loading: 'Préparation du paiement…',
+        /* `mode: 'added'` : abonnement vivant, l'article est ajouté au prorata — rien à payer ici. */
+        addedTitle: (tool: string) => `${tool} est ajouté à ton abonnement`,
+        addedBody: "Le prorata est calculé par Stripe et apparaîtra sur ta prochaine facture. Tu peux l'utiliser dès maintenant.",
+        continue: 'Continuer',
+      },
+      /* Retour de Stripe (`?checkout=`) : on sonde les droits jusqu'à 20 s. Jamais d'erreur rouge : le paiement a réussi. */
       activation: {
-        title: 'On active ton abonnement…',
+        title: 'On active ton outil…',
         body: 'Quelques secondes, le temps que le paiement soit confirmé.',
-        doneTitle: 'Ton abonnement est actif',
-        doneBody: 'Tes crédits sont rechargés, tu peux y aller.',
+        doneTitle: 'Ton outil est actif',
+        doneBody: "Tu peux l'utiliser dès maintenant dans Claude.",
         lateTitle: 'Ton paiement est bien passé',
         lateBody: "L'activation prend parfois une minute. Recharge la page dans un instant.",
         continue: 'Continuer',
       },
       paymentFailed: {
-        text: "Ton dernier paiement n'est pas passé. Mets à jour ta carte pour garder ton accès.",
+        text: "Ton dernier paiement n'est pas passé. Mets à jour ta carte pour garder tes outils.",
         cta: 'Mettre à jour ma carte',
       },
     },
@@ -283,14 +307,14 @@ export const fr = {
       danger: {
         title: 'Supprimer mon compte',
         description:
-          'Suppression définitive de toutes tes données (vidéos, fiches, scripts, crédits) et résiliation immédiate de ton abonnement, sans remboursement de la période en cours.',
+          'Suppression définitive de toutes tes données (vidéos analysées, audits, règles, profil créateur) et résiliation immédiate de ton abonnement, sans remboursement de la période en cours.',
         cta: 'Supprimer mon compte',
       },
       deleteDialog: {
         title: 'Supprimer ton compte ?',
         description: 'Cette action est immédiate et irréversible.',
         bulletData:
-          'Toutes tes données sont supprimées définitivement : vidéos analysées, fiches, scripts, profil créateur et crédits.',
+          'Toutes tes données sont supprimées définitivement : vidéos analysées, audits, règles, profil créateur et droits restants.',
         bulletBilling:
           'Ton abonnement est résilié immédiatement, sans remboursement du reste de la période en cours.',
         typeToConfirm: (word: string) => `Tape ${word} pour confirmer`,
@@ -299,20 +323,6 @@ export const fr = {
         busy: 'Suppression…',
         deleted: 'Ton compte a été supprimé. À bientôt peut-être !',
       },
-    },
-  },
-
-  /* Deux offres depuis 0.2.0 (13/09/2026). Arguments de vente seulement : prix et allocation viennent de la base. */
-  formules: {
-    /* Maquette D1 (13/09/2026). Les lignes chiffrées (« N crédits, offerts une fois », « Environ N analyses »,
-       « N crédits par mois ») sont ajoutées par `planFeatures` depuis le catalogue — jamais un nombre ici. */
-    free: {
-      name: 'Gratuite',
-      features: ['Pas de recharge mensuelle'],
-    },
-    createur: {
-      name: 'Créateur',
-      features: ["Tous les outils, sans limite d'accès", 'Tes crédits se rechargent chaque mois'],
     },
   },
 
@@ -396,40 +406,7 @@ export const fr = {
     },
     error: {
       title: "Ton audit n'a pas pu être calculé",
-      body: "Rien n'est perdu et aucun crédit n'a été débité.",
-    },
-  },
-
-  profil: {
-    niche: { title: 'Ta niche', otherPlaceholder: 'Précise ta niche', other: 'Autre' },
-    voix: {
-      title: 'Ta voix',
-      niveauLabel: 'Niveau de langue',
-      niveau: { soutenu: 'Soutenu', naturel: 'Naturel', familier: 'Familier', cru: 'Cru' },
-      vulgariteLabel: 'Vulgarité',
-      vulgarite: { jamais: 'Jamais', rare: 'Rare', assumee: 'Assumée' },
-      humourLabel: 'Humour',
-      humour: {
-        autoderision: 'Autodérision',
-        noir: 'Humour noir',
-        ironie_second_degre: 'Ironie & second degré',
-        pince_sans_rire: 'Pince-sans-rire',
-        absurde: 'Absurde',
-        aucun: 'Aucun',
-      },
-      expressions: 'Tes expressions signature',
-      quoted: (text: string) => `« ${text} »`,
-    },
-    avatar: {
-      title: 'Ton avatar cible',
-      qui: 'Qui',
-      quoi: 'Quoi',
-      probleme: 'Son problème',
-    },
-    positions: {
-      title: 'Tes prises de position',
-      subtitle:
-        "Les convictions que tu défends dans tes vidéos : ce qui donne un angle à ton contenu et fait qu'on te suit toi plutôt qu'un autre.",
+      body: "Rien n'est perdu et rien n'a été décompté de ton quota.",
     },
   },
 } as const;

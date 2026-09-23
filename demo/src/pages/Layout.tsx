@@ -2,39 +2,39 @@ import { useState, type JSX, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AppShell, Button, Card, Icon, IconButton, StateCard, cn } from '@yunary/ds';
 import {
-  APP_GUTTER_X, AbonnementView, AppBleed, AppContent, HubSidebar, InfosView, OutilsView, ParametresLayout, planFor,
+  APP_GUTTER_X, AbonnementView, AppBleed, AppContent, HubSidebar, InfosView, ParametresLayout,
   type ParametresTab,
 } from '@yunary/shell';
-import { ACCOUNT, CATALOG, CREATOR_ITEMS, CREATOR_NATIVE_ITEMS, CREDITS, CREDITS_LOW, CREDITS_PAID, CREDITS_ZERO } from '../fixtures';
+import { ACCOUNT, ACCOUNT_SUBSCRIBED, CATALOG, HUB_ITEMS, SUB_ACTIVE, SUMMARIES_FREE, SUMMARIES_SUBSCRIBED } from '../fixtures';
 import { Section } from '../ui';
 
 const noop = () => undefined;
 
-/* Trois espaces, la même sidebar : Hub, Creator (Vidéos · Générateur · Profil créateur), Creator natif. */
+/* La même sidebar pour la coquille web : lockup « Yunary », nav de l'app, Mes outils + Paramètres, compte. */
 export function LayoutPage(): JSX.Element {
   const [tab, setTab] = useState<ParametresTab>('abonnement');
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="HubSidebar" note="Maître HubSidebar.dc.html (11/09) · C6. Sidebar du DS, non repliable : lockup statique (monogramme 1,5 rem + « Yunary Creator » en display 18, depuis le registre), nav de l'outil, Mes outils + Paramètres, crédits, compte. État actif = celui du DS 0.1.5 : corail sur `--accent`, même graisse.">
+      <Section title="HubSidebar" note="Maître HubSidebar.dc.html (11/09) · C6. Sidebar du DS, non repliable : lockup statique (monogramme 1,5 rem + « Yunary » en display 18), nav de l'app, Mes outils + Paramètres, carte compte. Depuis 0.3.0 : plus de carte crédits (les quotas sont par outil, dans Paramètres › Abonnement), plus de nom d'outil ni de variante native. État actif = celui du DS 0.1.5 : corail sur `--accent`, même graisse.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
-          <Frame label="Yunary (Hub) · Mes outils actif">
-            <HubSidebar tool="hub" toolsHref="/" toolsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
+          <Frame label="Gratuit · Mes outils actif">
+            <HubSidebar toolsActive account={ACCOUNT} linkAs={NavLink} staticLayout />
           </Frame>
-          <Frame label="Yunary Creator · Vidéos actif">
-            <HubSidebar tool="creator" items={CREATOR_ITEMS} credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
+          <Frame label="Abonné · nav du hub · Mes règles actif">
+            <HubSidebar items={HUB_ITEMS.map((it, i) => ({ ...it, active: i === 0 }))} account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />
           </Frame>
-          <Frame label="Creator natif · nav réduite">
-            <HubSidebar tool="creator" native items={CREATOR_NATIVE_ITEMS} settingsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />
+          <Frame label="Paramètres actif">
+            <HubSidebar items={HUB_ITEMS} settingsActive account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />
           </Frame>
         </div>
       </Section>
       <Section title="AppLayout · contenu pleine largeur" note="Depuis 0.1.6, le contenu remplit la colonne (plus de `.page` à 70 rem). Gouttières de la v1 depuis 0.1.7 : 16 px de côté et 24 px en haut et en bas sous 64 rem, 24 px partout dès que la sidebar est à demeure. Le plafond `max-w-wide` d'Abonnement et `max-w-read` d'Infos restent : ce sont ceux du bloc, pas de la page. Redimensionne la fenêtre.">
         <Bleed>
-          <AppFrame className="min-h-[52rem]" sidebar={<HubSidebar tool="hub" toolsHref="/" settingsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+          <AppFrame className="min-h-[52rem]" sidebar={<HubSidebar items={HUB_ITEMS} settingsActive account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />}>
             <AppContent>
-              <ParametresLayout variant="web" tab={tab} onTabChange={setTab}>
+              <ParametresLayout tab={tab} onTabChange={setTab}>
                 {tab === 'abonnement' ? (
-                  <AbonnementView credits={CREDITS} plan={planFor('free')} subscription={null} catalog={CATALOG} onPortal={noop} onChoose={noop} onCancel={noop} onResume={noop} />
+                  <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
                 ) : (
                   <InfosView profile={{ prenom: 'Julien', nom: 'Fernandes', email: 'julien@julienfernandes.com', avatarUrl: null }} reseau={{ platform: 'instagram', handle: 'julien.crea' }} onSave={noop} saveState="saved" onChoosePhoto={noop} onRemovePhoto={noop} onChangePassword={noop} onLogout={noop} />
                 )}
@@ -43,19 +43,21 @@ export function LayoutPage(): JSX.Element {
           </AppFrame>
         </Bleed>
       </Section>
-      <Section title="OutilsView · « Mes outils » dans l'outil" note="Depuis 0.1.8, la page « Mes outils » (artboard C1, remontée du Hub) s'ouvre DANS chaque outil sur sa route locale /outils — l'entrée du pied de nav et le logo y mènent, sans changer de sous-domaine. Ici Creator est l'outil courant : sa carte « Ouvrir » navigue en interne vers /videos (la vitrine ne route pas, seule l'URL bouge) ; Metrics reste « Bientôt » ; le Hub n'a pas de carte, « Mes outils » est son accueil.">
+      <Section title="AppLayout · compte gratuit" note="Un compte qui n'a jamais souscrit : « Gratuit » dans la carte compte, l'onglet Abonnement liste ses droits gratuits (« Inclus ») et mène à la page des outils du hub.">
         <Bleed>
-          <AppFrame className="min-h-[52rem]" sidebar={<HubSidebar tool="creator" items={CREATOR_ITEMS.map(it => ({ ...it, active: false }))} toolsActive credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+          <AppFrame className="min-h-[44rem]" sidebar={<HubSidebar settingsActive account={ACCOUNT} linkAs={NavLink} staticLayout />}>
             <AppContent>
-              <OutilsView tool="creator" homeHref="/videos" prenom="Julien" />
+              <ParametresLayout tab="abonnement" onTabChange={noop}>
+                <AbonnementView subscription={null} entitlements={SUMMARIES_FREE} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
+              </ParametresLayout>
             </AppContent>
           </AppFrame>
         </Bleed>
       </Section>
-      <Section title="AppBleed · barre collante bord à bord" note="Une fiche, un script ou un assistant sort des gouttières avec `AppBleed flush` : sa barre haute et son pied collent aux bords et au haut du contenu, tout ce qui est dedans y rentre avec `APP_GUTTER_X`. Le cadre défile, les deux barres restent. Une barre seule qui sort et rentre sur le même élément compose `APP_BLEED_X` + `APP_GUTTER_X`, sans wrapper.">
+      <Section title="AppBleed · barre collante bord à bord" note="Une page entière (l'audit prêt, une fiche) sort des gouttières avec `AppBleed flush` : sa barre haute et son pied collent aux bords et au haut du contenu, tout ce qui est dedans y rentre avec `APP_GUTTER_X`. Le cadre défile, les deux barres restent. Une barre seule qui sort et rentre sur le même élément compose `APP_BLEED_X` + `APP_GUTTER_X`, sans wrapper.">
         <Bleed>
           {/* La rangée de la grille est bornée au cadre, sinon elle s'étire au contenu et rien ne défile. */}
-          <AppFrame className="h-[52rem] grid-rows-[minmax(0,1fr)]" sidebar={<HubSidebar tool="creator" items={CREATOR_ITEMS} credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+          <AppFrame className="h-[52rem] grid-rows-[minmax(0,1fr)]" sidebar={<HubSidebar items={HUB_ITEMS} account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />}>
             {/* Le cadre défile à la place du document, et comme lui SANS padding : un scroller
                 à gouttières décalerait le `sticky top-0` de la barre haute (Chrome cale le collant
                 sur le bord intérieur du padding). `AppContent` reste dedans, comme dans une app. */}
@@ -75,8 +77,8 @@ export function LayoutPage(): JSX.Element {
                     ))}
                   </div>
                   <footer className={cn('sticky bottom-0 flex items-center justify-between gap-space-3 border-t border-border bg-card py-space-4', APP_GUTTER_X)}>
-                    <span className="caption">3 propositions · 10 crédits</span>
-                    <Button>Valider</Button>
+                    <span className="caption">La suite dans Claude</span>
+                    <Button>Ajouter le connecteur</Button>
                   </footer>
                 </AppBleed>
               </AppContent>
@@ -84,34 +86,23 @@ export function LayoutPage(): JSX.Element {
           </AppFrame>
         </Bleed>
       </Section>
-      <Section title="AppContent · bloc centré verticalement" note="Depuis 0.1.14, la colonne « barre haute + contenu » d'AppLayout fait au moins la fenêtre et AppContent en prend le reste (colonne flex, flex-1) : un état vide ou un écran de génération se centre avec `m-auto` (maquettes 03, S1b, S3g). Ici le cadre joue la colonne d'AppLayout. Les pages qui ne centrent rien ne changent pas.">
+      <Section title="AppContent · bloc centré verticalement" note="Depuis 0.1.14, la colonne « barre haute + contenu » d'AppLayout fait au moins la fenêtre et AppContent en prend le reste (colonne flex, flex-1) : un état vide ou une attente se centre avec `m-auto`. Ici le cadre joue la colonne d'AppLayout. Les pages qui ne centrent rien ne changent pas.">
         <Bleed>
-          <AppFrame className="h-[40rem] grid-rows-[minmax(0,1fr)]" sidebar={<HubSidebar tool="creator" items={CREATOR_ITEMS} credits={CREDITS} account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+          <AppFrame className="h-[40rem] grid-rows-[minmax(0,1fr)]" sidebar={<HubSidebar items={HUB_ITEMS} account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />}>
             {/* La colonne d'`AppLayout` : hauteur du cadre au lieu de `min-h-dvh`. */}
             <div className="flex h-full flex-col">
               <AppContent>
                 <StateCard
                   className="m-auto w-full max-w-dialog"
-                  icon={<Icon name="video" size="1.5rem" />}
-                  title="Aucune vidéo analysée"
-                  description="Colle le lien d'une vidéo qui marche : Yunary la décortique et te dit pourquoi."
-                  action={<Button size="sm">Analyser une vidéo</Button>}
+                  icon={<Icon name="zap" size="1.5rem" />}
+                  title="Ton audit est en cours"
+                  description="On lit tes dernières publications. Ça prend une à deux minutes."
+                  action={<Button size="sm" variant="secondary">Actualiser</Button>}
                 />
               </AppContent>
             </div>
           </AppFrame>
         </Bleed>
-      </Section>
-      <Section title="États de la carte crédits" note="Chargement (squelette), solde indisponible, allocation inconnue (barre pleine). Depuis 0.2.0 : la Gratuite n'a plus d'allocation (barre et date retirées, « Offerts, non renouvelés ») ; l'abonné a sa barre sur l'allocation mensuelle ; la même carte devient un lien vers Paramètres › Abonnement (`creditsHref`) — gratuit TOUJOURS (sa seule issue est l'abonnement), abonné sous 20 % de l'allocation — sans changer de mise en page.">
-        <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
-          <Frame label="Chargement"><HubSidebar tool="hub" toolsHref="/" credits={undefined} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Solde indisponible"><HubSidebar tool="hub" toolsHref="/" credits={null} account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Allocation inconnue"><HubSidebar tool="hub" toolsHref="/" credits={{ remaining: 120, total: null, periodEnd: null }} account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Abonné Créateur · 212 / 300"><HubSidebar tool="hub" toolsHref="/" credits={CREDITS_PAID} creditsHref="/parametres?tab=abonnement" account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Solde bas · 41 / 300 → lien"><HubSidebar tool="hub" toolsHref="/" credits={CREDITS_LOW} creditsHref="/parametres?tab=abonnement" account={{ ...ACCOUNT, planLabel: 'Formule Créateur' }} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Gratuit à 37 → lien"><HubSidebar tool="hub" toolsHref="/" credits={CREDITS} creditsHref="/parametres?tab=abonnement" account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
-          <Frame label="Gratuit à zéro → lien"><HubSidebar tool="hub" toolsHref="/" credits={CREDITS_ZERO} creditsHref="/parametres?tab=abonnement" account={ACCOUNT} linkAs={NavLink} staticLayout /></Frame>
-        </div>
       </Section>
     </div>
   );
@@ -158,7 +149,7 @@ function Frame({ label, children }: { label: string; children: ReactNode }): JSX
   return (
     <div className="flex flex-col gap-space-2">
       <span className="chip text-text-muted">{label}</span>
-      <div className="flex h-[52rem] overflow-hidden rounded-xl border border-border bg-background">{children}</div>
+      <div className="flex h-[40rem] overflow-hidden rounded-xl border border-border bg-background">{children}</div>
     </div>
   );
 }

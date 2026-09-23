@@ -1,20 +1,20 @@
 /**
- * @yunary/shell — la coque partagée des apps Yunary.
+ * @yunary/shell — la coque partagée de la coquille web Yunary.
  *
- * Une app = `@yunary/ds` + `@yunary/shell` + ses écrans métier. Ce paquet porte ce qu'aucune
- * app ne doit réécrire : le client Supabase unique, la session, les crédits, le layout, les
- * pages Paramètres, auth et légales, le bilan d'audit, les cartes du profil créateur, les
- * chaînes FR communes.
+ * Une app = `@yunary/ds` + `@yunary/shell` + ses pages. Ce paquet porte ce qu'aucune app ne
+ * doit réécrire : le client Supabase unique, la session, l'auth, le layout, les pages Paramètres
+ * et légales, le bilan d'audit, les hooks du nouveau modèle (outils, droits, abonnement par
+ * outil, règles, historique), les chaînes FR communes.
  *
  * Aucune fondation ici : couleurs, rayons, typo et composants génériques viennent du DS.
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.2.4';
+export const SHELL_VERSION = '0.3.0';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
-export type { ShellConfig, ToolId } from './config';
+export type { ShellConfig } from './config';
 
 /* client Supabase — le seul de l'écosystème */
 export { supabase, getSupabase, signOut } from './lib/supabase';
@@ -39,20 +39,28 @@ export type { Profile, NotificationPrefs } from './account/useProfile';
 export { useUpdateProfile } from './account/useUpdateProfile';
 export type { ProfileUpdate } from './account/useUpdateProfile';
 export { useUpdateAvatar, useDeleteAvatar } from './account/useAvatar';
-export { useCredits, useActionCosts, creditsKey, isPaidPlan } from './account/useCredits';
-export type { CreditsInfo, ActionCost } from './account/useCredits';
 export { useSubscription, subscriptionKey, isSubscriptionActive, isPaymentFailed } from './account/useSubscription';
-export type { SubscriptionInfo } from './account/useSubscription';
+export type { SubscriptionInfo, SubscriptionItem, SubscriptionState } from './account/useSubscription';
 export { useDeleteAccount } from './account/useDeleteAccount';
 
-/* abonnement Stripe — catalogue en base, checkout embarqué, activation, résiliation */
-export { usePlanCatalog, planCatalogKey, allocationFor, signupCreditsFor, priceFor, fullPriceFor, priceToShow, isLaunchPrice } from './account/usePlanCatalog';
-export type { PlanCatalog, PlanAllocation, FounderOffer, LaunchCounter } from './account/usePlanCatalog';
-export { usePortalSession, useCheckoutSession, useCancelSubscription, useResumeSubscription } from './account/useStripe';
-export type { CheckoutSession } from './account/useStripe';
+/* outils, droits, règles, historique — le nouveau modèle (lot 1 base), tout vient de la base */
+export { useToolCatalog, toolCatalogKey, toolByIdIn, packByIdIn } from './tools/useToolCatalog';
+export type { ToolDef, ToolPackDef, ToolCatalog } from './tools/useToolCatalog';
+export { useEntitlements, entitlementsKey, isEntitlementUsable, summarizeEntitlements } from './tools/useEntitlements';
+export type { Entitlement, EntitlementSummary, EntitlementSource, EntitlementStatus, EntitlementsInfo } from './tools/useEntitlements';
+export { useCanUse, canUseKey } from './tools/useCanUse';
+export type { CanUseResult, CanUseReason } from './tools/useCanUse';
+export { useToolRules, useAddToolRule, useUpdateToolRule, useDeleteToolRule, toolRulesKey, RULE_TEXT_MAX } from './tools/useToolRules';
+export type { ToolRule } from './tools/useToolRules';
+export { useToolRuns, toolRunsKey } from './tools/useToolRuns';
+export type { ToolRun, ToolRunStatus } from './tools/useToolRuns';
+
+/* abonnement Stripe — un abonnement par client, un article par outil, packs ; checkout embarqué, activation, résiliation */
+export { usePortalSession, useStartCheckout, useRemoveTool, useCancelSubscription, useResumeSubscription } from './account/useStripe';
+export type { CheckoutTarget, CheckoutStart, RemoveToolResult } from './account/useStripe';
 export { CheckoutModal } from './abonnement/CheckoutModal';
 export type { CheckoutModalProps } from './abonnement/CheckoutModal';
-export { useCheckoutActivation, CHECKOUT_PARAM } from './abonnement/useCheckoutActivation';
+export { useCheckoutActivation, CHECKOUT_PARAM, CHECKOUT_TOOL_PARAM, CHECKOUT_PACK_PARAM } from './abonnement/useCheckoutActivation';
 export type { CheckoutActivationState } from './abonnement/useCheckoutActivation';
 export { CheckoutActivationCard } from './abonnement/CheckoutActivationCard';
 export type { CheckoutActivationCardProps } from './abonnement/CheckoutActivationCard';
@@ -60,12 +68,6 @@ export { CancelSubscriptionModal } from './abonnement/CancelSubscriptionModal';
 export type { CancelSubscriptionModalProps } from './abonnement/CancelSubscriptionModal';
 export { PaymentFailedBanner, PaymentFailedBannerView } from './abonnement/PaymentFailedBanner';
 export type { PaymentFailedBannerViewProps } from './abonnement/PaymentFailedBanner';
-
-/* formules et outils */
-export { PLANS, FREE_PLAN, CREATEUR_PLAN, planFor, planFeatures } from './parametres/plans';
-export type { PlanDef, PlanId } from './parametres/plans';
-export { TOOLS, toolById, toolUrl, toolFullName } from './layout/tools';
-export type { ToolDef } from './layout/tools';
 
 /* audit de compte */
 export { useAccountAudit, accountAuditKey } from './audit/useAccountAudit';
@@ -79,15 +81,10 @@ export type {
   AuditEtatEstime, AuditPoint, AuditPoints, AuditProfil, AuditBioConstat, AuditBioDimension, AuditBioEtat,
 } from './audit/types';
 
-/* profil créateur — valeurs canoniques et types */
-export { NICHES, NICHE_OTHER, NIVEAUX_LANGUE, VULGARITES, HUMOURS, HUMOUR_EXCLUSIF } from './profil/constants';
-export { parseVoix, EMPTY_VOIX } from './profil/types';
-export type { Voix, NiveauLangue, Vulgarite, Humour, AvatarCible, PrisesDePosition } from './profil/types';
-
 /* chaînes et erreurs */
 export { fr } from './i18n/fr';
 export type { Fr } from './i18n/fr';
-export { getErrorMessage } from './lib/errors';
+export { getErrorMessage, messageForCode } from './lib/errors';
 export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, formatEuros, initiales } from './lib/format';
 export { withGlyphSize, CARD_GLYPH_SIZE } from './lib/icon';
 export { useMediaQuery, DS_MOBILE_QUERY } from './lib/useMediaQuery';
@@ -96,20 +93,13 @@ export { useMediaQuery, DS_MOBILE_QUERY } from './lib/useMediaQuery';
 export { AppLayout, AppContent, AppBleed, APP_GUTTER_X, APP_BLEED_X, APP_BLEED_TOP } from './layout/AppLayout';
 export type { AppLayoutProps, AppContentProps, AppBleedProps } from './layout/AppLayout';
 export { HubSidebar } from './layout/HubSidebar';
-export { ToolName } from './layout/ToolName';
 export type { HubSidebarProps, ShellNavItem } from './layout/HubSidebar';
-export { CreditsCard, isCreditsLow, shouldLinkCredits } from './layout/CreditsCard';
-export type { CreditsView, CreditsCardProps } from './layout/CreditsCard';
 export { AccountCard, UserAvatar } from './layout/AccountCard';
 export type { AccountView } from './layout/AccountCard';
 export { SegmentedControl } from './layout/SegmentedControl';
 export type { SegmentedControlProps, SegmentedOption } from './layout/SegmentedControl';
 
-/* « Mes outils » — montée par chaque app sur /outils (le Hub sur /) */
-export { OutilsPage, OutilsView } from './outils/OutilsPage';
-export type { OutilsPageProps, OutilsViewProps } from './outils/OutilsPage';
-
-/* pages d'auth — montées par le Hub seul */
+/* pages d'auth — montées par le hub seul */
 export { AuthShell, AuthHeading } from './auth/AuthShell';
 export type { AuthShellProps } from './auth/AuthShell';
 export { OAuthButtons } from './auth/OAuthButtons';
@@ -133,13 +123,13 @@ export type { LoginValues, SignupValues, ForgotValues, NewPasswordValues } from 
 export { ParametresPage } from './parametres/ParametresPage';
 export type { ParametresPageProps } from './parametres/ParametresPage';
 export { ParametresLayout, parametresTabs } from './parametres/ParametresLayout';
-export type { ParametresTab, ParametresVariant, ParametresLayoutProps } from './parametres/ParametresLayout';
+export type { ParametresTab, ParametresLayoutProps } from './parametres/ParametresLayout';
 export { InfosTab, InfosView } from './parametres/InfosTab';
 export type { InfosViewProps, ReseauView, SaveState } from './parametres/InfosTab';
 export { NotificationsTab, NotificationsView } from './parametres/NotificationsTab';
 export type { NotificationsViewProps } from './parametres/NotificationsTab';
-export { AbonnementTab, AbonnementView } from './parametres/AbonnementTab';
-export type { AbonnementViewProps, PaidPlanId } from './parametres/AbonnementTab';
+export { AbonnementTab, AbonnementView, subscriptionStatusLabel } from './parametres/AbonnementTab';
+export type { AbonnementViewProps } from './parametres/AbonnementTab';
 export { LegalTab, LegalView, DeleteAccountModal, DEFAULT_LEGAL_HREFS } from './parametres/LegalTab';
 export type { LegalViewProps, LegalHrefs, DeleteAccountModalProps } from './parametres/LegalTab';
 export { PasswordModal } from './parametres/PasswordModal';
@@ -150,19 +140,6 @@ export { InstagramMark, TikTokMark } from './auth/BrandMarks';
 /* bilan d'audit */
 export { AuditBilan } from './audit/AuditBilan';
 export type { AuditBilanProps } from './audit/AuditBilan';
-
-/* cartes du profil créateur — contrôlées, l'autosave reste dans l'app hôte */
-export { ProfilCard } from './profil/ProfilCard';
-export { ChoiceChip } from './profil/ChoiceChip';
-export type { ChoiceChipProps } from './profil/ChoiceChip';
-export { NicheCard } from './profil/NicheCard';
-export type { NicheCardProps } from './profil/NicheCard';
-export { VoixCard } from './profil/VoixCard';
-export type { VoixCardProps } from './profil/VoixCard';
-export { AvatarCibleCard } from './profil/AvatarCibleCard';
-export type { AvatarCibleCardProps } from './profil/AvatarCibleCard';
-export { PrisesDePositionCard } from './profil/PrisesDePositionCard';
-export type { PrisesDePositionCardProps } from './profil/PrisesDePositionCard';
 
 /* pages légales — publiques */
 export { LEGAL_DOCS } from './legal/legalContent';

@@ -1,11 +1,11 @@
 # @yunary/shell
 
-**La coque partagée des apps Yunary.** Une app = `@yunary/ds` + `@yunary/shell` + ses écrans
-métier. Ce paquet porte ce qu'aucune app ne doit réécrire : le client Supabase unique et la
+**La coque partagée de la coquille web Yunary.** Une app = `@yunary/ds` + `@yunary/shell` + ses
+pages. Ce paquet porte ce qu'aucune app ne doit réécrire : le client Supabase unique et la
 session partagée entre sous-domaines, les hooks de compte (`useAuth`, `useProfile`,
-`useCredits`), la protection de route, le layout et le registre des outils, les pages
-Paramètres, auth et légales, le bilan d'audit, les cartes du profil créateur, les chaînes FR
-communes.
+`useSubscription`), les hooks du modèle par outil (`useToolCatalog`, `useEntitlements`,
+`useCanUse`, `useToolRules`, `useToolRuns`), la protection de route, le layout, les pages
+Paramètres, auth et légales, le bilan d'audit, les chaînes FR communes.
 
 **Aucune fondation ici.** Couleurs, rayons, typo et composants génériques viennent de
 `@yunary/ds` ; la coque compose, elle ne dessine pas. Un manque dans le design system se
@@ -19,7 +19,7 @@ L'API publique, symbole par symbole → [`EXPORTS.md`](EXPORTS.md).
 Pas de registry : chaque app épingle une version par un tag git.
 
 ```bash
-npm i github:Yamiro02/yunary-shell#v0.2.4
+npm i github:Yamiro02/yunary-shell#v0.3.0
 ```
 
 Peer dependencies, à la charge de l'app : `react`, `react-dom`, `react-router-dom`,
@@ -39,6 +39,7 @@ configureShell({
   supabasePublishableKey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
   hubUrl: import.meta.env.VITE_HUB_URL,
   cookieDomain: import.meta.env.VITE_COOKIE_DOMAIN || undefined,
+  stripePublishableKey: import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY,
 });
 ```
 
@@ -49,7 +50,7 @@ configureShell({
 ```
 
 `configureShell` existe parce qu'un paquet ne lit pas `import.meta.env` : Vite ne remplace
-les `VITE_*` que dans le code de l'app. Les quatre variables restent côté app, la coque les
+les `VITE_*` que dans le code de l'app. Les variables restent côté app, la coque les
 reçoit. Le client `supabase` est un singleton paresseux : l'utiliser avant `configureShell`
 lève une erreur explicite.
 

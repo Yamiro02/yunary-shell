@@ -1,13 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSupabase } from '../lib/supabase';
 import { fr } from '../i18n/fr';
+import { messageForCode } from '../lib/errors';
 import { useAuth } from '../auth/useAuth';
-import { creditsKey } from './useCredits';
 import { subscriptionKey } from './useSubscription';
-import { planCatalogKey } from './usePlanCatalog';
-import type { PlanId } from '../parametres/plans';
+import { entitlementsKey } from '../tools/useEntitlements';
 
-/** Le contrat des Edge du lot Stripe : `{ success: true, data }` ou `{ success: false, code, message }`. */
+/** Le contrat des Edge : `{ success: true, data }` ou `{ success: false, code, message }` (200 métier, 4xx / 5xx technique). */
 type EdgeResponse<T> = { success: true; data: T } | { success: false; code?: string; message?: string };
 
 interface UrlResponse {
@@ -17,28 +16,28 @@ interface UrlResponse {
   message?: string;
 }
 
-export interface CheckoutSession {
-  /** Le secret de la session Checkout — monté dans le checkout embarqué, jamais dans une URL. */
-  clientSecret: string;
-  /** Le montant facturé, en centimes : le tarif fondateur s'il reste des places, sinon le prix plein. */
-  amountCents: number;
-  isFondateur: boolean;
-  slotsRemaining: number;
-}
+/** Ce qu'on achète : un outil (article d'abonnement) ou un pack (achat unique). */
+export type CheckoutTarget = { tool: string; pack?: undefined } | { pack: string; tool?: undefined };
 
-/** Les codes d'erreur des Edge en français ; le `message` de l'Edge n'est jamais montré tel quel. */
-function edgeError(code: string | undefined, fallback: string): Error {
-  switch (code) {
-    case 'already_subscribed': return new Error(fr.errors.checkoutAlreadySubscribed);
-    case 'rate_limited': return new Error(fr.errors.rateLimit);
-    case 'unauthorized': return new Error(fr.errors.auth.sessionExpired);
-    default: return new Error(fallback);
-  }
-}
+/** La réponse de `create-checkout-session`. */
+export type CheckoutStart =
+  /** Abonnement vivant : l'article a été ajouté au prorata par l'API Stripe, PAS de Checkout — rafraîchir. */
+  | { mode: 'added'; tool: string; amountCents: number }
+  /** Checkout embarqué (nouvel abonnement, ou pack) : le `clientSecret` monte le formulaire Stripe, jamais dans une URL. */
+  | { mode: 'checkout'; clientSecret: string; amountCents: number; tool: string; pack?: string };
+
+/** La réponse de `remove-subscription-item`. */
+export type RemoveToolResult =
+  /** D'autres articles restent : retiré tout de suite (au prorata, contrat actuel du back). */
+  | { tool: string; mode: 'removed' }
+  /** Contrat à venir du back : l'outil reste jusqu'à la fin de la période, sans avoir. */
+  | { tool: string; mode: 'ends_at_period_end'; periodEnd: string | null }
+  /** Dernier article : l'abonnement entier passe en fin de période (Stripe refuse un abonnement sans article). */
+  | { tool: string; mode: 'cancel_at_period_end'; currentPeriodEnd: string | null };
 
 /**
- * Un `{ success: false, code }` peut arriver en 2xx (dans `data`) comme en 4xx : dans ce cas
- * supabase-js pose une `FunctionsHttpError` dont `context` est la `Response` — on y relit le code.
+ * Un `{ success: false, code }` arrive en 200 (dans `data`) pour une erreur métier, ou en 4xx / 5xx :
+ * supabase-js pose alors une `FunctionsHttpError` dont `context` est la `Response` — on y relit le code.
  */
 async function invokeEdge<T>(name: string, body: Record<string, unknown>, fallback: string): Promise<T> {
   const { data, error } = await getSupabase().functions.invoke<EdgeResponse<T>>(name, { body });
@@ -46,13 +45,24 @@ async function invokeEdge<T>(name: string, body: Record<string, unknown>, fallba
     const ctx = (error as { context?: unknown }).context;
     if (ctx instanceof Response) {
       const payload = (await ctx.clone().json().catch(() => null)) as EdgeResponse<T> | null;
-      if (payload && !payload.success) throw edgeError(payload.code, fallback);
+      if (payload && !payload.success) throw new Error(messageForCode(payload.code, fallback));
     }
     throw new Error(fallback);
   }
   if (!data) throw new Error(fallback);
-  if (!data.success) throw edgeError(data.code, fallback);
+  if (!data.success) throw new Error(messageForCode(data.code, fallback));
   return data.data;
+}
+
+/** Les caches que touche un changement d'abonnement : l'abonnement (et ses articles) et les droits. */
+function useInvalidateBilling() {
+  const qc = useQueryClient();
+  const { user } = useAuth();
+  return () => Promise.all([
+    qc.invalidateQueries({ queryKey: subscriptionKey(user?.id) }),
+    qc.invalidateQueries({ queryKey: entitlementsKey(user?.id) }),
+    qc.invalidateQueries({ queryKey: ['can-use', user?.id] }),
+  ]);
 }
 
 /**
@@ -65,7 +75,7 @@ export function usePortalSession() {
     mutationFn: async (): Promise<string> => {
       const { data, error } = await getSupabase().functions.invoke<UrlResponse>('create-portal-session', { body: {} });
       if (error) throw new Error(fr.errors.portalFailed);
-      if (!data?.success || !data.url) throw new Error(data?.message ?? fr.errors.portalFailed);
+      if (!data?.success || !data.url) throw new Error(messageForCode(data?.code, fr.errors.portalFailed));
       return data.url;
     },
     onSuccess: url => {
@@ -75,36 +85,45 @@ export function usePortalSession() {
 }
 
 /**
- * Session Checkout via l'Edge `create-checkout-session` — renvoie un `clientSecret` pour le
- * checkout EMBARQUÉ (`CheckoutModal`) : AUCUNE redirection, l'utilisateur ne quitte pas l'app.
- * Le retour de Stripe après paiement arrive sur `?checkout=<session_id>` (`useCheckoutActivation`).
+ * Démarrer un achat via l'Edge `create-checkout-session` `{ tool }` ou `{ pack }` :
+ * - `mode: 'added'` — abonnement vivant, l'article est ajouté au prorata côté Stripe et en base :
+ *   rien à payer ici, les caches sont invalidés ;
+ * - `mode: 'checkout'` — un `clientSecret` pour le checkout EMBARQUÉ (`CheckoutModal`) : aucune
+ *   redirection. Le retour de Stripe après paiement arrive sur `?checkout=<session_id>`
+ *   (`useCheckoutActivation`).
+ * 🔒 Aucun achat depuis Claude : ce hook ne vit que dans le web.
  */
-export function useCheckoutSession() {
+export function useStartCheckout() {
+  const invalidate = useInvalidateBilling();
   return useMutation({
-    mutationFn: ({ plan }: { plan: Exclude<PlanId, 'free'> }): Promise<CheckoutSession> =>
-      invokeEdge<CheckoutSession>('create-checkout-session', { plan }, fr.errors.checkoutFailed),
+    mutationFn: (target: CheckoutTarget): Promise<CheckoutStart> =>
+      invokeEdge<CheckoutStart>('create-checkout-session', target.pack ? { pack: target.pack } : { tool: target.tool }, fr.errors.checkoutFailed),
+    onSuccess: result => (result.mode === 'added' ? invalidate() : undefined),
   });
 }
 
-/** Les caches que touche un changement d'abonnement : abonnement, crédits, compteur fondateur. */
-function useInvalidateBilling() {
-  const qc = useQueryClient();
-  const { user } = useAuth();
-  return () => Promise.all([
-    qc.invalidateQueries({ queryKey: subscriptionKey(user?.id) }),
-    qc.invalidateQueries({ queryKey: creditsKey(user?.id) }),
-    qc.invalidateQueries({ queryKey: planCatalogKey }),
-  ]);
+/**
+ * Retirer un outil de l'abonnement (`remove-subscription-item { tool }`). Les trois formes du
+ * back sont tolérées : `removed` (contrat actuel, au prorata), `ends_at_period_end` (à venir : fin de
+ * période, pas d'avoir) et `cancel_at_period_end` (dernier article : tout l'abonnement s'arrête en fin
+ * de période).
+ */
+export function useRemoveTool() {
+  const invalidate = useInvalidateBilling();
+  return useMutation({
+    mutationFn: ({ tool }: { tool: string }) => invokeEdge<RemoveToolResult>('remove-subscription-item', { tool }, fr.errors.removeToolFailed),
+    onSuccess: () => invalidate(),
+  });
 }
 
 /**
- * Résiliation à la fin de la période (`cancel-subscription`) : l'accès et les crédits courent
- * jusqu'à `currentPeriodEnd`, puis retour à la Gratuite. Rien n'est remboursé au prorata (CGU art. 5).
+ * Résiliation COMPLÈTE à la fin de la période (`cancel-subscription`) : tous les outils restent
+ * jusqu'à `currentPeriodEnd`, puis le compte repasse aux droits gratuits. Rien n'est remboursé.
  */
 export function useCancelSubscription() {
   const invalidate = useInvalidateBilling();
   return useMutation({
-    mutationFn: () => invokeEdge<{ currentPeriodEnd: string }>('cancel-subscription', {}, fr.errors.cancelFailed),
+    mutationFn: () => invokeEdge<{ currentPeriodEnd: string | null }>('cancel-subscription', {}, fr.errors.cancelFailed),
     onSuccess: () => invalidate(),
   });
 }
@@ -113,7 +132,7 @@ export function useCancelSubscription() {
 export function useResumeSubscription() {
   const invalidate = useInvalidateBilling();
   return useMutation({
-    mutationFn: () => invokeEdge<Record<string, never> | undefined>('resume-subscription', {}, fr.errors.resumeFailed),
+    mutationFn: () => invokeEdge<{ currentPeriodEnd: string | null }>('resume-subscription', {}, fr.errors.resumeFailed),
     onSuccess: () => invalidate(),
   });
 }

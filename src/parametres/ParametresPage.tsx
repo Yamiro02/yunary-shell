@@ -1,26 +1,25 @@
-import type { JSX, ReactNode } from 'react';
+import type { JSX } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { ParametresLayout, parametresTabs, type ParametresTab, type ParametresVariant } from './ParametresLayout';
+import { ParametresLayout, parametresTabs, type ParametresTab } from './ParametresLayout';
 import { InfosTab } from './InfosTab';
 import { NotificationsTab } from './NotificationsTab';
 import { AbonnementTab } from './AbonnementTab';
 import { LegalTab, type LegalHrefs } from './LegalTab';
 
 export interface ParametresPageProps {
-  variant?: ParametresVariant;
-  /** Onglet contrôlé par l'app ; sans lui, la page lit et écrit `?tab=` (cible des CTA « plus de crédits »). */
+  /** Onglet contrôlé par l'app ; sans lui, la page lit et écrit `?tab=` (cible des liens « abonnement »). */
   tab?: ParametresTab;
   onTabChange?: (tab: ParametresTab) => void;
   hrefs?: LegalHrefs;
-  /** Natif : la carte « clé de partage » de Creator, rendue sous Infos. */
-  extra?: ReactNode;
+  /** La route LOCALE de la page des outils du hub — « Gérer mes outils » y mène. Défaut `/outils`, comme `AppLayout`. */
+  toolsHref?: string;
   onDeleted?: () => void;
 }
 
-/** Paramètres (C2-C5) — montée par le Hub et par Creator (variante native). */
-export function ParametresPage({ variant = 'web', tab: controlledTab, onTabChange, hrefs, extra, onDeleted }: ParametresPageProps): JSX.Element {
+/** Paramètres (C2-C5) — montée par le hub. */
+export function ParametresPage({ tab: controlledTab, onTabChange, hrefs, toolsHref = '/outils', onDeleted }: ParametresPageProps): JSX.Element {
   const [params, setParams] = useSearchParams();
-  const allowed = parametresTabs(variant).map(t => t.value);
+  const allowed = parametresTabs().map(t => t.value);
   const fromUrl = params.get('tab') as ParametresTab | null;
   const tab: ParametresTab = controlledTab ?? (fromUrl && allowed.includes(fromUrl) ? fromUrl : 'infos');
   const change = (next: ParametresTab) => {
@@ -33,16 +32,11 @@ export function ParametresPage({ variant = 'web', tab: controlledTab, onTabChang
     }
   };
   return (
-    <ParametresLayout variant={variant} tab={tab} onTabChange={change}>
-      {tab === 'infos' ? (
-        <>
-          <InfosTab variant={variant} />
-          {extra}
-        </>
-      ) : null}
+    <ParametresLayout tab={tab} onTabChange={change}>
+      {tab === 'infos' ? <InfosTab /> : null}
       {tab === 'notifications' ? <NotificationsTab /> : null}
-      {tab === 'abonnement' ? <AbonnementTab /> : null}
-      {tab === 'legal' ? <LegalTab variant={variant} hrefs={hrefs} onDeleted={onDeleted} /> : null}
+      {tab === 'abonnement' ? <AbonnementTab toolsHref={toolsHref} /> : null}
+      {tab === 'legal' ? <LegalTab hrefs={hrefs} onDeleted={onDeleted} /> : null}
     </ParametresLayout>
   );
 }

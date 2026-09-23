@@ -5,6 +5,60 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.3.0 — pivot MCP : l'ancien modèle sort, le modèle par outil entre (23/09/2026)
+
+- **Pourquoi** : Yunary n'est plus une suite d'apps web à crédits (Hub, Creator, Metrics) mais un
+  serveur MCP + une coquille web minimale. L'offre est **un abonnement Stripe par client, un article
+  par outil, des packs en achat unique** (lot 1 base du 23/09/2026 : `tools`, `tool_packs`,
+  `tool_entitlements` + `can_use`, `subscription_items`, `tool_runs`, `user_tool_rules`). Tout ce que
+  la coque tenait de l'ancien modèle est retiré ; tout ce que le hub montrera du nouveau vient de la
+  base, par des hooks de la coque. Aucun fichier ne part en legacy : l'historique git suffit.
+- **Retiré** : `useCredits`, `useActionCosts`, `usePlanCatalog` (`priceToShow`, `isLaunchPrice`…),
+  `plans.ts` (`PLANS`, `planFor`, `planFeatures`), le registre `TOOLS` / `toolUrl` / `ToolName` et
+  `toolUrls` / `ToolId` de la config, `CreditsCard` de la sidebar, `<OutilsPage>` (« Mes outils »
+  applicative), tout `src/profil/` (cartes du profil créateur — les valeurs canoniques vivent en base,
+  `profile_reference_values`), la prop `native` d'`AppLayout` / `HubSidebar` et la variante native de
+  Paramètres (`ParametresVariant`, prop `extra`), `useCheckoutSession`, `PaidPlanId`, les chaînes
+  crédits / formules / profil de `fr`.
+- **Réécrit** : `useSubscription()` → `{ subscription: { status, currentPeriodEnd, cancelAtPeriodEnd }
+  | null, items }` (plus de `plan` ni d'`amountCents` : les colonnes ont disparu) · `useStartCheckout({
+  tool } | { pack })` sur le contrat du back : `mode: 'added'` (abonnement vivant, article ajouté au
+  prorata, pas de Checkout — la modale le dit et invalide) ou `mode: 'checkout'` (`clientSecret`) ·
+  `CheckoutModal target` : même mécanique (Stripe.js paresseux, modale ~80 % bureau / page plein
+  écran mobile), en-tête « S'abonner à {tools.name} · 9 €/mois » ou « {tool_packs.name} · 15 €, en une
+  fois » — noms et montants du catalogue puis de l'Edge, jamais du paquet · `useCheckoutActivation` sonde
+  `tool_entitlements` (le droit précis si `?tool=` / `?pack=` est dans l'URL de retour — le back les y
+  met depuis le lot 1 ter —, sinon un droit `subscription` / `pack` écrit depuis l'arrivée sur la page)
+  · `PaymentFailedBanner` sur la nouvelle forme · onglet **Abonnement** réduit à trois blocs : la ligne
+  d'abonnement (statut, échéance, résiliation, portail), « Tes outils » (nom lu en base, source
+  `Inclus` / `Abonnement` / `Pack`, utilisé / total, échéance — « Se termine le… » pour un droit
+  `ends_at_period_end`), « Gérer mes outils » vers `toolsHref` (nouvelle prop de `ParametresPage`,
+  défaut `/outils`). 🔒 Plus aucun prix ni chiffre d'offre dans la coque. Les droits gratuits sont
+  listés (« Inclus · 2 / 5 ») pour qu'un compte gratuit voie quelque chose (Julien, 23/09/2026).
+- **Ajouté** (`src/tools/`) : `useToolCatalog` (`tools` + `tool_packs`, triés par `position`),
+  `useEntitlements` (lignes + un résumé par outil = le droit que le serveur consommerait, `subscription`
+  → `pack` → `free`), `useCanUse(tool)` (`rpc('can_use')`, lecture seule), `useToolRules` +
+  `useAddToolRule` / `useUpdateToolRule` / `useDeleteToolRule`, `useToolRuns({ tool?, limit? })` ;
+  `useRemoveTool` (`remove-subscription-item`, tolère `removed`, `ends_at_period_end` + `periodEnd` et
+  `cancel_at_period_end`) ; `messageForCode` et les phrases FR des codes du back (`not_subscribed`,
+  `quota_exhausted`, `not_published`, `already_subscribed`, `no_subscription`, `no_customer`,
+  `stripe_error`…), reconnus aussi par `getErrorMessage` ; `fr.tools` (sources, statuts, « Sans
+  limite », « utilisé / total », échéances). Types Supabase = `database.types-2026-09-23-lot1.ts` ;
+  `ends_at_period_end` (lot 1 ter, parallèle) est lu en tolérant son absence dans les types.
+- **Layout** : lockup « Yunary » seul (monogramme + display 18), pied « Mes outils » + « Paramètres »,
+  carte compte « Gratuit » / « Abonné » (« Activation en cours… » pendant un retour de checkout), plus
+  de carte crédits. `AppLayout items? settingsHref? toolsHref?`.
+- **Chaînes** : « Ton compte, ton réseau, tes outils. » ; modale de suppression sans « scripts,
+  crédits » (Julien, 23/09/2026) ; erreur d'audit « rien n'a été décompté de ton quota ».
+- **Démo** : fixtures sur les nouveaux types (catalogue = valeurs de la base, droits, abonnement,
+  règles, runs) ; Layout sans crédits ni natif ; Abonnement en six états ; checkout outil / pack /
+  `added` ; nouvelle page « Outils & droits » ; page Profil retirée. Rendu vérifié à l'écran en clair et
+  en sombre.
+- ⚠ **Rupture d'API** (le hub reste épinglé sur `v0.2.4` jusqu'au lot 2) : voir « Retiré en 0.3.0 »
+  dans `EXPORTS.md`.
+
+---
+
 ## 0.2.4 — les textes de formules, une seule source (13/09/2026)
 
 - **Cause racine** : les arguments de vente existaient en double (grille de l'onglet Abonnement dans

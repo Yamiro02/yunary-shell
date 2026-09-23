@@ -3,25 +3,21 @@ import { Tabs } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 
 export type ParametresTab = 'infos' | 'notifications' | 'abonnement' | 'legal';
-export type ParametresVariant = 'web' | 'native';
 
-/** Les onglets d'une variante : le natif n'a pas d'Abonnement (pas d'achat in-app). */
-export function parametresTabs(variant: ParametresVariant): { value: ParametresTab; label: string }[] {
+/** Les quatre onglets (C2-C5). Plus de variante native depuis 0.3.0. */
+export function parametresTabs(): { value: ParametresTab; label: string }[] {
   const t = fr.parametres.tabs;
-  return variant === 'native'
-    ? [{ value: 'infos', label: t.infos }, { value: 'legal', label: t.legal }]
-    : [{ value: 'infos', label: t.infos }, { value: 'notifications', label: t.notifications }, { value: 'abonnement', label: t.abonnement }, { value: 'legal', label: t.legal }];
+  return [{ value: 'infos', label: t.infos }, { value: 'notifications', label: t.notifications }, { value: 'abonnement', label: t.abonnement }, { value: 'legal', label: t.legal }];
 }
 
 export interface ParametresLayoutProps {
-  variant: ParametresVariant;
   tab: ParametresTab;
   onTabChange: (tab: ParametresTab) => void;
   children: ReactNode;
 }
 
 /** En-tête + barre d'onglets de Paramètres (C2-C5). Le contenu de l'onglet vient en enfant. */
-export function ParametresLayout({ variant, tab, onTabChange, children }: ParametresLayoutProps): JSX.Element {
+export function ParametresLayout({ tab, onTabChange, children }: ParametresLayoutProps): JSX.Element {
   /* Artboards C2-C5 : en-tête (titre + chapô muted, gap 6 → `space-2`), barre d'onglets du DS, contenu au pas `space-5`. */
   return (
     <div className="flex flex-col gap-space-5">
@@ -35,7 +31,7 @@ export function ParametresLayout({ variant, tab, onTabChange, children }: Parame
         <Tabs
           aria-label={fr.parametres.tabsAria}
           className="w-max flex-none"
-          items={parametresTabs(variant)}
+          items={parametresTabs()}
           value={tab}
           onChange={v => onTabChange(v as ParametresTab)}
         />

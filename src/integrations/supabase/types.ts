@@ -1,5 +1,6 @@
 /* Types générés par le MCP Supabase (generate_typescript_types) — projet drcxtkwmtceauwiiargz.
-   JAMAIS édité à la main : régénéré après chaque migration du back. */
+   JAMAIS édité à la main : régénéré après chaque migration du back.
+   État : lot 1 base du 23/09/2026 (exports/database.types-2026-09-23-lot1.ts). */
 
 export type Json =
   | string
@@ -92,27 +93,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      actions: {
-        Row: {
-          action_type: Database["public"]["Enums"]["action_type"]
-          credits_cost: number
-          label: string
-          updated_at: string
-        }
-        Insert: {
-          action_type: Database["public"]["Enums"]["action_type"]
-          credits_cost: number
-          label: string
-          updated_at?: string
-        }
-        Update: {
-          action_type?: Database["public"]["Enums"]["action_type"]
-          credits_cost?: number
-          label?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       analyses: {
         Row: {
@@ -233,48 +213,6 @@ export type Database = {
         }
         Relationships: []
       }
-      creator_scripts: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "creator_scripts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "creator_scripts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       creators: {
         Row: {
           created_at: string
@@ -316,89 +254,6 @@ export type Database = {
           },
           {
             foreignKeyName: "creators_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      generations: {
-        Row: {
-          batch_id: string
-          created_at: string
-          credits_charged: number
-          error_message: string | null
-          id: string
-          kind: string
-          models: Json
-          outputs: Json
-          regenerated_from: string | null
-          script_id: string
-          selected: Json
-          status: string
-          updated_at: string
-          user_id: string
-          validated_at: string | null
-        }
-        Insert: {
-          batch_id: string
-          created_at?: string
-          credits_charged?: number
-          error_message?: string | null
-          id?: string
-          kind: string
-          models: Json
-          outputs?: Json
-          regenerated_from?: string | null
-          script_id: string
-          selected?: Json
-          status?: string
-          updated_at?: string
-          user_id: string
-          validated_at?: string | null
-        }
-        Update: {
-          batch_id?: string
-          created_at?: string
-          credits_charged?: number
-          error_message?: string | null
-          id?: string
-          kind?: string
-          models?: Json
-          outputs?: Json
-          regenerated_from?: string | null
-          script_id?: string
-          selected?: Json
-          status?: string
-          updated_at?: string
-          user_id?: string
-          validated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "generations_regenerated_from_fkey"
-            columns: ["regenerated_from"]
-            isOneToOne: false
-            referencedRelation: "generations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "generations_script_id_fkey"
-            columns: ["script_id"]
-            isOneToOne: false
-            referencedRelation: "creator_scripts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "generations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "generations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -462,27 +317,6 @@ export type Database = {
           },
         ]
       }
-      launch_counter: {
-        Row: {
-          key: string
-          price_cents: number
-          taken: number
-          total: number
-        }
-        Insert: {
-          key: string
-          price_cents: number
-          taken?: number
-          total: number
-        }
-        Update: {
-          key?: string
-          price_cents?: number
-          taken?: number
-          total?: number
-        }
-        Relationships: []
-      }
       meta_deletion_requests: {
         Row: {
           confirmation_code: string
@@ -506,6 +340,62 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      method_steps: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          instruction: string
+          is_strict: boolean
+          next_step_key: string | null
+          pass_criteria: string | null
+          position: number
+          required_fields: Json
+          step_key: string
+          title: string
+          tool_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          instruction: string
+          is_strict?: boolean
+          next_step_key?: string | null
+          pass_criteria?: string | null
+          position: number
+          required_fields?: Json
+          step_key: string
+          title: string
+          tool_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          instruction?: string
+          is_strict?: boolean
+          next_step_key?: string | null
+          pass_criteria?: string | null
+          position?: number
+          required_fields?: Json
+          step_key?: string
+          title?: string
+          tool_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_steps_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       oauth_states: {
         Row: {
@@ -642,33 +532,6 @@ export type Database = {
           },
         ]
       }
-      plan_allocations: {
-        Row: {
-          credits_per_month: number
-          label: string
-          plan: string
-          price_cents: number
-          signup_credits: number
-          updated_at: string
-        }
-        Insert: {
-          credits_per_month: number
-          label: string
-          plan: string
-          price_cents?: number
-          signup_credits?: number
-          updated_at?: string
-        }
-        Update: {
-          credits_per_month?: number
-          label?: string
-          plan?: string
-          price_cents?: number
-          signup_credits?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
       profile_analyses: {
         Row: {
           created_at: string
@@ -714,6 +577,36 @@ export type Database = {
           },
         ]
       }
+      profile_reference_values: {
+        Row: {
+          code: string
+          emoji: string | null
+          is_exclusive: boolean
+          is_sentinel: boolean
+          kind: string
+          label: string
+          position: number
+        }
+        Insert: {
+          code: string
+          emoji?: string | null
+          is_exclusive?: boolean
+          is_sentinel?: boolean
+          kind: string
+          label: string
+          position: number
+        }
+        Update: {
+          code?: string
+          emoji?: string | null
+          is_exclusive?: boolean
+          is_sentinel?: boolean
+          kind?: string
+          label?: string
+          position?: number
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -758,51 +651,6 @@ export type Database = {
           role?: string
         }
         Relationships: []
-      }
-      share_keys: {
-        Row: {
-          created_at: string
-          id: string
-          key_hash: string
-          label: string
-          last_used_at: string | null
-          revoked_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          key_hash: string
-          label?: string
-          last_used_at?: string | null
-          revoked_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          key_hash?: string
-          label?: string
-          last_used_at?: string | null
-          revoked_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "share_keys_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_prospects"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "share_keys_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       social_account_tokens: {
         Row: {
@@ -985,39 +833,91 @@ export type Database = {
           },
         ]
       }
-      subscriptions: {
+      subscription_items: {
         Row: {
           amount_cents: number | null
-          cancel_at_period_end: boolean
-          current_period_end: string | null
-          plan: string | null
-          status: string | null
-          stripe_customer_id: string | null
-          stripe_price_id: string | null
-          stripe_subscription_id: string | null
+          created_at: string
+          id: string
+          status: string
+          stripe_item_id: string
+          stripe_price_id: string
+          tool_id: string
           updated_at: string
           user_id: string
         }
         Insert: {
           amount_cents?: number | null
-          cancel_at_period_end?: boolean
-          current_period_end?: string | null
-          plan?: string | null
-          status?: string | null
-          stripe_customer_id?: string | null
-          stripe_price_id?: string | null
-          stripe_subscription_id?: string | null
+          created_at?: string
+          id?: string
+          status?: string
+          stripe_item_id: string
+          stripe_price_id: string
+          tool_id: string
           updated_at?: string
           user_id: string
         }
         Update: {
           amount_cents?: number | null
+          created_at?: string
+          id?: string
+          status?: string
+          stripe_item_id?: string
+          stripe_price_id?: string
+          tool_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_items_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscription_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "subscription_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          cancel_at_period_end: boolean
+          created_at: string
+          current_period_end: string | null
+          status: string | null
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
           cancel_at_period_end?: boolean
+          created_at?: string
           current_period_end?: string | null
-          plan?: string | null
           status?: string | null
           stripe_customer_id?: string | null
-          stripe_price_id?: string | null
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancel_at_period_end?: boolean
+          created_at?: string
+          current_period_end?: string | null
+          status?: string | null
+          stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           updated_at?: string
           user_id?: string
@@ -1038,6 +938,223 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      tool_entitlements: {
+        Row: {
+          created_at: string
+          id: string
+          period_end: string | null
+          period_start: string
+          quota_total: number | null
+          quota_used: number
+          source: string
+          status: string
+          stripe_subscription_item_id: string | null
+          tool_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          period_end?: string | null
+          period_start?: string
+          quota_total?: number | null
+          quota_used?: number
+          source: string
+          status?: string
+          stripe_subscription_item_id?: string | null
+          tool_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          period_end?: string | null
+          period_start?: string
+          quota_total?: number | null
+          quota_used?: number
+          source?: string
+          status?: string
+          stripe_subscription_item_id?: string | null
+          tool_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_entitlements_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_entitlements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "tool_entitlements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tool_packs: {
+        Row: {
+          created_at: string
+          id: string
+          is_published: boolean
+          name: string
+          price_cents: number | null
+          stripe_price_id: string | null
+          tool_id: string
+          units: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: string
+          is_published?: boolean
+          name: string
+          price_cents?: number | null
+          stripe_price_id?: string | null
+          tool_id: string
+          units: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_published?: boolean
+          name?: string
+          price_cents?: number | null
+          stripe_price_id?: string | null
+          tool_id?: string
+          units?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_packs_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tool_runs: {
+        Row: {
+          current_step_key: string | null
+          data: Json
+          finished_at: string | null
+          id: string
+          ref_id: string | null
+          started_at: string
+          status: string
+          tool_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          current_step_key?: string | null
+          data?: Json
+          finished_at?: string | null
+          id?: string
+          ref_id?: string | null
+          started_at?: string
+          status?: string
+          tool_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          current_step_key?: string | null
+          data?: Json
+          finished_at?: string | null
+          id?: string
+          ref_id?: string | null
+          started_at?: string
+          status?: string
+          tool_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tool_runs_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tool_runs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "tool_runs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tools: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          is_published: boolean
+          monthly_quota: number | null
+          name: string
+          position: number
+          price_cents: number | null
+          status: string
+          stripe_price_id: string | null
+          stripe_product_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          id: string
+          is_published?: boolean
+          monthly_quota?: number | null
+          name: string
+          position: number
+          price_cents?: number | null
+          status: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          is_published?: boolean
+          monthly_quota?: number | null
+          name?: string
+          position?: number
+          price_cents?: number | null
+          status?: string
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
       }
       usage_events: {
         Row: {
@@ -1075,13 +1192,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "usage_events_action_type_fkey"
-            columns: ["action_type"]
-            isOneToOne: false
-            referencedRelation: "actions"
-            referencedColumns: ["action_type"]
-          },
-          {
             foreignKeyName: "usage_events_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -1097,37 +1207,53 @@ export type Database = {
           },
         ]
       }
-      user_credits: {
+      user_tool_rules: {
         Row: {
-          credits_remaining: number
-          period_end: string | null
-          period_start: string | null
+          created_at: string
+          id: string
+          step_key: string | null
+          text: string
+          tool_id: string
+          updated_at: string
           user_id: string
         }
         Insert: {
-          credits_remaining?: number
-          period_end?: string | null
-          period_start?: string | null
+          created_at?: string
+          id?: string
+          step_key?: string | null
+          text: string
+          tool_id: string
+          updated_at?: string
           user_id: string
         }
         Update: {
-          credits_remaining?: number
-          period_end?: string | null
-          period_start?: string | null
+          created_at?: string
+          id?: string
+          step_key?: string | null
+          text?: string
+          tool_id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "user_credits_user_id_fkey"
+            foreignKeyName: "user_tool_rules_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_tool_rules_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "admin_prospects"
             referencedColumns: ["user_id"]
           },
           {
-            foreignKeyName: "user_credits_user_id_fkey"
+            foreignKeyName: "user_tool_rules_user_id_fkey"
             columns: ["user_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1271,9 +1397,11 @@ export type Database = {
           niche: string | null
           nom: string | null
           onboarding_completed: boolean | null
-          plan: string | null
           platform: string | null
           prenom: string | null
+          subscribed_tools: string[] | null
+          subscription_cancel_at_period_end: boolean | null
+          subscription_period_end: string | null
           subscription_status: string | null
           user_id: string | null
         }
@@ -1281,34 +1409,12 @@ export type Database = {
       }
     }
     Functions: {
-      charge_action: {
-        Args: {
-          p_action_type: Database["public"]["Enums"]["action_type"]
-          p_cost_estimate: number
-          p_input_tokens: number
-          p_model: string
-          p_output_tokens: number
-          p_user_id: string
-        }
+      can_use: { Args: { p_tool: string }; Returns: Json }
+      can_use_for: {
+        Args: { p_debit?: boolean; p_tool: string; p_user_id: string }
         Returns: Json
       }
       is_admin: { Args: never; Returns: boolean }
-      persist_generation: {
-        Args: {
-          p_batch_id: string
-          p_cost_estimate?: number
-          p_input_tokens?: number
-          p_kind: string
-          p_model?: string
-          p_models: Json
-          p_output_tokens?: number
-          p_outputs: Json
-          p_regenerated_from?: string
-          p_script_id: string
-          p_user_id: string
-        }
-        Returns: Json
-      }
       persist_video_analysis: {
         Args: {
           p_analysis: Json
@@ -1321,15 +1427,87 @@ export type Database = {
         }
         Returns: undefined
       }
-      reset_free_credits: {
-        Args: { p_now?: string }
-        Returns: {
-          credits_remaining: number
-          user_id: string
-        }[]
+      stripe_handle_checkout_completed: {
+        Args: {
+          p_cancel_at_period_end: boolean
+          p_customer_id: string
+          p_event_id: string
+          p_items: Json
+          p_mode: string
+          p_pack_lines: Json
+          p_period_end: string
+          p_status: string
+          p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
       }
-      validate_batch: {
-        Args: { p_batch_id: string; p_selections: Json }
+      stripe_handle_invoice_paid: {
+        Args: {
+          p_amount_paid: number
+          p_billing_reason: string
+          p_cancel_at_period_end: boolean
+          p_customer_id: string
+          p_event_id: string
+          p_items: Json
+          p_period_end: string
+          p_status: string
+          p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      stripe_handle_payment_failed: {
+        Args: {
+          p_customer_id: string
+          p_event_id: string
+          p_status: string
+          p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      stripe_handle_subscription_deleted: {
+        Args: {
+          p_customer_id: string
+          p_event_id: string
+          p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      stripe_handle_subscription_updated: {
+        Args: {
+          p_cancel_at_period_end: boolean
+          p_customer_id: string
+          p_event_id: string
+          p_items: Json
+          p_period_end: string
+          p_status: string
+          p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      stripe_mark_event: {
+        Args: { p_event_id: string; p_type: string }
+        Returns: boolean
+      }
+      stripe_resolve_user: {
+        Args: { p_customer_id: string; p_user_id: string }
+        Returns: string
+      }
+      stripe_sync_subscription: {
+        Args: {
+          p_cancel_at_period_end: boolean
+          p_customer_id: string
+          p_items: Json
+          p_period_end: string
+          p_reset: boolean
+          p_status: string
+          p_subscription_id: string
+          p_user: string
+        }
         Returns: Json
       }
     }

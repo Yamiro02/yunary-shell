@@ -1,32 +1,34 @@
 import { useEffect, useMemo, useRef, type JSX, type ReactNode } from 'react';
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from '@stripe/react-stripe-js';
-import { Banner, Button, Icon, IconButton, Modal, Spinner, cn } from '@yunary/ds';
+import { Banner, Button, Icon, IconButton, Modal, Spinner, StateCard, cn } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
 import { formatEuros } from '../lib/format';
 import { getStripe, hasStripeKey } from '../lib/stripe';
 import { DS_MOBILE_QUERY, useMediaQuery } from '../lib/useMediaQuery';
-import { useCheckoutSession, type CheckoutSession } from '../account/useStripe';
-import { isLaunchPrice, priceFor, usePlanCatalog, type PlanCatalog } from '../account/usePlanCatalog';
-import { planFor, type PlanId } from '../parametres/plans';
+import { useStartCheckout, type CheckoutStart, type CheckoutTarget } from '../account/useStripe';
+import { packByIdIn, toolByIdIn, useToolCatalog, type ToolCatalog } from '../tools/useToolCatalog';
 
 export interface CheckoutModalProps {
   open: boolean;
   onClose: () => void;
-  /** La formule à souscrire — `createur` (la seule payante). */
-  plan?: Exclude<PlanId, 'free'>;
+  /** Ce qu'on achète : `{ tool }` (article d'abonnement) ou `{ pack }` (achat unique). */
+  target: CheckoutTarget;
   /** Démo : rendu dans le flux, sans voile ni `position: fixed`. */
   inline?: boolean;
-  /** Démo : état forcé, l'Edge n'est pas appelée. `catalog` alimente le sous-titre avant la session. */
-  demo?: { session?: CheckoutSession; error?: string; loading?: boolean; catalog?: PlanCatalog; layout?: 'modal' | 'fullscreen'; filler?: boolean };
+  /** Démo : état forcé, l'Edge n'est pas appelée. `catalog` alimente l'en-tête avant la réponse. */
+  demo?: { start?: CheckoutStart; error?: string; loading?: boolean; catalog?: ToolCatalog; layout?: 'modal' | 'fullscreen'; filler?: boolean };
 }
 
 /**
  * Le checkout Stripe EMBARQUÉ — l'utilisateur ne quitte pas l'app. À l'ouverture, l'Edge
- * `create-checkout-session` renvoie un `clientSecret` ; Stripe.js (chargé paresseusement, clé de
- * `configureShell`) monte son formulaire dedans. Trois états : préparation, erreur (réessayer /
- * fermer), checkout. Après paiement, Stripe ramène sur `?checkout=<session_id>`
- * (`useCheckoutActivation`). Utilisable depuis Creator comme depuis le Hub.
+ * `create-checkout-session` répond :
+ * - `mode: 'checkout'` → un `clientSecret` ; Stripe.js (chargé paresseusement, clé de
+ *   `configureShell`) monte son formulaire dedans. Après paiement, Stripe ramène sur
+ *   `?checkout=<session_id>` (`useCheckoutActivation`) ;
+ * - `mode: 'added'` → abonnement vivant, l'article est déjà ajouté au prorata : PAS de formulaire,
+ *   la modale le dit et « Continuer » ferme.
+ * Trois autres états : préparation, erreur (réessayer / fermer), paiement indisponible (pas de clé).
  *
  * DEUX TRAITEMENTS SELON L'ÉCRAN (artboards D2 / D2b du Hub, 13/09/2026) :
  * - **bureau** (> 64 rem) : la `Modal` lg du DS (520 px), plafonnée à ~80 % de la hauteur d'écran,
@@ -37,54 +39,65 @@ export interface CheckoutModalProps {
  *   ⚠ Exception ASSUMÉE au traitement modal du DS (feuille basse) : payer est un moment où l'on
  *   isole complètement. Décision Julien, 13/09/2026 — ne pas « corriger » en feuille.
  *
- * En-tête : « S'abonner à Créateur » · « 12 €/mois — offre de lancement ». Le montant vient du
- * CATALOGUE (`usePlanCatalog`, offre de lancement s'il reste des places) puis de l'Edge
- * (`amountCents`, qui fait foi dès que la session est là) — jamais d'une constante.
+ * En-tête : « S'abonner à Yunary Analyse » · « 9 €/mois », ou le nom du pack · « 15 € ». 🔒 Noms et
+ * montants viennent de la BASE (`tools`, `tool_packs` via `useToolCatalog`) puis de l'Edge
+ * (`amountCents`, qui fait foi dès que la réponse est là) — jamais d'une constante du paquet.
  */
-export function CheckoutModal({ open, onClose, plan = 'createur', inline, demo }: CheckoutModalProps): JSX.Element | null {
+export function CheckoutModal({ open, onClose, target, inline, demo }: CheckoutModalProps): JSX.Element | null {
   const t = fr.parametres.abonnement.checkout;
-  const checkout = useCheckoutSession();
-  const catalogQuery = usePlanCatalog();
+  const checkout = useStartCheckout();
+  const catalogQuery = useToolCatalog({ enabled: !demo });
   const isMobile = useMediaQuery(DS_MOBILE_QUERY);
   const fullscreen = demo?.layout ? demo.layout === 'fullscreen' : isMobile;
   const configured = demo ? true : hasStripeKey();
+  const targetKey = target.pack ? `pack:${target.pack}` : `tool:${target.tool}`;
 
   /* Une session par ouverture ; on repart de zéro à la fermeture (un clientSecret ne se remonte pas). */
   useEffect(() => {
     if (demo) return;
-    if (open && configured) checkout.mutate({ plan });
+    if (open && configured) checkout.mutate(target);
     if (!open) checkout.reset();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, plan, demo, configured]);
+  }, [open, targetKey, demo, configured]);
 
   const stripe = useMemo(() => (open && configured && !demo ? getStripe() : null), [open, configured, demo]);
 
-  const session = demo ? demo.session : checkout.data;
+  const start = demo ? demo.start : checkout.data;
   const loading = demo ? !!demo.loading : checkout.isPending;
   const error = demo ? demo.error : !configured ? fr.errors.checkoutUnavailable : checkout.error ? getErrorMessage(checkout.error) : undefined;
-  const retry = configured && !demo ? () => checkout.mutate({ plan }) : undefined;
+  const retry = configured && !demo ? () => checkout.mutate(target) : undefined;
 
   const catalog = demo ? demo.catalog : catalogQuery.data;
-  const name = planFor(plan).name;
-  /* Le sous-titre : l'Edge fait foi (montant facturé), le catalogue le précède le temps de la préparation. La mention
-     d'offre de lancement se décide sur `amount < prix plein` (jamais sur une égalité avec le tarif de lancement) ;
-     sans catalogue, sur l'`isFondateur` de l'Edge. */
-  const amount = session ? session.amountCents : priceFor(catalog, plan);
-  const launchOffer = catalog ? isLaunchPrice(amount, catalog, plan) : !!session?.isFondateur;
-  const subtitle = amount === null ? undefined : t.subtitle(formatEuros(amount), launchOffer);
+  const tool = toolByIdIn(catalog, target.tool ?? packByIdIn(catalog, target.pack)?.toolId);
+  const pack = packByIdIn(catalog, target.pack);
+  /* Le nom vient du catalogue ; en attendant (ou si l'id est inconnu), l'identifiant lui-même — jamais un nom en dur. */
+  const targetId: string = target.pack ?? target.tool ?? '';
+  const name = target.pack ? pack?.name ?? targetId : tool?.name ?? targetId;
+  const title = target.pack ? t.packTitle(name) : t.subscribeTitle(name);
+  /* Le montant : l'Edge fait foi (montant facturé), le catalogue le précède le temps de la préparation. */
+  const amount = start ? start.amountCents : target.pack ? pack?.priceCents ?? null : tool?.priceCents ?? null;
+  const subtitle = amount === null ? undefined : target.pack ? t.once(formatEuros(amount)) : t.perMonth(formatEuros(amount));
 
   const body = error ? (
     <Banner tone="danger">{error}</Banner>
-  ) : loading || !session ? (
+  ) : loading || !start ? (
     <span className="flex items-center gap-space-2 text-text-muted" role="status">
       <Spinner size="sm" />
       {t.loading}
     </span>
+  ) : start.mode === 'added' ? (
+    /* Abonnement vivant : rien à payer ici, l'article est déjà dans l'abonnement (base mise à jour tout de suite). */
+    <StateCard
+      icon={<Icon name="circle-check" size="1.5rem" />}
+      title={t.addedTitle(name)}
+      description={t.addedBody}
+      action={<Button variant="primary" onClick={onClose}>{t.continue}</Button>}
+    />
   ) : demo ? (
     /* Démo : un gabarit de la hauteur d'un formulaire Stripe (l'artboard dit 820 px) pour éprouver le défilement. */
     demo.filler ? <div className="h-[51.25rem] rounded-md border-[1.5px] border-dashed border-border" aria-hidden="true" /> : null
   ) : (
-    <EmbeddedCheckoutProvider stripe={stripe} options={{ clientSecret: session.clientSecret }}>
+    <EmbeddedCheckoutProvider stripe={stripe} options={{ clientSecret: start.clientSecret }}>
       <EmbeddedCheckout />
     </EmbeddedCheckoutProvider>
   );
@@ -92,7 +105,7 @@ export function CheckoutModal({ open, onClose, plan = 'createur', inline, demo }
   if (fullscreen) {
     if (!open) return null;
     return (
-      <CheckoutFullScreen title={t.title(name)} subtitle={subtitle} onClose={onClose} inline={inline}>
+      <CheckoutFullScreen title={title} subtitle={subtitle} onClose={onClose} inline={inline}>
         {error ? (
           <div className="flex flex-col gap-space-4">
             {body}
@@ -115,7 +128,7 @@ export function CheckoutModal({ open, onClose, plan = 'createur', inline, demo }
       /* Un clic à côté ne jette pas un paiement en cours de saisie : la croix reste le seul geste de fermeture. */
       dismissable={false}
       /* Artboard D2 : titre au palier `subheading` (22), sous-titre `body-sm` muted — la description de la Modal. */
-      title={<span className="text-subheading">{t.title(name)}</span>}
+      title={<span className="text-subheading">{title}</span>}
       description={subtitle}
       footer={error ? (
         <>
