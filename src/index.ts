@@ -71,6 +71,26 @@ export type { CancelSubscriptionModalProps } from './abonnement/CancelSubscripti
 export { PaymentFailedBanner, PaymentFailedBannerView } from './abonnement/PaymentFailedBanner';
 export type { PaymentFailedBannerViewProps } from './abonnement/PaymentFailedBanner';
 
+/* abonnement v2 (0.4.0, maquette « Yunary Hub Dashboard ») — les VUES pilotées par props ; les conteneurs arrivent avec les contrats du back */
+export { ModifySubscriptionView } from './abonnement/ModifySubscriptionView';
+export type { ModifySubscriptionViewProps, ToolSwitchRowView, ToolRowState, ChangeSummaryView, PaymentPhase } from './abonnement/ModifySubscriptionView';
+export { ActivateToolView, ReactivateToolView } from './abonnement/ToolPaymentModals';
+export type { ActivateToolViewProps, ActivateAmountsView, ReactivateToolViewProps } from './abonnement/ToolPaymentModals';
+export { SubscriptionResultView } from './abonnement/SubscriptionResultView';
+export type { SubscriptionResultViewProps, ResultToolView } from './abonnement/SubscriptionResultView';
+export { AmountRows } from './abonnement/AmountRows';
+export type { AmountRowsProps, AmountRow } from './abonnement/AmountRows';
+export { SavedCardLine, cardBrandLabel } from './abonnement/SavedCardLine';
+export type { SavedCardLineProps, SavedCardView } from './abonnement/SavedCardLine';
+export { ScheduledCancellationCard } from './abonnement/ScheduledCancellationCard';
+export type { ScheduledCancellationCardProps } from './abonnement/ScheduledCancellationCard';
+export { BankConfirmOverlay } from './abonnement/BankConfirmOverlay';
+export type { BankConfirmOverlayProps } from './abonnement/BankConfirmOverlay';
+export { FullScreenSheet } from './abonnement/FullScreenSheet';
+export type { FullScreenSheetProps } from './abonnement/FullScreenSheet';
+export { AnimatedCheck, Reveal, useReducedMotion, REDUCED_MOTION_QUERY } from './abonnement/motion';
+export type { AnimatedCheckProps, RevealProps } from './abonnement/motion';
+
 /* audit de compte */
 export { useAccountAudit, accountAuditKey } from './audit/useAccountAudit';
 export { AuditStateCard } from './audit/AuditStateCard';
@@ -87,12 +107,13 @@ export type {
 export { fr } from './i18n/fr';
 export type { Fr } from './i18n/fr';
 export { getErrorMessage, messageForCode } from './lib/errors';
-export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, formatEuros, initiales } from './lib/format';
+export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, formatDateNumerique, formatJourMois, formatEuros, initiales } from './lib/format';
 export { withGlyphSize, CARD_GLYPH_SIZE } from './lib/icon';
 export { useMediaQuery, DS_MOBILE_QUERY } from './lib/useMediaQuery';
 
 /* layout */
 export { AppLayout, AppContent, AppBleed, APP_GUTTER_X, APP_BLEED_X, APP_BLEED_TOP } from './layout/AppLayout';
+export { accountPlanLabel } from './account/planLabel';
 export type { AppLayoutProps, AppContentProps, AppBleedProps } from './layout/AppLayout';
 export { HubSidebar } from './layout/HubSidebar';
 export type { HubSidebarProps, ShellNavItem } from './layout/HubSidebar';
@@ -132,8 +153,6 @@ export { InfosTab, InfosView } from './parametres/InfosTab';
 export type { InfosViewProps, ReseauView, SaveState } from './parametres/InfosTab';
 export { NotificationsTab, NotificationsView } from './parametres/NotificationsTab';
 export type { NotificationsViewProps } from './parametres/NotificationsTab';
-export { AbonnementTab, AbonnementView, subscriptionStatusLabel } from './parametres/AbonnementTab';
-export type { AbonnementViewProps } from './parametres/AbonnementTab';
 export { LegalTab, LegalView, DeleteAccountModal, DEFAULT_LEGAL_HREFS } from './parametres/LegalTab';
 export type { LegalViewProps, LegalHrefs, DeleteAccountModalProps } from './parametres/LegalTab';
 export { PasswordModal } from './parametres/PasswordModal';

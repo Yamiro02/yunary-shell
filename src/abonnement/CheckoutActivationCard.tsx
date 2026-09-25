@@ -12,7 +12,7 @@ export interface CheckoutActivationCardProps {
 }
 
 /**
- * L'écran de retour de Stripe, rendu à la place de l'onglet Abonnement tant que `?checkout=`
+ * L'écran de retour de Stripe, rendu par la page de l'app tant que `?checkout=`
  * est dans l'URL. « On active ton abonnement… » pendant la sonde ; succès quand `subscriptions`
  * est écrite ; passé 20 s, le message calme — JAMAIS une erreur rouge, le paiement a réussi.
  * `StateCard` brand du DS dans les trois cas (tone `danger` interdit ici, par construction).

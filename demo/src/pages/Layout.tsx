@@ -2,20 +2,20 @@ import { useState, type JSX, type ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
 import { AppShell, Button, Card, Icon, IconButton, StateCard, cn } from '@yunary/ds';
 import {
-  APP_GUTTER_X, AbonnementView, AppBleed, AppContent, HubSidebar, InfosView, ParametresLayout,
+  APP_GUTTER_X, AppBleed, AppContent, HubSidebar, InfosView, NotificationsView, ParametresLayout, ScheduledCancellationCard,
   type ParametresTab,
 } from '@yunary/shell';
-import { ACCOUNT, ACCOUNT_SUBSCRIBED, CATALOG, HUB_ITEMS, SUB_ACTIVE, SUMMARIES_FREE, SUMMARIES_SUBSCRIBED } from '../fixtures';
+import { ACCOUNT, ACCOUNT_SUBSCRIBED, HUB_ITEMS } from '../fixtures';
 import { Section } from '../ui';
 
 const noop = () => undefined;
 
 /* La même sidebar pour la coquille web : lockup « Yunary », nav de l'app, Mes outils + Paramètres, compte. */
 export function LayoutPage(): JSX.Element {
-  const [tab, setTab] = useState<ParametresTab>('abonnement');
+  const [tab, setTab] = useState<ParametresTab>('infos');
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="HubSidebar" note="Maître HubSidebar.dc.html (11/09) · C6. Sidebar du DS, non repliable : lockup statique (monogramme 1,5 rem + « Yunary » en display 18), nav de l'app, Mes outils + Paramètres, carte compte. Depuis 0.3.0 : plus de carte crédits (les quotas sont par outil, dans Paramètres › Abonnement), plus de nom d'outil ni de variante native. 0.3.1 : `showToolsLink={false}` retire « Mes outils » du pied quand l'app met Outils dans sa nav. État actif = celui du DS 0.1.5 : corail sur `--accent`, même graisse.">
+      <Section title="HubSidebar" note="Maître HubSidebar.dc.html (11/09) · C6. Sidebar du DS, non repliable : lockup statique (monogramme 1,5 rem + « Yunary » en display 18), nav de l'app, Mes outils + Paramètres, carte compte. Depuis 0.3.0 : plus de carte crédits (les quotas sont par outil, dans Paramètres › Abonnement), plus de nom d'outil ni de variante native. 0.3.1 : `showToolsLink={false}` retire « Mes outils » du pied quand l'app met Outils dans sa nav. 0.4.0 : carte compte « 2 outils · 14 €/mois » ou « Gratuit ». État actif = celui du DS 0.1.5 : corail sur `--accent`, même graisse.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">
           <Frame label="Gratuit · Mes outils actif">
             <HubSidebar toolsActive account={ACCOUNT} linkAs={NavLink} staticLayout />
@@ -28,13 +28,13 @@ export function LayoutPage(): JSX.Element {
           </Frame>
         </div>
       </Section>
-      <Section title="AppLayout · contenu pleine largeur" note="Depuis 0.1.6, le contenu remplit la colonne (plus de `.page` à 70 rem). Gouttières de la v1 depuis 0.1.7 : 16 px de côté et 24 px en haut et en bas sous 64 rem, 24 px partout dès que la sidebar est à demeure. Le plafond `max-w-wide` d'Abonnement et `max-w-read` d'Infos restent : ce sont ceux du bloc, pas de la page. Redimensionne la fenêtre.">
+      <Section title="AppLayout · contenu pleine largeur" note="Depuis 0.1.6, le contenu remplit la colonne (plus de `.page` à 70 rem). Gouttières de la v1 depuis 0.1.7 : 16 px de côté et 24 px en haut et en bas sous 64 rem, 24 px partout dès que la sidebar est à demeure. Le plafond `max-w-read` d'Infos reste : ce sont ceux du bloc, pas de la page. Redimensionne la fenêtre.">
         <Bleed>
           <AppFrame className="min-h-[52rem]" sidebar={<HubSidebar items={HUB_ITEMS} settingsActive account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />}>
             <AppContent>
               <ParametresLayout tab={tab} onTabChange={setTab}>
-                {tab === 'abonnement' ? (
-                  <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
+                {tab === 'notifications' ? (
+                  <NotificationsView prefs={{ analyse_terminee: true, nouveaux_templates: true }} onToggle={noop} />
                 ) : (
                   <InfosView profile={{ prenom: 'Julien', nom: 'Fernandes', email: 'julien@julienfernandes.com', avatarUrl: null }} reseau={{ platform: 'instagram', handle: 'julien.crea' }} onSave={noop} saveState="saved" onChoosePhoto={noop} onRemovePhoto={noop} onChangePassword={noop} onLogout={noop} />
                 )}
@@ -43,13 +43,14 @@ export function LayoutPage(): JSX.Element {
           </AppFrame>
         </Bleed>
       </Section>
-      <Section title="AppLayout · compte gratuit" note="Un compte qui n'a jamais souscrit : « Gratuit » dans la carte compte, l'onglet Abonnement liste ses droits gratuits (« Inclus ») et mène à la page des outils du hub.">
+      <Section title="AppLayout · résiliation programmée" note="0.4.0 : l'onglet Abonnement des Paramètres est retiré, la page Facturation du hub le remplace. Elle pose `ScheduledCancellationCard` en tête quand tout l'abonnement s'arrête à l'échéance. Carte compte : « 2 outils · 14 €/mois » (montants lus en base), « Gratuit » sans abonnement.">
         <Bleed>
-          <AppFrame className="min-h-[44rem]" sidebar={<HubSidebar settingsActive account={ACCOUNT} linkAs={NavLink} staticLayout />}>
+          <AppFrame className="min-h-[24rem]" sidebar={<HubSidebar items={HUB_ITEMS} showToolsLink={false} account={ACCOUNT_SUBSCRIBED} linkAs={NavLink} staticLayout />}>
             <AppContent>
-              <ParametresLayout tab="abonnement" onTabChange={noop}>
-                <AbonnementView subscription={null} entitlements={SUMMARIES_FREE} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-              </ParametresLayout>
+              <div className="flex max-w-wide flex-col gap-space-5">
+                <h1 className="text-heading-xl">Facturation</h1>
+                <ScheduledCancellationCard periodEnd="2026-10-23T10:00:00Z" toolCount={2} onKeep={noop} />
+              </div>
             </AppContent>
           </AppFrame>
         </Bleed>

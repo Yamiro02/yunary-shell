@@ -94,7 +94,7 @@ export function summarizeEntitlements(rows: Entitlement[], now: number = Date.no
 
 /**
  * Les droits de l'utilisateur (`tool_entitlements`, RLS owner) + un résumé par outil. Ce que
- * l'onglet Abonnement affiche ; la vérité d'accès reste `can_use` (serveur) — ici on montre, on
+ * la page Facturation et Mes outils du hub affichent ; la vérité d'accès reste `can_use` (serveur) — ici on montre, on
  * ne décide pas.
  */
 export function useEntitlements() {

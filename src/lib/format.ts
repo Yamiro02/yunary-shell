@@ -4,6 +4,8 @@ const nombre = new Intl.NumberFormat('fr-FR');
 const nombreCompact = new Intl.NumberFormat('fr-FR', { notation: 'compact', maximumFractionDigits: 1 });
 const dateCourte = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'short' });
 const dateLongue = new Intl.DateTimeFormat('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+const dateNumerique = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+const jourMois = new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit' });
 
 const eurosEntiers = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
 const eurosCentimes = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 });
@@ -30,6 +32,16 @@ export function formatDateCourte(iso: string): string {
 /** « 9 août 2026 ». */
 export function formatDateLongue(iso: string): string {
   return dateLongue.format(new Date(iso));
+}
+
+/** « 23/10/2026 » — les échéances du paiement (maquettes Hub-03, Hub-Outils). */
+export function formatDateNumerique(iso: string): string {
+  return dateNumerique.format(new Date(iso));
+}
+
+/** « 23/10 » — une borne de prorata (« du 10/10 au 23/10 »). */
+export function formatJourMois(iso: string): string {
+  return jourMois.format(new Date(iso));
 }
 
 /** Initiales d'un nom pour l'avatar de repli : « Julien Fernandes » → « JF ». */

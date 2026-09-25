@@ -11,7 +11,7 @@ export const ACCOUNT: AccountView = {
   planLabel: 'Gratuit',
 };
 
-export const ACCOUNT_SUBSCRIBED: AccountView = { ...ACCOUNT, planLabel: 'Abonné' };
+export const ACCOUNT_SUBSCRIBED: AccountView = { ...ACCOUNT, planLabel: '2 outils · 14 €/mois' };
 
 /* Le catalogue tel que `useToolCatalog` le lit (`tools`, `tool_packs`) — valeurs de la base au 23/09/2026 (catalogue Stripe test : audit 5 € / 2, analyse 9 € / 50, pack 5 €) ; les prix ne vivent que là. */
 export const CATALOG: ToolCatalog = {

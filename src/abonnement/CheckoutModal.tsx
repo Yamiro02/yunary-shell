@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useRef, type JSX, type ReactNode } from 'react';
+import { useEffect, useMemo, type JSX } from 'react';
 import { EmbeddedCheckout, EmbeddedCheckoutProvider } from '@stripe/react-stripe-js';
 import { Lock } from 'lucide-react';
-import { Banner, Button, Icon, IconButton, Modal, Separator, Spinner, StateCard, cn } from '@yunary/ds';
+import { Banner, Button, Icon, IconButton, Modal, Separator, Spinner, StateCard } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
 import { formatEuros } from '../lib/format';
@@ -10,6 +10,7 @@ import { DS_MOBILE_QUERY, useMediaQuery } from '../lib/useMediaQuery';
 import { checkoutTools, useStartCheckout, type CheckoutStart, type CheckoutTarget } from '../account/useStripe';
 import { packByIdIn, toolByIdIn, useToolCatalog, type ToolCatalog, type ToolDef } from '../tools/useToolCatalog';
 import { ToolLabel } from '../layout/ToolLabel';
+import { FullScreenSheet } from './FullScreenSheet';
 
 export interface CheckoutModalProps {
   open: boolean;
@@ -140,14 +141,14 @@ export function CheckoutModal({ open, onClose, target, inline, demo }: CheckoutM
   if (fullscreen) {
     if (!open) return null;
     return (
-      <CheckoutFullScreen
+      <FullScreenSheet
         title={title}
         subtitle={many ? <MobileRecap lines={lines} amount={amount} /> : subtitle}
         onClose={onClose}
         inline={inline}
       >
         {error ? <div className="flex flex-col gap-space-4">{body}{errorActions}</div> : body}
-      </CheckoutFullScreen>
+      </FullScreenSheet>
     );
   }
 
@@ -263,67 +264,5 @@ function MobileRecap({ lines, amount }: { lines: RecapLine[]; amount: number | n
         <Recap lines={lines} amount={amount} />
       </div>
     </details>
-  );
-}
-
-interface CheckoutFullScreenProps {
-  title: string;
-  subtitle?: ReactNode;
-  onClose: () => void;
-  inline?: boolean;
-  children: ReactNode;
-}
-
-/**
- * La page plein écran du paiement sur mobile (artboard D2b) : `fixed inset-0` au rang `--z-modal`,
- * fond `--card`, aucun voile. En-tête fixe sous la zone sûre (titre `heading-sm`, sous-titre
- * `body-sm` muted, croix à droite), corps `flex-1` qui défile seul — le bord bas de l'écran reste
- * visible. Échap ferme, le focus arrive sur la croix, le document ne défile plus derrière.
- */
-function CheckoutFullScreen({ title, subtitle, onClose, inline, children }: CheckoutFullScreenProps): JSX.Element {
-  const headRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (inline) return;
-    const previous = document.activeElement as HTMLElement | null;
-    const overflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    /* L'`IconButton` du DS ne transmet pas de ref : on vise la croix depuis l'en-tête. */
-    headRef.current?.querySelector('button')?.focus();
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', onKey);
-    return () => {
-      document.body.style.overflow = overflow;
-      document.removeEventListener('keydown', onKey);
-      previous?.focus?.();
-    };
-  }, [inline, onClose]);
-
-  return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-label={title}
-      className={cn('flex flex-col bg-card text-foreground', inline ? 'relative h-full min-h-full' : 'fixed inset-0 z-(--z-modal)')}
-    >
-      {/* Artboard D2b : en-tête 56 / 20 / 16 — les 56 du haut sont la barre d'état de la maquette : ici `space-5` sous la
-          zone sûre (`env(safe-area-inset-top)`), 20 → `space-5`, 16 → `space-4`. La croix est l'`IconButton` ghost du DS
-          (2,75 rem sous 64 rem : la cible tactile) là où l'artboard dessine la croix de modale à 2 rem. */}
-      <header
-        ref={headRef}
-        className="flex flex-none items-start justify-between gap-space-3 border-b border-border px-space-5 pb-space-4 pt-space-5"
-        style={inline ? undefined : { paddingTop: 'max(var(--space-5), env(safe-area-inset-top))' }}
-      >
-        <div className="flex min-w-0 flex-1 flex-col gap-space-1">
-          <h2 className="text-heading-sm">{title}</h2>
-          {subtitle ? typeof subtitle === 'string' ? <span className="text-body-sm text-text-muted">{subtitle}</span> : subtitle : null}
-        </div>
-        <IconButton variant="ghost" label={fr.common.close} onClick={onClose} className="-mr-space-2 -mt-space-2">
-          <Icon name="x" size="1.125rem" />
-        </IconButton>
-      </header>
-      <div className="min-h-0 flex-1 overflow-y-auto px-space-5 pb-space-5 pt-space-4">{children}</div>
-    </div>
   );
 }

@@ -2,12 +2,12 @@ import type { JSX, ReactNode } from 'react';
 import { Tabs } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 
-export type ParametresTab = 'infos' | 'notifications' | 'abonnement' | 'legal';
+export type ParametresTab = 'infos' | 'notifications' | 'legal';
 
-/** Les quatre onglets (C2-C5). Plus de variante native depuis 0.3.0. */
+/** Les trois onglets (C2, C3, C5). L'onglet Abonnement est retiré en 0.4.0 : la page Facturation du hub le remplace. */
 export function parametresTabs(): { value: ParametresTab; label: string }[] {
   const t = fr.parametres.tabs;
-  return [{ value: 'infos', label: t.infos }, { value: 'notifications', label: t.notifications }, { value: 'abonnement', label: t.abonnement }, { value: 'legal', label: t.legal }];
+  return [{ value: 'infos', label: t.infos }, { value: 'notifications', label: t.notifications }, { value: 'legal', label: t.legal }];
 }
 
 export interface ParametresLayoutProps {

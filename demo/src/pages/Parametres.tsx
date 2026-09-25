@@ -1,13 +1,11 @@
 import { useState, type JSX, type ReactNode } from 'react';
 import { Button } from '@yunary/ds';
 import {
-  AbonnementView, CancelSubscriptionModal, CheckoutActivationCard, CheckoutModal, DeleteAccountModal, InfosView, LegalView,
+  CancelSubscriptionModal, CheckoutActivationCard, CheckoutModal, DeleteAccountModal, InfosView, LegalView,
   NotificationsView, ParametresLayout, PasswordModal, PaymentFailedBannerView, TabError, TabSkeleton,
   type ParametresTab,
 } from '@yunary/shell';
-import {
-  CATALOG, SUB_ACTIVE, SUB_ENDING, SUB_PAST_DUE, SUMMARIES_ENDING, SUMMARIES_FREE, SUMMARIES_SUBSCRIBED, SUMMARIES_WITH_PACK,
-} from '../fixtures';
+import { CATALOG } from '../fixtures';
 import { Section } from '../ui';
 
 const noop = () => undefined;
@@ -19,12 +17,11 @@ export function ParametresPage(): JSX.Element {
   const [tab, setTab] = useState<ParametresTab>('infos');
   return (
     <div className="flex flex-col gap-space-7">
-      <Section title="Paramètres" note="Artboards C2 à C5 (11/09) : « Comptes connectés » en subheading, rangées en filet 1,5 px, titre d'abonnement en 800 ; padding des cartes gardé à 24. Change d'onglet ici comme dans l'app ; les données sont des fixtures. Plus de variante native depuis 0.3.0.">
+      <Section title="Paramètres" note="Artboards C2, C3, C5 (11/09) : « Comptes connectés » en subheading, rangées en filet 1,5 px ; padding des cartes gardé à 24. Change d'onglet ici comme dans l'app ; les données sont des fixtures. Plus de variante native depuis 0.3.0, plus d'onglet Abonnement depuis 0.4.0 (page Facturation du hub).">
         <Frame>
           <ParametresLayout tab={tab} onTabChange={setTab}>
             {tab === 'infos' ? <InfosView profile={PROFILE} reseau={{ platform: 'instagram', handle: 'julien.crea' }} onSave={noop} saveState="saved" onChoosePhoto={noop} onRemovePhoto={noop} onChangePassword={noop} onLogout={noop} /> : null}
             {tab === 'notifications' ? <NotificationsView prefs={{ analyse_terminee: true, nouveaux_templates: true }} onToggle={noop} /> : null}
-            {tab === 'abonnement' ? <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} /> : null}
             {tab === 'legal' ? <LegalView onDelete={noop} /> : null}
           </ParametresLayout>
         </Frame>
@@ -36,34 +33,9 @@ export function ParametresPage(): JSX.Element {
         </Frame>
       </Section>
 
-      <Section title="Abonnement · les six états" note="0.3.0 — un abonnement Stripe par client, un article par outil, packs en achat unique. L'onglet montre trois choses et rien d'autre : la ligne d'abonnement (statut, échéance, résiliation), les outils (nom lu en base, source Inclus / Abonnement / Pack, quota utilisé / total, échéance) et « Gérer mes outils » vers la page des outils du hub. 🔒 Aucun prix ni chiffre d'offre dans la coque. Les noms viennent du catalogue (fixture `CATALOG`, valeurs de la base).">
-        <div className="flex flex-col gap-space-5">
-          <Frame label="Gratuit · jamais abonné : droits « Inclus » (1 / 1 audit, 2 / 5 analyses)">
-            <AbonnementView subscription={null} entitlements={SUMMARIES_FREE} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-          <Frame label="Abonné à Analyse · 12 / 50 · renouvelé le 23 octobre">
-            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-          <Frame label="Abonnement épuisé + pack : le résumé montre le pack (3 / 20), celui que le serveur consomme">
-            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_WITH_PACK} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-          <Frame label="Outil retiré, gardé jusqu'à la fin de période (`ends_at_period_end`) : « Se termine le … »">
-            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_ENDING} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-          <Frame label="Résiliation complète en cours de période · « Réactiver mon abonnement »">
-            <AbonnementView subscription={SUB_ENDING} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-          <Frame label="Paiement en échec (past_due) : le bandeau (rendu par AppLayout en haut de l'app), rien d'autre ne change">
-            <div className="flex flex-col gap-space-5">
-              <PaymentFailedBannerView onPortal={noop} />
-              <AbonnementView subscription={SUB_PAST_DUE} entitlements={SUMMARIES_SUBSCRIBED} catalog={CATALOG} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-            </div>
-          </Frame>
-          <Frame label="Catalogue pas encore lu : l'identifiant de l'outil en attendant son nom">
-            <AbonnementView subscription={SUB_ACTIVE} entitlements={SUMMARIES_SUBSCRIBED} toolsHref="/outils" onPortal={noop} onCancel={noop} onResume={noop} />
-          </Frame>
-        </div>
-      </Section>
+      <Frame label="Paiement en échec (past_due) : le bandeau, rendu par AppLayout en haut de l'app ; l'accès n'est pas coupé">
+        <PaymentFailedBannerView onPortal={noop} />
+      </Frame>
 
       <Section title="Retour de Stripe · activation" note="`?checkout=<session_id>` dans l'URL : l'onglet cède la place à cette carte. Sonde de `tool_entitlements` chaque seconde, 20 s au plus (le droit précis si `?tool=` ou `?pack=` est là) ; pendant ce temps la sidebar dit « Activation en cours… », jamais « Gratuit ». Passé 20 s : le message calme — le paiement a réussi, pas d'erreur rouge.">
         <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-3">

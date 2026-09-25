@@ -40,7 +40,7 @@ export interface HubSidebarProps {
  * La sidebar du maître `HubSidebar.dc.html`, sur les décisions de Julien (08/09/2026) : **plus de
  * commutateur** — le lockup est statique (un raccourci vers « Mes outils ») ; la nav de l'app, puis
  * « Mes outils » + Paramètres, la carte compte. Depuis 0.3.0 (pivot MCP) : plus de carte crédits (les
- * quotas sont par outil, dans Paramètres › Abonnement) et plus de nom d'outil dans le lockup (la
+ * quotas sont par outil, sur la page Facturation du hub) et plus de nom d'outil dans le lockup (la
  * coquille web s'appelle « Yunary », les outils vivent en base). C'est la `Sidebar` du DS **sans son
  * régime replié** (retiré par Julien, 08/09/2026 : la barre est toujours dépliée), sa largeur
  * `--sidebar-w` de la marque, son tiroir sous 64rem — rien n'est redessiné.

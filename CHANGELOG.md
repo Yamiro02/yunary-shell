@@ -5,6 +5,35 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.4.0 — abonnement v2 : les vues (EN COURS, non taggée)
+
+- **Pourquoi** : la maquette « Yunary Hub Dashboard » (25/09/2026) remplace l'onglet Abonnement par une page
+  Facturation (hub) et des modales de paiement réutilisables. Feu vert partiel de Julien : les vues pilotées
+  par props d'abord ; les conteneurs et les hooks attendent les contrats du back (`preview-subscription-change`,
+  `update-subscription`, `list-invoices`).
+- **Ajouté (vues)** : `ModifySubscriptionView`, `ActivateToolView`, `ReactivateToolView`,
+  `SubscriptionResultView`, `AmountRows`, `SavedCardLine`, `ScheduledCancellationCard`, `BankConfirmOverlay`,
+  `FullScreenSheet` (extrait du `CheckoutModal`, comportement inchangé, pied fixe en plus), `AnimatedCheck`,
+  `Reveal`, `useReducedMotion` ; `formatDateNumerique`, `formatJourMois` ; chaînes `fr.paiement`.
+- **Décisions appliquées (Julien, 25/09/2026)** : 3D Secure option A (notre carte en fond, la fenêtre Stripe.js
+  par-dessus) ; animation par `element.animate` sur `--ease-standard`, keyframes d'entrée consignées au BACKLOG du
+  DS ; coche 5 rem bureau, 4 rem mobile ; colonne de retour `max-w-[35rem]` provisoire ; pas d'hôte de toasts
+  (réactivation → `onDone`, le hub affiche un `Banner`) ; « Tes 2 outils sont actifs », ajout + retrait =
+  variante ajout avec l'outil retiré en badge ambre ; carte absente avec un abonnement actif = « Ajoute une carte
+  pour continuer » + portail, jamais le Checkout. Écarts : Modal à `--container-wide` (900 pour 920), colonne des
+  montants `--container-aside` (320 pour 300), petites modales `Modal lg` (520 pour 480), 28 px → `space-6`,
+  quota « 50 par mois » sans unité, zone d'attente 3D Secure courte (la fenêtre est celle de Stripe).
+- **Retiré** : l'onglet Paramètres › Abonnement (`AbonnementTab`, `AbonnementView`, `subscriptionStatusLabel`,
+  `'abonnement'` de `ParametresTab`, prop `toolsHref` de `ParametresPage`) et ses chaînes ; la page Facturation du
+  hub le remplace. ⚠ Rupture : le hub doit retirer `toolsHref` de `ParametresPage` et rediriger l'ancienne route.
+- **Carte compte** : « 2 outils · 14 €/mois » (articles actifs, montants facturés lus en base) ou « Gratuit »
+  (`accountPlanLabel`, 4 tests) ; plus de « Abonné ».
+- Démo : page « Paiement v2 » (tous les états des artboards, bureau et mobile, rejouer l'animation) ; Layout avec
+  la carte de résiliation ; Paramètres sans onglet Abonnement. Rendu vérifié en clair, en sombre et en mouvement
+  réduit (captures headless : le panneau du navigateur était masqué).
+
+---
+
 ## 0.3.2 — après authentification, `/autoriser` passe avant l'onboarding ; `next` sur tous les chemins (23/09/2026)
 
 - **Bug** (constaté par la session hub) : une personne envoyée par Claude sur

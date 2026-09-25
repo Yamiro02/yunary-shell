@@ -1,4 +1,4 @@
-# EXPORTS — l'API publique de `@yunary/shell` (0.3.2)
+# EXPORTS — l'API publique de `@yunary/shell` (0.4.0, en cours)
 
 Un seul point d'entrée : `import { … } from '@yunary/shell'`. Tout ce qui n'est pas listé ici
 est interne et peut changer sans bump majeur. Les **vues** (`*View`) sont pilotées par props et
@@ -88,16 +88,32 @@ que dans le web.
 | `usePortalSession()` | Edge `create-portal-session` → redirection vers le portail (carte, factures). |
 | `<PaymentFailedBanner>` / `<PaymentFailedBannerView onPortal>` | `past_due` / `unpaid` : bandeau « Ton dernier paiement n'est pas passé… » + bouton portail. Rendu par `AppLayout` en haut de l'app ; l'accès n'est pas coupé. |
 
+## Abonnement v2 — les vues (0.4.0, en cours : conteneurs et hooks à venir avec les contrats du back)
+
+| Export | Rôle |
+|---|---|
+| `<ModifySubscriptionView open onClose rows onToggle summary card phase? error? onConfirm onChangeCard? onAddCard? cardBusy? onCancelBank? layout? inline?>` | « Modifier mon abonnement » (Hub-03-ModifierOutils). `rows: ToolSwitchRowView[]` (`toolId`, `name`, `priceCents`, `monthlyQuota`, `state: ToolRowState` = `active` · `ending` · `none`, `checked`, `periodEnd`, `disabled?`) ; `summary: ChangeSummaryView \| null` (`added`, `removed`, `reactivated`, `todayCents`, `todayDetail?`, `nextCents`, `nextFrom` ; `null` = aperçu en cours) ; `phase: PaymentPhase` = `edit` · `paying` · `bank` · `declined`. CTA « Payer X € » / « Confirmer », inactif sans changement ou sans carte quand il faut payer. Plein écran sous 64 rem. |
+| `<ActivateToolView open onClose name amounts card phase? error? onConfirm onChangeCard? onAddCard? cardBusy? onCancelBank? inline?>` | « Activer Yunary Audit ? » (Hub-Outils-Activer-Confirmation). `amounts: ActivateAmountsView \| null` (`todayCents`, `todayDetail?`, `nextCents`, `nextDate`, `nextDetail?`). Phases de la grande modale + `done` (arrivée depuis Claude : « Tu peux retourner dans Claude »). |
+| `<ReactivateToolView open onClose name periodEnd next phase? error? onConfirm inline?>` | « Réactiver Yunary Analyse ? » (Hub-Outils-Reactiver-Confirmation) : 0 € aujourd'hui, `next: { cents, date, detail? } \| null`, `phase` = `edit` · `saving`. |
+| `<SubscriptionResultView variant subjects tools todayCents? next? periodEnd? email? invoicesHref? linkAs? onBack onRetry? layout? inline?>` | L'écran de retour pleine page (Hub-03b-Retour) : `variant` = `added` · `removed` · `failed` ; `tools: ResultToolView[]` (`name`, `meta?`, `status` = `active` · `ending` · `failed`, `endsOn?`). Coche qui se dessine, puis titre, puis outils un par un. |
+| `<AmountRows rows>` | Le tableau de montants des petites modales ; `AmountRow` = `label`, `caption?`, `amountCents` (`null` = squelette), `highlight?` (`bg-grad-soft`). |
+| `<SavedCardLine card size? onChange? onAdd? busy?>` · `cardBrandLabel(brand)` | La carte enregistrée (`SavedCardView` = `brand`, `last4`, `expMonth`, `expYear`), tailles `full` · `compact` · `inline` ; `card: null` = « Ajoute une carte pour continuer » + « Ajouter une carte ». |
+| `<ScheduledCancellationCard periodEnd toolCount onKeep keepBusy?>` | « Tout s'arrête le … » + « Garder mes outils » (Hub-Facturation-ResiliationProgrammee). |
+| `<BankConfirmOverlay amountCents onCancel?>` | L'attente 3D Secure posée dans une modale ; la fenêtre de la banque est celle de Stripe.js, par-dessus. |
+| `<FullScreenSheet title subtitle? onClose inline? footer?>` | Le plein écran des paiements sous 64 rem (extrait du `CheckoutModal`, avec un pied fixe). |
+| `<AnimatedCheck tone? size? delay?>` · `<Reveal delay?>` · `useReducedMotion()` · `REDUCED_MOTION_QUERY` | Le mouvement de l'écran de retour, par `element.animate` sur `--ease-standard` ; rien d'animé sous `prefers-reduced-motion`. |
+
 ## Layout
 
 | Export | Rôle |
 |---|---|
-| `<AppLayout items? settingsHref? toolsHref? showToolsLink?>` | `AppShell` + `HubSidebar` alimentés par le profil et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. `toolsHref` (défaut `/outils`) : la route locale de la page des outils du hub — l'entrée du pied de nav et le lockup y mènent ; `showToolsLink={false}` (0.3.1) retire l'entrée du pied quand l'app met Outils dans `items`, le lockup garde sa cible. Rend le `PaymentFailedBanner` sous la barre haute ; carte compte « Gratuit » / « Abonné », « Activation en cours… » pendant un retour de checkout. |
+| `<AppLayout items? settingsHref? toolsHref? showToolsLink?>` | `AppShell` + `HubSidebar` alimentés par le profil et l'abonnement ; tiroir sous 64rem ; contenu dans `AppContent` ; `Outlet` sans enfants. `toolsHref` (défaut `/outils`) : la route locale de la page des outils du hub — l'entrée du pied de nav et le lockup y mènent ; `showToolsLink={false}` (0.3.1) retire l'entrée du pied quand l'app met Outils dans `items`, le lockup garde sa cible. Rend le `PaymentFailedBanner` sous la barre haute ; carte compte « 2 outils · 14 €/mois » ou « Gratuit » (`accountPlanLabel`), « Activation en cours… » pendant un retour de checkout. |
 | `<AppContent className?>` | Le conteneur du contenu : **pleine largeur, sans plafond**, gouttières de la v1 — `space-4` de côté et `space-5` en vertical sous 64 rem, `space-5` partout dès que la sidebar est à demeure (`64.0625rem`). Colonne flex qui remplit la hauteur restante sous la barre dans `AppLayout` : un bloc se centre avec `m-auto`. |
 | `APP_GUTTER_X` · `APP_BLEED_X` · `APP_BLEED_TOP` | Les gouttières d'`AppContent` en classes : y rentrer, en sortir (le miroir négatif), coller au haut du contenu. Jamais recopiées dans une app. |
 | `<AppBleed flush? className?>` | Un bloc qui sort des gouttières latérales — le cas « page entière » ; `flush` colle aussi au haut. `AppBleedProps`. |
 | `<HubSidebar items? settingsHref? settingsActive? toolsHref? toolsActive? showToolsLink? account linkAs? open? onClose? staticLayout?>` | La sidebar en vue : lockup en tête (monogramme 1,5 rem + « Yunary » en display 18, lien vers `toolsHref`), nav de l'app, Mes outils (sauf `showToolsLink={false}`) + Paramètres en pied de nav, carte compte ; jamais repliée ; `linkAs` pour le routeur. `HubSidebarProps`, `ShellNavItem`. |
-| `<AccountCard account>` · `<UserAvatar account>` | La carte du bas de sidebar (avatar, nom, « Gratuit » / « Abonné ») et l'avatar composé. `AccountView`. |
+| `<AccountCard account>` · `<UserAvatar account>` | La carte du bas de sidebar (avatar, nom, libellé de formule) et l'avatar composé. `AccountView`. |
+| `accountPlanLabel(subscriptionState)` | (0.4.0) Le libellé posé par `AppLayout` : « 2 outils · 14 €/mois » (articles actifs, montants facturés lus en base), « 2 outils » si un montant manque, « Gratuit » sans abonnement actif. |
 | `<ToolLabel name className?>` | (0.3.1) Le nom d'un outil en lockup sur un nom LU EN BASE : « Yunary » puis le mot accentué en pochoir `.accent` ; un nom qui ne commence pas par « Yunary » est rendu tel quel. Aucune taille propre : celle de l'appelant. Le récap du checkout, les pages Outils du hub. `ToolLabelProps`. |
 | `<SegmentedControl options value onChange label>` | Choix unique pleine largeur (`radiogroup`), sélection à la convention des Tabs. Manque DS consigné. |
 
@@ -105,11 +121,10 @@ que dans le web.
 
 | Export | Rôle |
 |---|---|
-| `<ParametresPage tab? onTabChange? hrefs? toolsHref? onDeleted?>` | C2–C5, quatre onglets. Sans `tab`, lit `?tab=`. `toolsHref` (défaut `/outils`) : la cible de « Gérer mes outils ». |
+| `<ParametresPage tab? onTabChange? hrefs? onDeleted?>` | C2, C3, C5 : trois onglets (plus d'Abonnement depuis 0.4.0, la page Facturation du hub le remplace). Sans `tab`, lit `?tab=` ; un onglet inconnu retombe sur Infos. |
 | `<ParametresLayout tab onTabChange>` · `parametresTabs()` | En-tête + onglets. `ParametresTab`. |
 | `<InfosTab>` / `<InfosView>` | Photo, prénom / nom en autosave, e-mail verrouillé, mot de passe, carte « Comptes connectés » (réseau + handle en lecture seule depuis `profiles`, `onReseauChange` réservé), déconnexion. |
 | `<NotificationsTab>` / `<NotificationsView>` | Deux préférences, interrupteurs du DS. |
-| `<AbonnementTab toolsHref?>` / `<AbonnementView subscription entitlements catalog? toolsHref onPortal onCancel onResume …>` | Trois blocs et rien d'autre : la ligne d'abonnement (statut, prochaine échéance, « Se termine le… » + « Réactiver » ou « Se désabonner », « Gérer le paiement »), « Tes outils » (une ligne par résumé de droit : nom lu en base, source `Inclus` / `Abonnement` / `Pack`, utilisé / total ou « Sans limite », barre, échéance — « Se termine le… » pour un droit `endsAtPeriodEnd`), « Gérer mes outils » → `toolsHref`. 🔒 Aucun prix. Le conteneur ouvre `CancelSubscriptionModal` et rend `CheckoutActivationCard` sur `?checkout=`. `AbonnementViewProps`, `subscriptionStatusLabel(status)`. |
 | `<LegalTab>` / `<LegalView>` · `DEFAULT_LEGAL_HREFS` | Liens légaux + zone danger. |
 | `<PasswordModal>` · `<DeleteAccountModal>` | Modales du DS en 3 phases (confirm → loading → result). |
 | `<TabSkeleton>` · `<TabError>` | États de chargement et d'erreur d'un onglet. |
@@ -139,7 +154,7 @@ que dans le web.
 | `fr` | Toutes les chaînes communes (erreurs, auth, layout, outils et droits — `fr.tools` : sources, statuts, « Sans limite », « utilisé / total », « 50 par mois », échéances —, paramètres, checkout multi-outils, légal, audit). Jamais un nom d'outil : ils viennent de la base. |
 | `getErrorMessage(error)` | Une erreur (Supabase, réseau, code métier brut du back, inconnue) → une phrase FR. Jamais un message brut à l'écran. |
 | `messageForCode(code, fallback)` | 🔒 La phrase FR d'un code du back (`not_subscribed`, `quota_exhausted`, `not_published`, `already_subscribed`, `no_subscription`, `no_customer`, `unknown_tool`, `rate_limited`, `unauthorized`, `stripe_error`, `invalid_input`) ; inconnu → `fallback`. |
-| `formatNombre` · `formatCompact` · `formatDateCourte` · `formatDateLongue` · `formatEuros(cents)` · `initiales` | Formats FR via `Intl` ; `formatEuros` : centimes → « 9 € » / « 9,90 € ». |
+| `formatNombre` · `formatCompact` · `formatDateCourte` · `formatDateLongue` · `formatDateNumerique` (« 23/10/2026 ») · `formatJourMois` (« 23/10 ») · `formatEuros(cents)` · `initiales` | Formats FR via `Intl` ; `formatEuros` : centimes → « 9 € » / « 9,90 € ». |
 | `useMediaQuery(query)` · `DS_MOBILE_QUERY` | `matchMedia` en `useSyncExternalStore` ; `DS_MOBILE_QUERY` = `(max-width: 64rem)`, le seuil unique du DS. |
 | `withGlyphSize(icon, size?)` · `CARD_GLYPH_SIZE` | Pose `size` (18 px par défaut) sur un `<Icon />` reçu en prop, sauf si l'appelant l'a fixé. |
 | `SHELL_VERSION` | La version du paquet. |

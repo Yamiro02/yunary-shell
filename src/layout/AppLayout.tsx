@@ -3,7 +3,8 @@ import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { AppShell, Icon, IconButton, Logo, cn } from '@yunary/ds';
 import { fr } from '../i18n/fr';
 import { useProfile } from '../account/useProfile';
-import { isSubscriptionActive, useSubscription } from '../account/useSubscription';
+import { useSubscription } from '../account/useSubscription';
+import { accountPlanLabel } from '../account/planLabel';
 import { useCheckoutActivation } from '../abonnement/useCheckoutActivation';
 import { PaymentFailedBanner } from '../abonnement/PaymentFailedBanner';
 import { initiales } from '../lib/format';
@@ -115,10 +116,9 @@ export function AppLayout({
     initials: initiales(profile.data?.prenom, profile.data?.nom, profile.data?.email),
     avatarUrl: profile.data?.avatar_url ?? null,
     /* Retour de Stripe, webhook pas encore passé : « Activation en cours… », jamais « Gratuit » à qui vient de payer.
-       Sinon « Gratuit » / « Abonné » — le détail (outils, quotas) est dans Paramètres › Abonnement. */
-    planLabel: activation.state === 'pending'
-      ? fr.layout.planActivating
-      : isSubscriptionActive(subscription.data?.subscription) ? fr.layout.planSubscribed : fr.layout.planFree,
+       Sinon « 2 outils · 14 €/mois » (maquette Hub Dashboard, 25/09/2026 : les articles actifs et leurs montants lus en
+       base, `subscription_items.amount_cents`), ou « Gratuit » sans abonnement actif. */
+    planLabel: activation.state === 'pending' ? fr.layout.planActivating : accountPlanLabel(subscription.data),
   };
 
   return (
