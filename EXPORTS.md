@@ -1,4 +1,4 @@
-# EXPORTS — l'API publique de `@yunary/shell` (0.4.0, en cours)
+# EXPORTS — l'API publique de `@yunary/shell` (0.4.0)
 
 Un seul point d'entrée : `import { … } from '@yunary/shell'`. Tout ce qui n'est pas listé ici
 est interne et peut changer sans bump majeur. Les **vues** (`*View`) sont pilotées par props et
@@ -24,7 +24,7 @@ que dans le web.
 | `supabase` | Le client (`createBrowserClient` de `@supabase/ssr`, session en cookies `.yunary.com`). Singleton paresseux : l'utiliser avant `configureShell` lève. |
 | `getSupabase()` | Le même, en fonction. |
 | `signOut()` | La déconnexion — toujours par ici (`scope: 'global'`). |
-| `Database` · `Tables` · `TablesInsert` · `TablesUpdate` · `Json` | Types générés du projet (lot 1 ter, 23/09/2026 : `ends_at_period_end` typé), jamais édités. |
+| `Database` · `Tables` · `TablesInsert` · `TablesUpdate` · `Json` | Types générés du projet (lot 7, 25/09/2026), jamais édités. |
 
 ## Session, auth, garde
 
@@ -71,7 +71,7 @@ que dans le web.
 | `useToolCatalog({ enabled? })` → `ToolCatalog` | `tools` (`ToolDef` : `id`, `name`, `description`, `position`, `monthlyQuota`, `priceCents`, `isPublished`, `status`) + `tool_packs` (`ToolPackDef` : `id`, `toolId`, `name`, `units`, `priceCents`, `isPublished`), lecture publique, triés par `position`. `toolCatalogKey`, `toolByIdIn(catalog, id)`, `packByIdIn(catalog, id)`. |
 | `useEntitlements()` → `EntitlementsInfo` | `rows` : les lignes `tool_entitlements` de l'utilisateur (`Entitlement` : `toolId`, `source`, `status`, `quotaTotal`, `quotaUsed`, `periodStart`, `periodEnd`, `endsAtPeriodEnd`) ; `summaries` : un `EntitlementSummary` par outil (`toolId`, `source`, `status`, `used`, `total`, `remaining`, `periodEnd`, `endsAtPeriodEnd`, `usable`) = le droit que le serveur consommerait (`subscription` → `pack` → `free`, actif, en période, non épuisé), sinon le premier actif. `entitlementsKey`, `isEntitlementUsable(row)`, `summarizeEntitlements(rows)`. Types `EntitlementSource`, `EntitlementStatus`. |
 | `useCanUse(tool)` → `CanUseResult` | 🔒 `select can_use(tool)` avec le jeton de l'utilisateur, lecture seule : `{ allowed, reason, source, remaining, link }`. `canUseKey`, `CanUseReason` (`ok`, `not_subscribed`, `quota_exhausted`, `unknown_tool`, `unauthorized`). |
-| `useToolRules({ tool? })` → `ToolRule[]` | `user_tool_rules` (owner), les plus récentes d'abord. `useAddToolRule()` (`{ toolId, stepKey?, text }`), `useUpdateToolRule()` (`{ id, text, stepKey? }`), `useDeleteToolRule()` (`{ id }`) ; texte nettoyé, 1..`RULE_TEXT_MAX` (500). `toolRulesKey`. |
+| `useToolRules({ tool? })` → `ToolRule[]` | `user_tool_rules` (owner), les plus récentes d'abord ; `toolId` null = règle commune à tous les outils (0.4.0). `useAddToolRule()` (`{ toolId: string \| null, stepKey?, text }`), `useUpdateToolRule()` (`{ id, text, stepKey? }`), `useDeleteToolRule()` (`{ id }`) ; texte nettoyé, 1..`RULE_TEXT_MAX` (500). `toolRulesKey`. |
 | `useToolRuns({ tool?, limit? })` → `ToolRun[]` | `tool_runs` (owner), plus récent d'abord, 50 par défaut. `ToolRun` : `toolId`, `status` (`ToolRunStatus`), `currentStepKey`, `data`, `refId`, `startedAt`, `updatedAt`, `finishedAt`. `toolRunsKey`. |
 
 ## Abonnement Stripe — un abonnement par client, un article par outil, packs (web seulement)
@@ -85,10 +85,37 @@ que dans le web.
 | `useRemoveTool()` | Edge `remove-subscription-item { tool }` → `RemoveToolResult` : `{ mode: 'removed' }`, `{ mode: 'ends_at_period_end', periodEnd }` (l'outil reste jusqu'à la fin de la période, sans avoir) ou `{ mode: 'cancel_at_period_end', currentPeriodEnd }` (dernier article : tout l'abonnement s'arrête en fin de période). Codes : `no_subscription`, `not_subscribed`. Libellés dans `fr.parametres.abonnement.remove`. |
 | `useCancelSubscription()` · `useResumeSubscription()` | Résiliation COMPLÈTE en fin de période (`cancel-subscription`) / réactivation (`resume-subscription`) ; invalident abonnement et droits. |
 | `<CancelSubscriptionModal open onClose onConfirm periodEnd>` | « Se désabonner ? » en une étape, texte exact ; 3 phases. |
-| `usePortalSession()` | Edge `create-portal-session` → redirection vers le portail (carte, factures). |
+| `usePortalSession()` | Edge `create-portal-session` → le portail limité (carte, adresse, factures ; ni résiliation ni changement d'offre). `mutate()` redirige ; `mutate({ target })` le charge dans un onglet ouvert au clic par l'appelant. |
 | `<PaymentFailedBanner>` / `<PaymentFailedBannerView onPortal>` | `past_due` / `unpaid` : bandeau « Ton dernier paiement n'est pas passé… » + bouton portail. Rendu par `AppLayout` en haut de l'app ; l'accès n'est pas coupé. |
 
-## Abonnement v2 — les vues (0.4.0, en cours : conteneurs et hooks à venir avec les contrats du back)
+## Abonnement v2 (0.4.0) — contrats du back § 8
+
+Le premier abonnement reste le `CheckoutModal`. Tout changement d'un abonnement existant passe par `update-subscription`.
+
+**Conteneurs câblés** (ce que le hub monte)
+
+| Export | Rôle |
+|---|---|
+| `<ModifySubscriptionModal open onClose onDone>` | « Modifier mon abonnement » : outils publiés ou souscrits, état lu dans les droits, aperçu à chaque geste, paiement avec la 3D Secure. `onDone(outcome: SubscriptionChangeOutcome)` après un succès. `checkoutRequis` (pas d'abonnement vivant) → `CheckoutModal` des outils ajoutés. `ModifySubscriptionModalProps`. |
+| `<ActivateToolModal open onClose toolId onDone? fromClaude?>` | « Activer un outil » : aperçu `{ tool }`, `update-subscription { ajouter: [tool] }`. `checkoutRequis` → `CheckoutModal`. Abonnement actif sans carte → « Ajouter une carte » (portail dans un nouvel onglet, aperçu relu au retour). `fromClaude` → « Tu peux retourner dans Claude » dans la modale au lieu d'`onDone`. `ActivateToolModalProps`. |
+| `<ReactivateToolModal open onClose toolId onDone>` | « Réactiver » : `{ garder: [tool] }`, 0 € aujourd'hui, `onDone()` (le hub affiche son `Banner`). `ReactivateToolModalProps`. |
+| `<SubscriptionResultScreen outcome onBack onRetry? invoicesHref? linkAs?>` | L'écran de retour pleine page, avec l'e-mail du profil. `SubscriptionResultScreenProps`. |
+
+**Hooks**
+
+| Export | Rôle |
+|---|---|
+| `usePreviewSubscriptionChange(body: PreviewRequest \| null)` → `SubscriptionPreview` | `preview-subscription-change`. `PreviewRequest` = `SubscriptionChange` (`{ ajouter?, retirer?, garder? }`) ou `{ tool }`. 250 ms de délai ; `data` vide tant que la sélection bouge. `SubscriptionPreview` = `checkoutRequis`, `aPayerAujourdhui`, `detail[{ outil, libelle, montant, du, au }]`, `prochainPrelevement { date, montant } \| null`, `carte { marque, last4, expMois, expAnnee } \| null`, `fin`, `abonnement { statut, finPeriode, resiliation, outils[{ outil, nom, retraitProgramme }] } \| null`. `subscriptionPreviewKey`. |
+| `useApplySubscriptionChange()` | 🔒 Un changement complet selon la règle du back : `mutate({ change, expectedTodayCents?, onBank? })` → `ChangeRunResult` = `{ status: 'ok', data, paidCents, confirmedByBank }` ou `{ status: 'declined', declineCode }`. 3DS confirmée → relance avec les seuls retraits / garder ; abandonnée → rien n'a changé. `ApplyChangeVars`. |
+| `useUpdateSubscription()` · `updateSubscription(change)` | UN appel à `update-subscription` → `UpdateCallResult` = `{ status: 'ok', data: SubscriptionUpdateResult }` (`statut`, `finPeriode`, `resiliation`, `outils`, `ajoutes`, `montantPaye`), `{ status: 'requires_action', clientSecret, invoiceId }`, `{ status: 'card_declined', declineCode }` ; les autres codes (`past_due`, `no_subscription`, `already_subscribed`, `not_subscribed`, `not_published`…) lèvent leur phrase FR. |
+| `useReactivateTool()` | `mutate(tool)` = `{ garder: [tool] }`. |
+| `confirmBankPayment(clientSecret)` | La 3D Secure : `stripe.confirmCardPayment` (fenêtre Stripe par-dessus la page) ; `true` = confirmé. |
+| `useInvoices()` → `InvoicesInfo` | `list-invoices` : `factures[{ date, numero, montant, statut, pdfUrl, hostedUrl, lignes[{ libelle, montant, du, au }] }]`, `prochainPrelevement`, `moyenDePaiement { marque, last4, expiration }`, `adresse`. `no_customer` = vide. `Invoice`, `InvoiceLine`, `invoicesKey`. |
+| `callEdge(name, body, fallback)` · `invokeEdge(…)` | L'appel des Edge : `callEdge` rend `EdgeResult` (`{ ok: true, data }` ou `{ ok: false, code, data }`, refus métier compris) ; `invokeEdge` lève la phrase du code. |
+
+**Logique pure** (testée) : `diffSelection(rows)` (coché + pas souscrit = ajouter, décoché + actif = retirer, coché + en retrait = garder), `withoutAdditions`, `normalizeChange`, `runSubscriptionChange(change, deps)`, `summaryFromPreview`, `unchangedSummary`, `activateAmountsFromPreview`, `prorataDetail` (« Yunary Audit du 10/10 au 23/10 »), `nextChargeDetail` (« Yunary Analyse 9 € + Yunary Audit 5 € »), `rowState`, `buildOutcome` → `SubscriptionChangeOutcome` (`variant`, `subjects`, `tools`, `todayCents`, `next`, `periodEnd`). Types `SubscriptionChange`, `SubscriptionSnapshot`, `SubscriptionToolState`, `PreviewCard`, `PreviewDetailLine`, `ChangeRunDeps`, `OutcomeInput`.
+
+**Vues** (pilotées par props)
 
 | Export | Rôle |
 |---|---|
@@ -153,7 +180,7 @@ que dans le web.
 |---|---|
 | `fr` | Toutes les chaînes communes (erreurs, auth, layout, outils et droits — `fr.tools` : sources, statuts, « Sans limite », « utilisé / total », « 50 par mois », échéances —, paramètres, checkout multi-outils, légal, audit). Jamais un nom d'outil : ils viennent de la base. |
 | `getErrorMessage(error)` | Une erreur (Supabase, réseau, code métier brut du back, inconnue) → une phrase FR. Jamais un message brut à l'écran. |
-| `messageForCode(code, fallback)` | 🔒 La phrase FR d'un code du back (`not_subscribed`, `quota_exhausted`, `not_published`, `already_subscribed`, `no_subscription`, `no_customer`, `unknown_tool`, `rate_limited`, `unauthorized`, `stripe_error`, `invalid_input`) ; inconnu → `fallback`. |
+| `messageForCode(code, fallback)` | 🔒 La phrase FR d'un code du back (`not_subscribed`, `quota_exhausted`, `not_published`, `already_subscribed`, `card_declined`, `past_due`, `requires_action`, `no_subscription`, `no_customer`, `unknown_tool`, `rate_limited`, `unauthorized`, `stripe_error`, `invalid_input`) ; inconnu → `fallback`. |
 | `formatNombre` · `formatCompact` · `formatDateCourte` · `formatDateLongue` · `formatDateNumerique` (« 23/10/2026 ») · `formatJourMois` (« 23/10 ») · `formatEuros(cents)` · `initiales` | Formats FR via `Intl` ; `formatEuros` : centimes → « 9 € » / « 9,90 € ». |
 | `useMediaQuery(query)` · `DS_MOBILE_QUERY` | `matchMedia` en `useSyncExternalStore` ; `DS_MOBILE_QUERY` = `(max-width: 64rem)`, le seuil unique du DS. |
 | `withGlyphSize(icon, size?)` · `CARD_GLYPH_SIZE` | Pose `size` (18 px par défaut) sur un `<Icon />` reçu en prop, sauf si l'appelant l'a fixé. |

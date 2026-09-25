@@ -5,13 +5,38 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
-## 0.4.0 — abonnement v2 : les vues (EN COURS, non taggée)
+## 0.4.0 — abonnement v2 : modifier, activer, réactiver, retour de paiement, factures (25/09/2026)
 
 - **Pourquoi** : la maquette « Yunary Hub Dashboard » (25/09/2026) remplace l'onglet Abonnement par une page
-  Facturation (hub) et des modales de paiement réutilisables. Feu vert partiel de Julien : les vues pilotées
-  par props d'abord ; les conteneurs et les hooks attendent les contrats du back (`preview-subscription-change`,
-  `update-subscription`, `list-invoices`).
-- **Ajouté (vues)** : `ModifySubscriptionView`, `ActivateToolView`, `ReactivateToolView`,
+  Facturation (hub) et des modales de paiement réutilisables ; le back a publié ses contrats (§ 8 :
+  `update-subscription`, `preview-subscription-change`, `list-invoices`, alias `remove-subscription-item`,
+  `cancel-` / `resume-subscription`). Le premier abonnement reste le `CheckoutModal`, inchangé.
+- **Conteneurs câblés** : `ModifySubscriptionModal { open, onClose, onDone(outcome) }` (outils publiés ou souscrits,
+  état lu dans les droits, aperçu à chaque geste, `CheckoutModal` si `checkoutRequis`), `ActivateToolModal { open,
+  onClose, toolId, onDone?, fromClaude? }` (aperçu `{ tool }`, `CheckoutModal` si `checkoutRequis`, « Ajouter une
+  carte » = portail quand l'abonnement est actif sans carte, « Tu peux retourner dans Claude » avec `fromClaude`),
+  `ReactivateToolModal { open, onClose, toolId, onDone }` (`{ garder: [tool] }`, 0 €), `SubscriptionResultScreen
+  { outcome, onBack, onRetry?, invoicesHref?, linkAs? }` (e-mail du profil).
+- **Hooks** (noms et formes exacts du contrat) : `usePreviewSubscriptionChange(body)` (250 ms de délai, squelettes tant
+  que la sélection bouge, relu au retour sur l'onglet), `useUpdateSubscription` / `updateSubscription` (succès,
+  `requires_action` avec `clientSecret` et `invoiceId`, `card_declined` avec `declineCode` ; les autres codes lèvent leur
+  phrase), `useApplySubscriptionChange`, `useReactivateTool`, `confirmBankPayment` (`stripe.confirmCardPayment`),
+  `useInvoices` (`list-invoices`, `no_customer` = aucune facture). `callEdge` rend les refus métier avec leurs données.
+- **🔒 La règle du back** (`runSubscriptionChange`, pure et testée) : un appel avec tout le changement ; 3D Secure
+  confirmée → relance avec les SEULS retraits / garder ; abandonnée ou refusée → rien n'a changé, état « carte
+  refusée » ; `card_declined` → idem. Après le succès, les caches sont relus tout de suite puis 3 s plus tard (le
+  webhook pose le droit après une 3DS).
+- **Portail dans un nouvel onglet** : `usePortalSession().mutate({ target })` ; les modales ouvrent l'onglet au clic,
+  restent ouvertes, et relisent l'aperçu au retour.
+- **Logique pure exportée** : `diffSelection`, `withoutAdditions`, `normalizeChange`, `summaryFromPreview`,
+  `unchangedSummary`, `activateAmountsFromPreview`, `prorataDetail`, `nextChargeDetail`, `rowState`, `buildOutcome` ;
+  types du contrat (`SubscriptionPreview`, `SubscriptionUpdateResult`, `SubscriptionSnapshot`, `PreviewCard`…).
+- **Types** régénérés (lot 7) : `user_tool_rules.tool_id` devient facultatif (règle commune à tous les outils) →
+  `ToolRule.toolId: string | null`, `useAddToolRule` l'accepte ; export posé dans
+  `apps/supabase/exports/database.types-2026-09-25-lot7.ts`.
+- **Phrases** : `card_declined`, `past_due`, `requires_action` ont la leur dans `messageForCode`.
+- **Tests** : 38 (dont 14 sur la logique de l'abonnement v2 et la règle 3DS, 4 sur la carte compte).
+- **Vues** (pilotées par props) : `ModifySubscriptionView`, `ActivateToolView`, `ReactivateToolView`,
   `SubscriptionResultView`, `AmountRows`, `SavedCardLine`, `ScheduledCancellationCard`, `BankConfirmOverlay`,
   `FullScreenSheet` (extrait du `CheckoutModal`, comportement inchangé, pied fixe en plus), `AnimatedCheck`,
   `Reveal`, `useReducedMotion` ; `formatDateNumerique`, `formatJourMois` ; chaînes `fr.paiement`.
@@ -28,9 +53,10 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
   hub le remplace. ⚠ Rupture : le hub doit retirer `toolsHref` de `ParametresPage` et rediriger l'ancienne route.
 - **Carte compte** : « 2 outils · 14 €/mois » (articles actifs, montants facturés lus en base) ou « Gratuit »
   (`accountPlanLabel`, 4 tests) ; plus de « Abonné ».
-- Démo : page « Paiement v2 » (tous les états des artboards, bureau et mobile, rejouer l'animation) ; Layout avec
-  la carte de résiliation ; Paramètres sans onglet Abonnement. Rendu vérifié en clair, en sombre et en mouvement
-  réduit (captures headless : le panneau du navigateur était masqué).
+- Démo : page « Paiement v2 » (tous les états des vues, bureau et mobile, rejouer l'animation) ; Layout avec la carte
+  de résiliation ; Paramètres sans onglet Abonnement. Rendu vérifié en clair, en sombre et en mouvement réduit
+  (captures headless : le panneau du navigateur était masqué). Les conteneurs demandent le back : recette de bout en
+  bout par Julien dans le hub (§ 8 du back).
 
 ---
 

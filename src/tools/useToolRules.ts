@@ -3,10 +3,11 @@ import { getSupabase } from '../lib/supabase';
 import { useAuth } from '../auth/useAuth';
 import { fr } from '../i18n/fr';
 
-/** Une règle personnelle (`user_tool_rules`) : par outil, ou par étape d'un outil. */
+/** Une règle personnelle (`user_tool_rules`) : commune à tous les outils, par outil, ou par étape d'un outil. */
 export interface ToolRule {
   id: string;
-  toolId: string;
+  /** `null` = la règle vaut pour tous les outils (lot 4 du back). */
+  toolId: string | null;
   /** `null` = vaut pour tout l'outil. */
   stepKey: string | null;
   text: string;
@@ -19,7 +20,7 @@ export const RULE_TEXT_MAX = 500;
 
 export const toolRulesKey = (userId: string | undefined, tool?: string) => ['tool-rules', userId, tool ?? 'all'] as const;
 
-function parseRule(row: { id: string; tool_id: string; step_key: string | null; text: string; created_at: string; updated_at: string }): ToolRule {
+function parseRule(row: { id: string; tool_id: string | null; step_key: string | null; text: string; created_at: string; updated_at: string }): ToolRule {
   return { id: row.id, toolId: row.tool_id, stepKey: row.step_key, text: row.text, createdAt: row.created_at, updatedAt: row.updated_at };
 }
 
@@ -31,7 +32,7 @@ function cleanRuleText(text: string): string {
   return clean;
 }
 
-/** Les règles de l'utilisateur (RLS owner), pour un outil ou toutes, les plus récentes d'abord. */
+/** Les règles de l'utilisateur (RLS owner), pour un outil ou toutes, les plus récentes d'abord. Filtrer par outil ne rend pas les règles communes (`tool_id` null). */
 export function useToolRules({ tool }: { tool?: string } = {}) {
   const { user } = useAuth();
   return useQuery({
@@ -58,7 +59,7 @@ export function useAddToolRule() {
   const { user } = useAuth();
   const invalidate = useInvalidateRules();
   return useMutation({
-    mutationFn: async ({ toolId, stepKey = null, text }: { toolId: string; stepKey?: string | null; text: string }): Promise<ToolRule> => {
+    mutationFn: async ({ toolId, stepKey = null, text }: { toolId: string | null; stepKey?: string | null; text: string }): Promise<ToolRule> => {
       if (!user) throw new Error(fr.errors.auth.sessionExpired);
       const { data, error } = await getSupabase()
         .from('user_tool_rules')

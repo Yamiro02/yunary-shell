@@ -51,6 +51,9 @@ export const fr = {
       quotaExhausted: 'Ton quota pour cet outil est épuisé.',
       notPublished: "Cet outil n'est pas encore disponible à l'achat.",
       alreadySubscribed: 'Cet outil est déjà dans ton abonnement.',
+      cardDeclined: "Ta carte a été refusée. Rien n'a été débité.",
+      pastDue: "Ton dernier paiement n'est pas passé : mets à jour ta carte avant de modifier ton abonnement.",
+      requiresAction: 'Ta banque demande une validation pour ce paiement.',
       noSubscription: 'Aucun abonnement en cours.',
       noCustomer: 'Aucun moyen de paiement enregistré pour le moment.',
       unknownTool: 'Outil inconnu.',
@@ -171,6 +174,7 @@ export const fr = {
     freeOnce: 'Offert, une fois pour toutes',
     packNoDeadline: 'Sans date limite',
     ruleWholeTool: "Tout l'outil",
+    ruleAllTools: 'Tous les outils',
     ruleStep: (step: string) => `Étape ${step}`,
   },
 
@@ -400,6 +404,7 @@ export const fr = {
       invoicesAfter: (email: string) => `, un reçu est parti sur ${email}.`,
       invoicesNoEmail: '.',
       changeMind: (date: string) => `Tu changes d'avis ? « Réactiver » reste possible depuis Mes outils jusqu'au ${date}.`,
+      remainingUntil: (n: number) => (n > 1 ? `Encore ${n} disponibles jusque-là` : `Encore ${n} disponible jusque-là`),
     },
     cancellation: {
       title: (date: string) => `Tout s'arrête le ${date}`,

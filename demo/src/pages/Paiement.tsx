@@ -14,7 +14,7 @@ const CARD: SavedCardView = { brand: 'visa', last4: '4242', expMonth: 8, expYear
 const analyse = (state: ToolSwitchRowView['state'], checked: boolean): ToolSwitchRowView => ({ toolId: 'analyse', name: 'Yunary Analyse', priceCents: 900, monthlyQuota: 50, state, checked, periodEnd: END });
 const audit = (state: ToolSwitchRowView['state'], checked: boolean): ToolSwitchRowView => ({ toolId: 'audit', name: 'Yunary Audit', priceCents: 500, monthlyQuota: 2, state, checked, periodEnd: state === 'none' ? null : END });
 
-/* Ce que `preview-subscription-change` rendra (contrat à venir) : aucun montant n'est calculé côté front. */
+/* Ce que les conteneurs tirent de `preview-subscription-change` (§ 8 du back) : aucun montant n'est calculé côté front. */
 const ADD: ChangeSummaryView = { added: [{ name: 'Yunary Audit', priceCents: 500 }], removed: [], reactivated: [], todayCents: 333, todayDetail: 'Yunary Audit du 10/10 au 23/10', nextCents: 1400, nextFrom: END };
 const REMOVE: ChangeSummaryView = { added: [], removed: [{ name: 'Yunary Analyse', until: END }], reactivated: [], todayCents: 0, nextCents: 500, nextFrom: END };
 const ADD_REMOVE: ChangeSummaryView = { ...ADD, removed: [{ name: 'Yunary Analyse', until: END }], nextCents: 500 };
@@ -23,8 +23,9 @@ const REACTIVATE: ChangeSummaryView = { ...NONE, reactivated: ['Yunary Analyse']
 
 /**
  * Abonnement v2 (0.4.0, maquette « Yunary Hub Dashboard ») : les VUES pilotées par props, dans les états des
- * artboards. Aucune n'est câblée : les conteneurs arrivent avec les contrats du back (`preview-subscription-change`,
- * `update-subscription`, `list-invoices`).
+ * artboards. Les conteneurs câblés (`ModifySubscriptionModal`, `ActivateToolModal`, `ReactivateToolModal`,
+ * `SubscriptionResultScreen`) les alimentent depuis `preview-subscription-change` et `update-subscription` ; la vitrine,
+ * sans back, montre les vues.
  */
 export function PaiementPage(): JSX.Element {
   return (
@@ -115,7 +116,7 @@ function ActivateSection(): JSX.Element {
   const amounts = { todayCents: 333, todayDetail: 'Yunary Audit du 10/10 au 23/10', nextCents: 1400, nextDate: END, nextDetail: 'Yunary Analyse 9 € + Yunary Audit 5 €' };
   const common = { open: true, inline: true, onClose: noop, name: 'Yunary Audit', onConfirm: noop, onChangeCard: noop, onAddCard: noop, onCancelBank: noop };
   return (
-    <Section title="ActivateToolView (Hub-Outils-Activer-Confirmation)" note="Un seul outil, le prorata du jour mis en avant, le prochain prélèvement, la carte enregistrée, « Payer 3,33 € ». Mêmes phases que la grande modale. Sans abonnement ni carte (checkoutRequis), le conteneur rendra le CheckoutModal existant. « done » = arrivée depuis Claude.">
+    <Section title="ActivateToolView (Hub-Outils-Activer-Confirmation)" note="Un seul outil, le prorata du jour mis en avant, le prochain prélèvement, la carte enregistrée, « Payer 3,33 € ». Mêmes phases que la grande modale. Sans abonnement vivant (checkoutRequis), ActivateToolModal rend le CheckoutModal existant. « done » = arrivée depuis Claude.">
       <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-2">
         <Frame label="Confirmation"><ActivateToolView {...common} amounts={amounts} card={CARD} /></Frame>
         <Frame label="Aperçu en cours"><ActivateToolView {...common} amounts={null} card={CARD} /></Frame>

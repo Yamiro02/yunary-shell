@@ -113,7 +113,7 @@ function RuleRow({ rule }: { rule: ToolRule }): JSX.Element {
   return (
     <Card gap={3} className="shadow-none">
       <div className="flex flex-wrap items-center gap-space-2">
-        <span className="text-control font-bold">{toolByIdIn(CATALOG, rule.toolId)?.name ?? rule.toolId}</span>
+        <span className="text-control font-bold">{rule.toolId ? toolByIdIn(CATALOG, rule.toolId)?.name ?? rule.toolId : t.ruleAllTools}</span>
         <Badge tone="neutral" pad="dense" className="chip">{rule.stepKey ? t.ruleStep(rule.stepKey) : t.ruleWholeTool}</Badge>
       </div>
       <p className="text-body-sm text-text-secondary">{rule.text}</p>

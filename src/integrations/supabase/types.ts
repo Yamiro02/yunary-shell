@@ -1,6 +1,6 @@
 /* Types générés par le MCP Supabase (generate_typescript_types) — projet drcxtkwmtceauwiiargz.
    JAMAIS édité à la main : régénéré après chaque migration du back.
-   État : lot 1 ter du 23/09/2026 (exports/database.types-2026-09-23-lot1ter.ts). */
+   État : lot 7 du 25/09/2026, abonnement v2 (exports/database.types-2026-09-25-lot7.ts). */
 
 export type Json =
   | string
@@ -317,6 +317,51 @@ export type Database = {
           },
         ]
       }
+      mcp_client_state: {
+        Row: {
+          created_at: string
+          shell_read_at: string | null
+          shell_version: number | null
+          tools_listed_at: string | null
+          tools_version: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          shell_read_at?: string | null
+          shell_version?: number | null
+          tools_listed_at?: string | null
+          tools_version?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          shell_read_at?: string | null
+          shell_version?: number | null
+          tools_listed_at?: string | null
+          tools_version?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mcp_client_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "admin_prospects"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "mcp_client_state_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       meta_deletion_requests: {
         Row: {
           confirmation_code: string
@@ -390,6 +435,44 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "method_steps_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      method_texts: {
+        Row: {
+          active: boolean
+          body: string
+          created_at: string
+          key: string
+          title: string
+          tool_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          body: string
+          created_at?: string
+          key: string
+          title: string
+          tool_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          body?: string
+          created_at?: string
+          key?: string
+          title?: string
+          tool_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_texts_tool_id_fkey"
             columns: ["tool_id"]
             isOneToOne: false
             referencedRelation: "tools"
@@ -1127,6 +1210,8 @@ export type Database = {
           status: string
           stripe_price_id: string | null
           stripe_product_id: string | null
+          unit_label: string
+          unit_label_plural: string
           updated_at: string
         }
         Insert: {
@@ -1141,6 +1226,8 @@ export type Database = {
           status: string
           stripe_price_id?: string | null
           stripe_product_id?: string | null
+          unit_label?: string
+          unit_label_plural?: string
           updated_at?: string
         }
         Update: {
@@ -1155,6 +1242,8 @@ export type Database = {
           status?: string
           stripe_price_id?: string | null
           stripe_product_id?: string | null
+          unit_label?: string
+          unit_label_plural?: string
           updated_at?: string
         }
         Relationships: []
@@ -1216,7 +1305,7 @@ export type Database = {
           id: string
           step_key: string | null
           text: string
-          tool_id: string
+          tool_id: string | null
           updated_at: string
           user_id: string
         }
@@ -1225,7 +1314,7 @@ export type Database = {
           id?: string
           step_key?: string | null
           text: string
-          tool_id: string
+          tool_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -1234,7 +1323,7 @@ export type Database = {
           id?: string
           step_key?: string | null
           text?: string
-          tool_id?: string
+          tool_id?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1410,6 +1499,35 @@ export type Database = {
         }
         Relationships: []
       }
+      method_steps_public: {
+        Row: {
+          position: number | null
+          step_key: string | null
+          title: string | null
+          tool_id: string | null
+        }
+        Insert: {
+          position?: number | null
+          step_key?: string | null
+          title?: string | null
+          tool_id?: string | null
+        }
+        Update: {
+          position?: number | null
+          step_key?: string | null
+          title?: string | null
+          tool_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "method_steps_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       can_use: { Args: { p_tool: string }; Returns: Json }
@@ -1418,6 +1536,7 @@ export type Database = {
         Returns: Json
       }
       is_admin: { Args: never; Returns: boolean }
+      mcp_fiche_analyse: { Args: { p_video_id: string }; Returns: Json }
       persist_video_analysis: {
         Args: {
           p_analysis: Json

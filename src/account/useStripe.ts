@@ -2,12 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { getSupabase } from '../lib/supabase';
 import { fr } from '../i18n/fr';
 import { messageForCode } from '../lib/errors';
+import { invokeEdge } from '../lib/edge';
 import { useAuth } from '../auth/useAuth';
 import { subscriptionKey } from './useSubscription';
 import { entitlementsKey } from '../tools/useEntitlements';
-
-/** Le contrat des Edge : `{ success: true, data }` ou `{ success: false, code, message }` (200 métier, 4xx / 5xx technique). */
-type EdgeResponse<T> = { success: true; data: T } | { success: false; code?: string; message?: string };
 
 interface UrlResponse {
   success: boolean;
@@ -45,25 +43,6 @@ export type RemoveToolResult =
   /** Dernier article : l'abonnement entier passe en fin de période (Stripe refuse un abonnement sans article). */
   | { tool: string; mode: 'cancel_at_period_end'; currentPeriodEnd: string | null };
 
-/**
- * Un `{ success: false, code }` arrive en 200 (dans `data`) pour une erreur métier, ou en 4xx / 5xx :
- * supabase-js pose alors une `FunctionsHttpError` dont `context` est la `Response` — on y relit le code.
- */
-async function invokeEdge<T>(name: string, body: Record<string, unknown>, fallback: string): Promise<T> {
-  const { data, error } = await getSupabase().functions.invoke<EdgeResponse<T>>(name, { body });
-  if (error) {
-    const ctx = (error as { context?: unknown }).context;
-    if (ctx instanceof Response) {
-      const payload = (await ctx.clone().json().catch(() => null)) as EdgeResponse<T> | null;
-      if (payload && !payload.success) throw new Error(messageForCode(payload.code, fallback));
-    }
-    throw new Error(fallback);
-  }
-  if (!data) throw new Error(fallback);
-  if (!data.success) throw new Error(messageForCode(data.code, fallback));
-  return data.data;
-}
-
 /** Les caches que touche un changement d'abonnement : l'abonnement (et ses articles) et les droits. */
 function useInvalidateBilling() {
   const qc = useQueryClient();
@@ -72,8 +51,13 @@ function useInvalidateBilling() {
     qc.invalidateQueries({ queryKey: subscriptionKey(user?.id) }),
     qc.invalidateQueries({ queryKey: entitlementsKey(user?.id) }),
     qc.invalidateQueries({ queryKey: ['can-use', user?.id] }),
+    qc.invalidateQueries({ queryKey: ['subscription-preview', user?.id] }),
+    qc.invalidateQueries({ queryKey: ['invoices', user?.id] }),
   ]);
 }
+
+/** Exporté pour les hooks de l'abonnement v2 : les mêmes caches à relire après un changement. */
+export { useInvalidateBilling };
 
 /**
  * Portail Stripe via l'Edge `create-portal-session` — le `stripe_customer_id` n'est jamais
@@ -82,14 +66,20 @@ function useInvalidateBilling() {
  */
 export function usePortalSession() {
   return useMutation({
-    mutationFn: async (): Promise<string> => {
+    /* `target` : un onglet ouvert AU CLIC par l'appelant (sinon bloqué comme pop-up) ; le portail s'y charge et la modale
+       reste ouverte ici — au retour sur l'onglet, l'aperçu est relu (react-query relit au focus). Sans lui : redirection. */
+    mutationFn: async (_vars?: { target?: Window | null }): Promise<string> => {
       const { data, error } = await getSupabase().functions.invoke<UrlResponse>('create-portal-session', { body: {} });
       if (error) throw new Error(fr.errors.portalFailed);
       if (!data?.success || !data.url) throw new Error(messageForCode(data?.code, fr.errors.portalFailed));
       return data.url;
     },
-    onSuccess: url => {
-      window.location.assign(url);
+    onSuccess: (url, vars) => {
+      if (vars?.target) vars.target.location.href = url;
+      else window.location.assign(url);
+    },
+    onError: (_e, vars) => {
+      vars?.target?.close();
     },
   });
 }

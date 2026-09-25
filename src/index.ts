@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.3.2';
+export const SHELL_VERSION = '0.4.0';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -71,7 +71,26 @@ export type { CancelSubscriptionModalProps } from './abonnement/CancelSubscripti
 export { PaymentFailedBanner, PaymentFailedBannerView } from './abonnement/PaymentFailedBanner';
 export type { PaymentFailedBannerViewProps } from './abonnement/PaymentFailedBanner';
 
-/* abonnement v2 (0.4.0, maquette « Yunary Hub Dashboard ») — les VUES pilotées par props ; les conteneurs arrivent avec les contrats du back */
+/* abonnement v2 (0.4.0, maquette « Yunary Hub Dashboard », contrats du back § 8) — conteneurs câblés, hooks, logique pure, vues */
+export { ModifySubscriptionModal, ActivateToolModal, ReactivateToolModal, SubscriptionResultScreen } from './abonnement/SubscriptionModals';
+export type { ModifySubscriptionModalProps, ActivateToolModalProps, ReactivateToolModalProps, SubscriptionResultScreenProps } from './abonnement/SubscriptionModals';
+export {
+  usePreviewSubscriptionChange, useUpdateSubscription, useApplySubscriptionChange, useReactivateTool, updateSubscription, confirmBankPayment,
+  subscriptionPreviewKey,
+} from './abonnement/useSubscriptionChange';
+export type { PreviewRequest, ApplyChangeVars } from './abonnement/useSubscriptionChange';
+export {
+  diffSelection, withoutAdditions, normalizeChange, summaryFromPreview, unchangedSummary, activateAmountsFromPreview, prorataDetail,
+  nextChargeDetail, rowState, runSubscriptionChange, buildOutcome,
+} from './abonnement/subscriptionChange';
+export type {
+  SubscriptionChange, SubscriptionPreview, SubscriptionSnapshot, SubscriptionToolState, SubscriptionUpdateResult, PreviewCard,
+  PreviewDetailLine, UpdateCallResult, ChangeRunResult, ChangeRunDeps, SubscriptionChangeOutcome, OutcomeInput,
+} from './abonnement/subscriptionChange';
+export { useInvoices, invoicesKey } from './account/useInvoices';
+export type { Invoice, InvoiceLine, InvoicesInfo } from './account/useInvoices';
+export { callEdge, invokeEdge } from './lib/edge';
+export type { EdgeResult } from './lib/edge';
 export { ModifySubscriptionView } from './abonnement/ModifySubscriptionView';
 export type { ModifySubscriptionViewProps, ToolSwitchRowView, ToolRowState, ChangeSummaryView, PaymentPhase } from './abonnement/ModifySubscriptionView';
 export { ActivateToolView, ReactivateToolView } from './abonnement/ToolPaymentModals';
