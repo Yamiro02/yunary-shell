@@ -253,13 +253,15 @@ export function ReactivateToolModal({ open, onClose, toolId, onDone }: Reactivat
 export interface SubscriptionResultScreenProps {
   outcome: SubscriptionChangeOutcome;
   onBack: () => void;
+  /** Défaut « Retour à mes outils » ; l'onboarding passe « Continuer ». */
+  backLabel?: string;
   onRetry?: () => void;
   invoicesHref?: string;
   linkAs?: ElementType;
 }
 
 /** L'écran de retour, câblé : l'issue rendue par une modale + l'e-mail du profil pour « un reçu est parti sur … ». */
-export function SubscriptionResultScreen({ outcome, onBack, onRetry, invoicesHref, linkAs }: SubscriptionResultScreenProps): JSX.Element {
+export function SubscriptionResultScreen({ outcome, onBack, backLabel, onRetry, invoicesHref, linkAs }: SubscriptionResultScreenProps): JSX.Element {
   const profile = useProfile();
   return (
     <SubscriptionResultView
@@ -268,6 +270,7 @@ export function SubscriptionResultScreen({ outcome, onBack, onRetry, invoicesHre
       invoicesHref={invoicesHref}
       linkAs={linkAs}
       onBack={onBack}
+      backLabel={backLabel}
       onRetry={onRetry}
     />
   );

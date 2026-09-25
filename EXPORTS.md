@@ -1,4 +1,4 @@
-# EXPORTS — l'API publique de `@yunary/shell` (0.4.0)
+# EXPORTS — l'API publique de `@yunary/shell` (0.4.1)
 
 Un seul point d'entrée : `import { … } from '@yunary/shell'`. Tout ce qui n'est pas listé ici
 est interne et peut changer sans bump majeur. Les **vues** (`*View`) sont pilotées par props et
@@ -32,7 +32,7 @@ que dans le web.
 |---|---|
 | `useAuth()` → `{ session, user, loading }` | Source unique de la session (store module, un seul `onAuthStateChange`). |
 | `useLogin()` → `{ signInWithEmail, signInWithOAuth(provider, next) }` | Connexion e-mail et OAuth Google / Apple (retour sur `${hubUrl}/login?next=`). |
-| `useSignup()` → `{ signUpWithEmail(email, password, next?) }` | Inscription ; `needsConfirmation` quand aucune session n'est renvoyée ; le lien de confirmation ramène sur `${hubUrl}/login?next=` (0.3.2). |
+| `useSignup()` → `{ signUpWithEmail(email, password, next?) }` · `signupNextStep(hasSession)` | Inscription → `{ next: 'redirect' \| 'confirm', needsConfirmation }`. Session renvoyée (confirmation désactivée) = `redirect` : la page enchaîne avec `resolveAfterAuth` (0.4.1) ; sans session = « Vérifie ta boîte mail », dont le lien ramène sur `${hubUrl}/login?next=`. |
 | `usePasswordReset()` → `{ requestReset(email, next?), updatePassword }` | E-mail de reset (vers `${hubUrl}/reset?next=`, 0.3.2) et nouveau mot de passe. |
 | `useLogout()` | Déconnexion via le client unique. |
 | `<ProtectedRoute requireOnboarding?>` · `<PageLoader />` | Non connecté ou onboarding non terminé → `hubUrl/login?next=<url>` ; loader pendant la résolution. |
@@ -99,7 +99,7 @@ Le premier abonnement reste le `CheckoutModal`. Tout changement d'un abonnement 
 | `<ModifySubscriptionModal open onClose onDone>` | « Modifier mon abonnement » : outils publiés ou souscrits, état lu dans les droits, aperçu à chaque geste, paiement avec la 3D Secure. `onDone(outcome: SubscriptionChangeOutcome)` après un succès. `checkoutRequis` (pas d'abonnement vivant) → `CheckoutModal` des outils ajoutés. `ModifySubscriptionModalProps`. |
 | `<ActivateToolModal open onClose toolId onDone? fromClaude?>` | « Activer un outil » : aperçu `{ tool }`, `update-subscription { ajouter: [tool] }`. `checkoutRequis` → `CheckoutModal`. Abonnement actif sans carte → « Ajouter une carte » (portail dans un nouvel onglet, aperçu relu au retour). `fromClaude` → « Tu peux retourner dans Claude » dans la modale au lieu d'`onDone`. `ActivateToolModalProps`. |
 | `<ReactivateToolModal open onClose toolId onDone>` | « Réactiver » : `{ garder: [tool] }`, 0 € aujourd'hui, `onDone()` (le hub affiche son `Banner`). `ReactivateToolModalProps`. |
-| `<SubscriptionResultScreen outcome onBack onRetry? invoicesHref? linkAs?>` | L'écran de retour pleine page, avec l'e-mail du profil. `SubscriptionResultScreenProps`. |
+| `<SubscriptionResultScreen outcome onBack backLabel? onRetry? invoicesHref? linkAs?>` | L'écran de retour pleine page, avec l'e-mail du profil. `backLabel` (0.4.1) : défaut « Retour à mes outils », l'onboarding passe « Continuer ». `SubscriptionResultScreenProps`. |
 
 **Hooks**
 
@@ -122,7 +122,7 @@ Le premier abonnement reste le `CheckoutModal`. Tout changement d'un abonnement 
 | `<ModifySubscriptionView open onClose rows onToggle summary card phase? error? onConfirm onChangeCard? onAddCard? cardBusy? onCancelBank? layout? inline?>` | « Modifier mon abonnement » (Hub-03-ModifierOutils). `rows: ToolSwitchRowView[]` (`toolId`, `name`, `priceCents`, `monthlyQuota`, `state: ToolRowState` = `active` · `ending` · `none`, `checked`, `periodEnd`, `disabled?`) ; `summary: ChangeSummaryView \| null` (`added`, `removed`, `reactivated`, `todayCents`, `todayDetail?`, `nextCents`, `nextFrom` ; `null` = aperçu en cours) ; `phase: PaymentPhase` = `edit` · `paying` · `bank` · `declined`. CTA « Payer X € » / « Confirmer », inactif sans changement ou sans carte quand il faut payer. Plein écran sous 64 rem. |
 | `<ActivateToolView open onClose name amounts card phase? error? onConfirm onChangeCard? onAddCard? cardBusy? onCancelBank? inline?>` | « Activer Yunary Audit ? » (Hub-Outils-Activer-Confirmation). `amounts: ActivateAmountsView \| null` (`todayCents`, `todayDetail?`, `nextCents`, `nextDate`, `nextDetail?`). Phases de la grande modale + `done` (arrivée depuis Claude : « Tu peux retourner dans Claude »). |
 | `<ReactivateToolView open onClose name periodEnd next phase? error? onConfirm inline?>` | « Réactiver Yunary Analyse ? » (Hub-Outils-Reactiver-Confirmation) : 0 € aujourd'hui, `next: { cents, date, detail? } \| null`, `phase` = `edit` · `saving`. |
-| `<SubscriptionResultView variant subjects tools todayCents? next? periodEnd? email? invoicesHref? linkAs? onBack onRetry? layout? inline?>` | L'écran de retour pleine page (Hub-03b-Retour) : `variant` = `added` · `removed` · `failed` ; `tools: ResultToolView[]` (`name`, `meta?`, `status` = `active` · `ending` · `failed`, `endsOn?`). Coche qui se dessine, puis titre, puis outils un par un. |
+| `<SubscriptionResultView variant subjects tools todayCents? next? periodEnd? email? invoicesHref? linkAs? onBack backLabel? onRetry? layout? inline?>` | L'écran de retour pleine page (Hub-03b-Retour) : `variant` = `added` · `removed` · `failed` ; `tools: ResultToolView[]` (`name`, `meta?`, `status` = `active` · `ending` · `failed`, `endsOn?`). Coche qui se dessine, puis titre, puis outils un par un. |
 | `<AmountRows rows>` | Le tableau de montants des petites modales ; `AmountRow` = `label`, `caption?`, `amountCents` (`null` = squelette), `highlight?` (`bg-grad-soft`). |
 | `<SavedCardLine card size? onChange? onAdd? busy?>` · `cardBrandLabel(brand)` | La carte enregistrée (`SavedCardView` = `brand`, `last4`, `expMonth`, `expYear`), tailles `full` · `compact` · `inline` ; `card: null` = « Ajoute une carte pour continuer » + « Ajouter une carte ». |
 | `<ScheduledCancellationCard periodEnd toolCount onKeep keepBusy?>` | « Tout s'arrête le … » + « Garder mes outils » (Hub-Facturation-ResiliationProgrammee). |

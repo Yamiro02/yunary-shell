@@ -5,6 +5,22 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.4.1 — inscription sans confirmation, libellé du retour (25/09/2026)
+
+- **Inscription sans confirmation par e-mail** (Julien désactive « Confirm email » dans Supabase) : quand `signUp`
+  renvoie une session, la page enchaîne directement avec la règle d'après connexion (`resolveAfterAuth` :
+  `/autoriser` d'abord, même avant le profil ; puis l'onboarding ; puis `next` ; puis `/outils`), par
+  `useAfterAuthRedirect` déjà monté sur la page. Le bouton reste en chargement jusqu'à la redirection (le formulaire
+  ne réapparaît plus entre les deux). « Vérifie ta boîte mail » ne s'affiche plus qu'en secours, sans session.
+  `signUpWithEmail` rend `{ next: 'redirect' | 'confirm', needsConfirmation }` ; `signupNextStep` exporté. Un e-mail déjà
+  pris lève désormais « Un compte existe déjà avec cet e-mail. » (plus d'utilisateur factice sans confirmation).
+- **Chemins vérifiés** : e-mail (session → règle), Google et Apple (retour OAuth sur `/login?next=…` → la même règle par
+  la page de connexion ; inchangé). 4 tests ajoutés.
+- **`SubscriptionResultScreen` / `SubscriptionResultView`** : prop `backLabel?: string` (défaut « Retour à mes outils »),
+  pour l'onboarding (« Continuer »).
+
+---
+
 ## 0.4.0 — abonnement v2 : modifier, activer, réactiver, retour de paiement, factures (25/09/2026)
 
 - **Pourquoi** : la maquette « Yunary Hub Dashboard » (25/09/2026) remplace l'onglet Abonnement par une page

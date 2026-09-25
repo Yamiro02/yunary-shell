@@ -33,6 +33,8 @@ export interface SubscriptionResultViewProps {
   /** Le lien du routeur (`Link`) — `href` lui arrive en `to`. */
   linkAs?: ElementType;
   onBack: () => void;
+  /** Le libellé du bouton de retour. Défaut « Retour à mes outils » ; l'onboarding passe « Continuer ». */
+  backLabel?: string;
   /** failed : « Réessayer avec une autre carte ». */
   onRetry?: () => void;
   /** Démo : force la disposition ; sinon, mobile sous 64 rem. */
@@ -57,9 +59,10 @@ function StatusBadge({ tool }: { tool: ResultToolView }): JSX.Element {
  * au DS (écart validé par Julien le 25/09/2026, consigné au BACKLOG du DS).
  */
 export function SubscriptionResultView({
-  variant, subjects, tools, todayCents = null, next = null, periodEnd = null, email = null, invoicesHref, linkAs, onBack, onRetry, layout, inline,
+  variant, subjects, tools, todayCents = null, next = null, periodEnd = null, email = null, invoicesHref, linkAs, onBack, backLabel, onRetry, layout, inline,
 }: SubscriptionResultViewProps): JSX.Element {
   const r = fr.paiement.result;
+  const back = backLabel ?? r.back;
   const isMobile = useMediaQuery(DS_MOBILE_QUERY);
   const mobile = layout ? layout === 'mobile' : isMobile;
   const failed = variant === 'failed';
@@ -127,10 +130,10 @@ export function SubscriptionResultView({
           {failed ? (
             <div className={cn('flex gap-space-3', mobile ? 'w-full flex-col' : 'flex-wrap justify-center')}>
               {onRetry ? <Button variant="primary" size="lg" fullWidth={mobile} onClick={onRetry}>{r.retry}</Button> : null}
-              <Button variant="secondary" size="lg" fullWidth={mobile} onClick={onBack}>{r.back}</Button>
+              <Button variant="secondary" size="lg" fullWidth={mobile} onClick={onBack}>{back}</Button>
             </div>
           ) : (
-            <Button variant="primary" size="lg" fullWidth={mobile} onClick={onBack}>{r.back}</Button>
+            <Button variant="primary" size="lg" fullWidth={mobile} onClick={onBack}>{back}</Button>
           )}
           {footnote ? <span className="text-caption text-text-muted">{footnote}</span> : null}
         </Reveal>

@@ -73,7 +73,7 @@ export function SignupView({
   );
 }
 
-/** A2 câblée — montée par le Hub sur `/inscription`. Confirmation d'e-mail requise → vue « Vérifie ta boîte mail » ; le lien de confirmation et le lien vers la connexion portent `?next=`. */
+/** A2 câblée — montée par le Hub sur `/inscription`. Session renvoyée (confirmation désactivée) → la règle d'après connexion, directement ; confirmation requise → « Vérifie ta boîte mail » en secours. Le lien de confirmation et le lien vers la connexion portent `?next=`. */
 export function SignupPage(props: AuthPageProps & { cguHref?: string; confidentialiteHref?: string } = {}): JSX.Element {
   const { signUpWithEmail } = useSignup();
   const { signInWithOAuth } = useLogin();
@@ -90,11 +90,16 @@ export function SignupPage(props: AuthPageProps & { cguHref?: string; confidenti
     setError(null);
     setLoading(true);
     try {
-      const { needsConfirmation } = await signUpWithEmail(values.email, values.password, next);
-      if (needsConfirmation) setSentTo(values.email);
+      const step = await signUpWithEmail(values.email, values.password, next);
+      /* Session ouverte : `useAfterAuthRedirect` (plus haut) enchaîne avec la règle d'après connexion — `/autoriser`
+         d'abord, puis l'onboarding, puis `next`, puis l'accueil. Le bouton reste en chargement jusqu'à la redirection :
+         pas de formulaire qui réapparaît. Sans session (confirmation requise) : « Vérifie ta boîte mail », en secours. */
+      if (step.next === 'confirm') {
+        setSentTo(values.email);
+        setLoading(false);
+      }
     } catch (e) {
       setError(getErrorMessage(e));
-    } finally {
       setLoading(false);
     }
   };

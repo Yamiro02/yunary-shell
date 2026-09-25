@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.4.0';
+export const SHELL_VERSION = '0.4.1';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -26,7 +26,8 @@ export { useAuth } from './auth/useAuth';
 export type { AuthState } from './auth/useAuth';
 export { useLogin } from './auth/useLogin';
 export type { OAuthProvider } from './auth/useLogin';
-export { useSignup } from './auth/useSignup';
+export { useSignup, signupNextStep } from './auth/useSignup';
+export type { SignupNextStep } from './auth/useSignup';
 export { usePasswordReset } from './auth/usePasswordReset';
 export { useLogout } from './auth/useLogout';
 export { ProtectedRoute, PageLoader } from './auth/ProtectedRoute';
