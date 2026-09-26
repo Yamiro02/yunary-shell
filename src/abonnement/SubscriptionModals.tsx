@@ -6,7 +6,7 @@ import { useProfile } from '../account/useProfile';
 import { isSubscriptionActive, useSubscription } from '../account/useSubscription';
 import { useEntitlements, type Entitlement } from '../tools/useEntitlements';
 import { useToolCatalog } from '../tools/useToolCatalog';
-import { CheckoutModal } from './CheckoutModal';
+import { PaymentModal } from './PaymentModal';
 import { ModifySubscriptionView, type PaymentPhase, type ToolSwitchRowView } from './ModifySubscriptionView';
 import { ActivateToolView, ReactivateToolView } from './ToolPaymentModals';
 import { SubscriptionResultView } from './SubscriptionResultView';
@@ -60,7 +60,7 @@ export interface ModifySubscriptionModalProps {
  * « Modifier mon abonnement », câblée : les outils du catalogue (publiés, ou déjà souscrits), leur état lu dans les
  * droits (`tool_entitlements`) et l'abonnement, l'aperçu `preview-subscription-change` à chaque geste, puis
  * `update-subscription` avec la règle de la 3D Secure (`useApplySubscriptionChange`). Sans abonnement vivant
- * (`checkoutRequis`), le `CheckoutModal` prend le relais pour les outils ajoutés.
+ * (`checkoutRequis`), la fenêtre de paiement (`PaymentModal`) prend le relais pour les outils ajoutés.
  */
 export function ModifySubscriptionModal({ open, onClose, onDone }: ModifySubscriptionModalProps): JSX.Element | null {
   const catalog = useToolCatalog();
@@ -106,7 +106,7 @@ export function ModifySubscriptionModal({ open, onClose, onDone }: ModifySubscri
   const previewError = preview.error ? getErrorMessage(preview.error) : null;
 
   if (preview.data?.checkoutRequis && change?.ajouter?.length) {
-    return <CheckoutModal open={open} onClose={onClose} target={{ tools: change.ajouter }} />;
+    return <PaymentModal open={open} onClose={onClose} target={{ tools: change.ajouter }} onDone={onDone} />;
   }
 
   const confirm = async () => {
@@ -154,7 +154,8 @@ export interface ActivateToolModalProps {
 
 /**
  * « Activer un outil », câblée : l'aperçu `preview-subscription-change { tool }`, puis `update-subscription
- * { ajouter: [tool] }` avec la 3D Secure. Sans abonnement vivant (`checkoutRequis`) : le `CheckoutModal` existant.
+ * { ajouter: [tool] }` avec la 3D Secure. Sans abonnement vivant (`checkoutRequis`) : la fenêtre de paiement
+ * (`PaymentModal`) ; arrivée depuis Claude, la modale dit ensuite « Tu peux retourner dans Claude ».
  * Abonnement actif sans carte : « Ajouter une carte » ouvre le portail (jamais le Checkout, qui créerait un second
  * abonnement), l'aperçu est relu au retour.
  */
@@ -171,7 +172,9 @@ export function ActivateToolModal({ open, onClose, toolId, onDone, fromClaude = 
   }, [open, toolId]);
 
   const name = catalog.data?.tools.find(t => t.id === toolId)?.name ?? toolId;
-  if (preview.data?.checkoutRequis) return <CheckoutModal open={open} onClose={onClose} target={{ tool: toolId }} />;
+  if (preview.data?.checkoutRequis && phase !== 'done') {
+    return <PaymentModal open={open} onClose={onClose} target={{ tool: toolId }} onDone={outcome => (fromClaude ? setPhase('done') : onDone?.(outcome))} />;
+  }
 
   const confirm = async (p: SubscriptionPreview) => {
     setError(null);

@@ -32,7 +32,7 @@ function useDebounced<T>(value: T, ms: number): T {
 /**
  * `preview-subscription-change` : ce qu'un changement coûterait, sans rien modifier (Stripe `invoices.createPreview`).
  * `body` null = pas d'aperçu (aucun changement, modale fermée). Relu au retour sur l'onglet (après le portail).
- * Sans abonnement vivant : `checkoutRequis: true` → le premier abonnement passe par le `CheckoutModal`.
+ * Sans abonnement vivant : `checkoutRequis: true` → le premier abonnement passe par la fenêtre de paiement (`PaymentModal`).
  */
 export function usePreviewSubscriptionChange(body: PreviewRequest | null) {
   const { user } = useAuth();

@@ -5,6 +5,7 @@ import {
   type ChangeSummaryView, type SavedCardView, type ToolSwitchRowView,
 } from '@yunary/shell';
 import { Section } from '../ui';
+import { PaymentWindowSections } from './PaymentWindow';
 
 const noop = () => undefined;
 const END = '2026-10-23T10:00:00Z';
@@ -30,6 +31,7 @@ const REACTIVATE: ChangeSummaryView = { ...NONE, reactivated: ['Yunary Analyse']
 export function PaiementPage(): JSX.Element {
   return (
     <div className="flex flex-col gap-space-7">
+      <PaymentWindowSections />
       <ModifySection />
       <ResultSection />
       <ActivateSection />
@@ -116,7 +118,7 @@ function ActivateSection(): JSX.Element {
   const amounts = { todayCents: 333, todayDetail: 'Yunary Audit du 10/10 au 23/10', nextCents: 1400, nextDate: END, nextDetail: 'Yunary Analyse 9 € + Yunary Audit 5 €' };
   const common = { open: true, inline: true, onClose: noop, name: 'Yunary Audit', onConfirm: noop, onChangeCard: noop, onAddCard: noop, onCancelBank: noop };
   return (
-    <Section title="ActivateToolView (Hub-Outils-Activer-Confirmation)" note="Un seul outil, le prorata du jour mis en avant, le prochain prélèvement, la carte enregistrée, « Payer 3,33 € ». Mêmes phases que la grande modale. Sans abonnement vivant (checkoutRequis), ActivateToolModal rend le CheckoutModal existant. « done » = arrivée depuis Claude.">
+    <Section title="ActivateToolView (Hub-Outils-Activer-Confirmation)" note="Un seul outil, le prorata du jour mis en avant, le prochain prélèvement, la carte enregistrée, « Payer 3,33 € ». Mêmes phases que la grande modale. Sans abonnement vivant (checkoutRequis), ActivateToolModal rend la fenêtre de paiement (PaymentModal). « done » = arrivée depuis Claude.">
       <div className="grid grid-cols-1 gap-space-5 xl:grid-cols-2">
         <Frame label="Confirmation"><ActivateToolView {...common} amounts={amounts} card={CARD} /></Frame>
         <Frame label="Aperçu en cours"><ActivateToolView {...common} amounts={null} card={CARD} /></Frame>

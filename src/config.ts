@@ -20,8 +20,8 @@ export interface ShellConfig {
   cookieDomain?: string;
   /**
    * `VITE_STRIPE_PUBLISHABLE_KEY` — la clé publiable Stripe (`pk_live_…` / `pk_test_…`), pour le
-   * checkout embarqué (`CheckoutModal`). Optionnelle : sans elle, la modale affiche « paiement
-   * indisponible » au lieu de planter ; rien n'est chargé tant qu'aucune modale ne s'ouvre.
+   * fenêtre de paiement intégrée (`PaymentModal`, champs carte Stripe). Optionnelle : sans elle, la
+   * fenêtre affiche « paiement indisponible » au lieu de planter ; rien n'est chargé tant qu'elle ne s'ouvre pas.
    */
   stripePublishableKey?: string;
   /**

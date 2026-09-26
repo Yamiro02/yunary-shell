@@ -51,7 +51,7 @@ export interface PreviewDetailLine {
 
 /** `preview-subscription-change` → `data`. Montants en centimes. Rien n'est modifié. */
 export interface SubscriptionPreview {
-  /** Pas d'abonnement vivant : le premier abonnement passe par `create-checkout-session` (le `CheckoutModal`). */
+  /** Pas d'abonnement vivant : le premier abonnement passe par `create-payment` (la `PaymentModal`). */
   checkoutRequis: boolean;
   aPayerAujourdhui: number;
   detail: PreviewDetailLine[];
@@ -245,7 +245,7 @@ export interface OutcomeInput {
 }
 
 /** « 2 audits par mois · renouvelé le 23/10/2026 » : quota et unité lus dans le catalogue. */
-function quotaMeta(catalog: ToolCatalog | undefined, id: string, renewsOn: string | null): string | null {
+export function quotaMeta(catalog: ToolCatalog | undefined, id: string, renewsOn: string | null): string | null {
   const tool = catalog?.tools.find(t => t.id === id);
   const renew = renewsOn ? fr.tools.renewsOn(formatDateNumerique(renewsOn)).toLowerCase() : null;
   if (!tool) return renew;

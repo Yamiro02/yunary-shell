@@ -3,7 +3,7 @@ import { getShellConfig } from '../config';
 
 let promise: Promise<Stripe | null> | null = null;
 
-/** La clé publiable est-elle posée ? Sans elle, `CheckoutModal` affiche « paiement indisponible ». */
+/** La clé publiable est-elle posée ? Sans elle, la `PaymentModal` affiche « paiement indisponible ». */
 export function hasStripeKey(): boolean {
   return !!getShellConfig().stripePublishableKey;
 }

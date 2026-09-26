@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.4.2';
+export const SHELL_VERSION = '0.5.0';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -59,11 +59,19 @@ export { useToolRuns, toolRunsKey } from './tools/useToolRuns';
 export type { ToolRun, ToolRunStatus } from './tools/useToolRuns';
 
 /* abonnement Stripe — un abonnement par client, un article par outil, packs ; checkout embarqué, activation, résiliation */
-export { usePortalSession, useStartCheckout, useRemoveTool, useCancelSubscription, useResumeSubscription, checkoutTools } from './account/useStripe';
-export type { CheckoutTarget, CheckoutStart, RemoveToolResult } from './account/useStripe';
-export { CheckoutModal } from './abonnement/CheckoutModal';
-export type { CheckoutModalProps } from './abonnement/CheckoutModal';
-export { useCheckoutActivation, CHECKOUT_PARAM, CHECKOUT_TOOLS_PARAM, CHECKOUT_TOOL_PARAM, CHECKOUT_PACK_PARAM } from './abonnement/useCheckoutActivation';
+export { usePortalSession, useRemoveTool, useCancelSubscription, useResumeSubscription } from './account/useStripe';
+export type { RemoveToolResult } from './account/useStripe';
+export { PaymentModal } from './abonnement/PaymentModal';
+export type { PaymentModalProps } from './abonnement/PaymentModal';
+export { PaymentView } from './abonnement/PaymentView';
+export type { PaymentViewProps, PaymentViewPhase } from './abonnement/PaymentView';
+export {
+  paymentTools, paymentBody, validateBilling, paymentRecap, paymentOutcome, countryOptions, EMPTY_BILLING, CGV_URL, CGU_VERSIONS,
+} from './abonnement/payment';
+export type {
+  PaymentTarget, BillingForm, Facturation, FieldErrors, CardField, CreatePaymentData, PaymentRecap, PaymentRecapLine,
+} from './abonnement/payment';
+export { useCheckoutActivation, CHECKOUT_PARAM, PAYMENT_PARAM, CHECKOUT_TOOLS_PARAM, CHECKOUT_TOOL_PARAM, CHECKOUT_PACK_PARAM } from './abonnement/useCheckoutActivation';
 export type { CheckoutActivationState } from './abonnement/useCheckoutActivation';
 export { CheckoutActivationCard } from './abonnement/CheckoutActivationCard';
 export type { CheckoutActivationCardProps } from './abonnement/CheckoutActivationCard';

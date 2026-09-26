@@ -5,6 +5,51 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.5.0 — fenêtre de paiement intégrée, fin du Checkout embarqué (27/09/2026)
+
+Artboards Hub-Paiement-Preparation / -Pret / -Adresse / -Envoi / -Refus / -3DS (1 outil), -Preparation / -Pret (2 outils),
+-Mobile. Contrat de l'Edge `create-payment` (v1, déployée). **Changement cassant.**
+
+- **`PaymentModal { open, onClose, target, onDone }`** remplace `CheckoutModal` : notre fenêtre, plus celle de Stripe.
+  Mêmes textes, même ordre, même mise en page que les artboards, sur les composants du DS (`Modal`, `FormField`,
+  `Input`, `Select`, `Checkbox`, `Skeleton`, `Spinner`, `Button`, `Banner`), `AmountRows`, `ToolLabel`,
+  `BankConfirmOverlay` et `FullScreenSheet` de la 0.4.0. Un seul composant pour l'onboarding, l'activation sans
+  abonnement vivant (`ActivateToolModal`, `ModifySubscriptionModal`) et les packs.
+- **Trois champs carte Stripe séparés** (décision Julien : la maquette est maître) dans des `.ds-input`, états
+  focus / erreur / désactivé par les classes du DS ; style passé par l'option `style` des Elements, valeurs LUES dans
+  les jetons au montage (police `--font-mono`, taille et couleur du champ, `--text-muted`, `--destructive`,
+  `--muted-foreground`), police envoyée à l'iframe depuis les `@font-face` de la page. Pas de Link.
+- **Paiement créé au clic sur « Payer »**, jamais à l'ouverture : c'est le clic qui vaut acceptation des CGV
+  (`cguAcceptees: true`, `cguVersion: 'abonnement-v2' | 'pack-v2'`). La mention sous le bouton est la phrase de Julien,
+  mot pour mot, lien « CGV » vers https://yunary.com/cgv ; le back enregistre la même phrase sous la même version.
+- **Confirmation** : `stripe.confirmCardPayment(clientSecret, { payment_method: { card, billing_details } },
+  { handleActions: false })`, puis la 3D Secure par `confirmCardPayment(clientSecret)` si la banque la demande
+  (option A de la 0.4.0 : notre carte en fond, la fenêtre Stripe par-dessus, sans « Annuler » — c'est la fenêtre de
+  Stripe qui porte l'abandon). Même logique pour `requires_action` en mode ajout.
+- **Refus et réessai** : un refus de carte s'affiche sous son champ (phrase tutoyée, jamais le message de Stripe qui
+  vouvoie) et le clic suivant confirme LE MÊME paiement sans rappeler le serveur ; facturation changée = le serveur est
+  rappelé et reprend le paiement incomplet. `payment_processing` : on attend les droits (20 s), « Payer » reste
+  inactif. Refus du serveur : message au-dessus de « Payer ».
+- **Facturation** : nom sur la carte et pays obligatoires, adresse facultative (tout ou rien : un champ rempli = les
+  trois attendus), entreprise avec la case ; corps à plat `{ pays, nom?, entreprise?, ligne1?, codePostal?, ville? }`.
+- **Préparation** : Stripe.js et les champs montés sous des squelettes à leur place finale, la ligne « On prépare le
+  paiement sécurisé… » a la hauteur du titre « Carte bancaire » (vérifié au pixel : rien ne bouge). Modale à hauteur
+  fixe `min(80dvh, 58,75 rem)` : rien ne saute d'un état à l'autre.
+- **Succès** : droits attendus (8 s au plus, le webhook les pose), caches relus, puis `onDone(outcome)` — l'issue de
+  `SubscriptionResultScreen`, variante ajout (pack : l'outil du pack, le nom du pack en légende).
+- **Retour `?paiement=1`** accepté par `useCheckoutActivation` (`PAYMENT_PARAM`), en plus de `?checkout=`.
+- **Retirés** : `CheckoutModal`, `CheckoutModalProps`, `useStartCheckout`, `checkoutTools`, `CheckoutTarget`,
+  `CheckoutStart`, les textes `fr.parametres.abonnement.checkout`. Plus aucun appel à `create-checkout-session`.
+- **Ajoutés** : `PaymentModal`, `PaymentView`, `PaymentViewPhase`, `paymentTools`, `validateBilling`, `paymentBody`,
+  `paymentRecap`, `paymentOutcome`, `countryOptions`, `EMPTY_BILLING`, `CGV_URL`, `CGU_VERSIONS`, `PAYMENT_PARAM` et
+  leurs types ; textes `fr.paiement.form`.
+- Types Supabase régénérés : lot 9 du 26/09 (`cgu_acceptees_le`, `cgu_consentement`, `stripe_payment_intent_id`,
+  `stripe_handle_payment_intent_succeeded`).
+- Tests : `payment.test.ts` (36 cas : pays obligatoire, adresse facultative, corps, états d'un clic, refus puis
+  réessai sur le même paiement, 3D Secure, `payment_processing`, refus du serveur, récap, issue). 86 au total.
+- Démo : page Paiement v2, un cadre par artboard (`data-artboard`), mobile un outil / deux outils / pack, états hors
+  maquette, et la fenêtre en vrai.
+
 ## 0.4.2 — redirections d'auth, mot de passe oublié, unités de quota (27/09/2026)
 
 Corrections de recette A4, A6, B9.

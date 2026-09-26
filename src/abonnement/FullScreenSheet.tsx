@@ -21,7 +21,7 @@ export interface FullScreenSheetProps {
  * (titre `heading-sm`, sous-titre, croix), corps `flex-1` qui défile seul, pied fixe facultatif.
  * Échap ferme, le focus arrive sur la croix, le document ne défile plus derrière.
  * ⚠ Exception ASSUMÉE au traitement modal du DS (feuille basse) : payer isole complètement
- * (décision Julien, 13/09/2026). Extraite du `CheckoutModal` en 0.4.0, comportement inchangé.
+ * (décision Julien, 13/09/2026). Sert la fenêtre de paiement (`PaymentView`) et les modales d'abonnement.
  */
 export function FullScreenSheet({ title, subtitle, onClose, inline, footer, className, children }: FullScreenSheetProps): JSX.Element {
   const headRef = useRef<HTMLElement>(null);

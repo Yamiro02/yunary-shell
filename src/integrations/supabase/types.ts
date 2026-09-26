@@ -1,6 +1,6 @@
 /* Types générés par le MCP Supabase (generate_typescript_types) — projet drcxtkwmtceauwiiargz.
    JAMAIS édité à la main : régénéré après chaque migration du back.
-   État : lot 7 du 25/09/2026, abonnement v2 (exports/database.types-2026-09-25-lot7.ts). */
+   État : lot 9 du 26/09/2026, paiement intégré (exports/database.types-2026-09-26-lot9.ts). */
 
 export type Json =
   | string
@@ -977,6 +977,8 @@ export type Database = {
       subscriptions: {
         Row: {
           cancel_at_period_end: boolean
+          cgu_acceptees_le: string | null
+          cgu_consentement: string | null
           created_at: string
           current_period_end: string | null
           status: string | null
@@ -987,6 +989,8 @@ export type Database = {
         }
         Insert: {
           cancel_at_period_end?: boolean
+          cgu_acceptees_le?: string | null
+          cgu_consentement?: string | null
           created_at?: string
           current_period_end?: string | null
           status?: string | null
@@ -997,6 +1001,8 @@ export type Database = {
         }
         Update: {
           cancel_at_period_end?: boolean
+          cgu_acceptees_le?: string | null
+          cgu_consentement?: string | null
           created_at?: string
           current_period_end?: string | null
           status?: string | null
@@ -1033,6 +1039,7 @@ export type Database = {
           quota_used: number
           source: string
           status: string
+          stripe_payment_intent_id: string | null
           stripe_subscription_item_id: string | null
           tool_id: string
           updated_at: string
@@ -1048,6 +1055,7 @@ export type Database = {
           quota_used?: number
           source: string
           status?: string
+          stripe_payment_intent_id?: string | null
           stripe_subscription_item_id?: string | null
           tool_id: string
           updated_at?: string
@@ -1063,6 +1071,7 @@ export type Database = {
           quota_used?: number
           source?: string
           status?: string
+          stripe_payment_intent_id?: string | null
           stripe_subscription_item_id?: string | null
           tool_id?: string
           updated_at?: string
@@ -1585,6 +1594,16 @@ export type Database = {
           p_event_id: string
           p_status: string
           p_subscription_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
+      stripe_handle_payment_intent_succeeded: {
+        Args: {
+          p_customer_id: string
+          p_event_id: string
+          p_pack_lines: Json
+          p_payment_intent_id: string
           p_user_id: string
         }
         Returns: Json

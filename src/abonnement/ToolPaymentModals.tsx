@@ -49,7 +49,7 @@ function ToolQuestion({ verb, name }: { verb: string; name: string }): JSX.Eleme
  * Mêmes phases que la grande modale (paiement, banque, carte refusée) ; carte absente : « Ajoute une
  * carte pour continuer » (portail), CTA inactif. `done` = arrivée depuis Claude (`?ajouter=`) : le
  * résultat de la Modal du DS, « Tu peux retourner dans Claude ». Sans abonnement ni carte
- * (`checkoutRequis`), le conteneur rend le `CheckoutModal` existant à la place de cette vue.
+ * (`checkoutRequis`), le conteneur rend la fenêtre de paiement (`PaymentModal`) à la place de cette vue.
  * `Modal` lg du DS : 520 pour les 480 de la maquette (écart validé) ; feuille basse sous 64 rem.
  */
 export function ActivateToolView({

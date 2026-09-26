@@ -6,8 +6,10 @@ import { useAuth } from '../auth/useAuth';
 import { subscriptionKey } from '../account/useSubscription';
 import { entitlementsKey } from '../tools/useEntitlements';
 
-/** Le paramètre que Stripe ajoute au retour du checkout embarqué : `?checkout=<session_id>`. */
+/** Le paramètre du retour de l'ancien checkout embarqué : `?checkout=<session_id>` (gardé pour les liens déjà partis). */
 export const CHECKOUT_PARAM = 'checkout';
+/** Le retour de `create-payment` (0.5.0) : `?paiement=1&tools=…` (ou `&pack=…`), si Stripe a dû quitter la page. */
+export const PAYMENT_PARAM = 'paiement';
 /** Dans l'URL de retour (le back les met dans le `return_url`) : la sonde vise alors les droits précis. */
 export const CHECKOUT_TOOLS_PARAM = 'tools';
 export const CHECKOUT_TOOL_PARAM = 'tool';
@@ -44,7 +46,7 @@ function readTools(params: URLSearchParams): string[] {
 }
 
 /**
- * Le retour de Stripe. Le webhook qui écrit les droits arrive une à trois secondes APRÈS le
+ * Le retour d'un paiement (`?checkout=` de l'ancien checkout, `?paiement=1` de `create-payment`). Le webhook qui écrit les droits arrive une à trois secondes APRÈS le
  * navigateur : tant qu'il n'est pas passé, la base ne connaît pas encore le nouvel outil. On sonde
  * donc `tool_entitlements` chaque seconde jusqu'à voir le droit (20 s au plus), puis on invalide
  * abonnement et droits. Ce qu'on cherche :
@@ -54,7 +56,7 @@ function readTools(params: URLSearchParams): string[] {
  *   minute de marge) — le repli d'un retour sans paramètres.
  * Pendant la sonde, `AppLayout` affiche « Activation en cours… » à la place du libellé de formule.
  * Une seule sonde quel que soit le nombre de consommateurs (react-query déduplique sur la clé) ;
- * `?checkout=` reste dans l'URL jusqu'à `clear()`.
+ * Le paramètre reste dans l'URL jusqu'à `clear()`.
  */
 export function useCheckoutActivation(): { state: CheckoutActivationState; clear: () => void } {
   const location = useLocation();
@@ -62,7 +64,7 @@ export function useCheckoutActivation(): { state: CheckoutActivationState; clear
   const qc = useQueryClient();
   const { user } = useAuth();
   const params = new URLSearchParams(location.search);
-  const sessionId = params.get(CHECKOUT_PARAM);
+  const sessionId = params.get(CHECKOUT_PARAM) ?? (params.get(PAYMENT_PARAM) ? PAYMENT_PARAM : null);
   const tools = readTools(params);
   const pack = params.get(CHECKOUT_PACK_PARAM);
   const key = activationKey(user?.id, sessionId, tools, pack);
@@ -117,6 +119,7 @@ export function useCheckoutActivation(): { state: CheckoutActivationState; clear
   const clear = () => {
     const next = new URLSearchParams(location.search);
     next.delete(CHECKOUT_PARAM);
+    next.delete(PAYMENT_PARAM);
     next.delete(CHECKOUT_TOOLS_PARAM);
     next.delete(CHECKOUT_TOOL_PARAM);
     next.delete(CHECKOUT_PACK_PARAM);
