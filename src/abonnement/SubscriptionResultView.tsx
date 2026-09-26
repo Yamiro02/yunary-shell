@@ -9,7 +9,7 @@ import { AnimatedCheck, Reveal } from './motion';
 /** Une ligne de la liste des outils : nom, légende (composée par le conteneur), état. */
 export interface ResultToolView {
   name: string;
-  /** « 2 disponibles · renouvelé le 23/10/2026 », « Pas encore ajouté »… */
+  /** « 2 audits par mois · renouvelé le 23/10/2026 », « Encore 9 analyses jusque-là », « Pas encore ajouté »… */
   meta?: string | null;
   /** `active` : badge Actif · `ending` : « Se termine le … » (ambre) · `failed` : « Non ajouté ». */
   status: 'active' | 'ending' | 'failed';

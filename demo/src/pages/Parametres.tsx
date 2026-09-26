@@ -81,7 +81,7 @@ export function ParametresPage(): JSX.Element {
         </div>
       </Section>
 
-      <Section title="Checkout multi-outils · bureau (artboard Hub-03-Abonnement-Paiement)" note="0.3.1 — `target={{ tools }}` à deux outils ou plus : la Modal à la largeur `--container-wide` (900 ; la maquette dit 920, écart validé), sans padding, deux colonnes — récap à gauche (`--container-aside`, fond secondary : « Activer tes outils », une ligne par outil avec son lockup, son quota « 50 par mois » et son prix, total par mois, mention Stripe avec cadenas), paiement à droite (en-tête « Paiement » + croix, zone Stripe qui défile). Préparation, erreur et `added` gardent la disposition 520.">
+      <Section title="Checkout multi-outils · bureau (artboard Hub-03-Abonnement-Paiement)" note="0.3.1 — `target={{ tools }}` à deux outils ou plus : la Modal à la largeur `--container-wide` (900 ; la maquette dit 920, écart validé), sans padding, deux colonnes — récap à gauche (`--container-aside`, fond secondary : « Activer tes outils », une ligne par outil avec son lockup, son quota « 50 analyses par mois » et son prix, total par mois, mention Stripe avec cadenas), paiement à droite (en-tête « Paiement » + croix, zone Stripe qui défile). Préparation, erreur et `added` gardent la disposition 520.">
         <div className="flex flex-col gap-space-5">
           <WideFrame label="Session prête · Audit + Analyse (Stripe non chargé)">
             <CheckoutModal open inline onClose={noop} target={{ tools: ['audit', 'analyse'] }} demo={{ layout: 'modal', catalog: CATALOG, start: { mode: 'checkout', clientSecret: 'cs_test_demo', amountCents: 1400, tools: ['audit', 'analyse'] }, filler: true }} />

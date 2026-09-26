@@ -1,6 +1,6 @@
 import type { JSX, ReactNode } from 'react';
 import { Badge, Card, Progress } from '@yunary/ds';
-import { formatDateCourte, formatEuros, fr, toolByIdIn, type CanUseResult, type EntitlementSummary, type ToolRule, type ToolRun } from '@yunary/shell';
+import { formatDateCourte, formatEuros, formatQuantite, formatQuotaParMois, fr, toolByIdIn, type CanUseResult, type EntitlementSummary, type ToolRule, type ToolRun } from '@yunary/shell';
 import { CATALOG, RULES, RUNS, SUMMARIES_FREE, SUMMARIES_SUBSCRIBED, SUMMARIES_WITH_PACK } from '../fixtures';
 import { Section } from '../ui';
 
@@ -31,7 +31,7 @@ export function OutilsPage(): JSX.Element {
               </div>
               <p className="text-body-sm text-text-secondary">{tool.description}</p>
               <span className="caption">
-                {tool.monthlyQuota === null ? t.unlimited : `${tool.monthlyQuota} / mois`}
+                {formatQuotaParMois(tool)}
                 {tool.priceCents !== null ? ` · ${formatEuros(tool.priceCents)}/mois` : ''}
                 {tool.isPublished ? ' · publié' : ' · non publié'}
               </span>
@@ -63,7 +63,7 @@ export function OutilsPage(): JSX.Element {
             <Block key={c.label} label={c.label}>
               <div className="flex flex-col gap-space-1 text-body-sm">
                 <span><Badge tone={c.result.allowed ? 'success' : 'warning'} pad="dense" className="chip">{c.result.allowed ? 'allowed' : c.result.reason}</Badge></span>
-                <span className="caption">{c.result.source ? t.source[c.result.source] : '—'} · {c.result.remaining === null ? t.unlimited : t.remaining(c.result.remaining)}</span>
+                <span className="caption">{c.result.source ? t.source[c.result.source] : '—'} · {c.result.remaining === null ? t.unlimited : t.remaining(formatQuantite(c.result.remaining, 'unité', 'unités'))}</span>
                 {c.result.link ? <a href={c.result.link} className="text-body-sm">{c.result.link}</a> : null}
                 {!c.result.allowed ? <span className="text-body-sm text-text-secondary">{fr.errors.tools[c.result.reason === 'quota_exhausted' ? 'quotaExhausted' : 'notSubscribed']}</span> : null}
               </div>

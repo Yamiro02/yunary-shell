@@ -5,6 +5,37 @@ numéro : `package.json`, la ligne d'installation du README, et le tag git.
 
 ---
 
+## 0.4.2 — redirections d'auth, mot de passe oublié, unités de quota (27/09/2026)
+
+Corrections de recette A4, A6, B9.
+
+- **A4, déconnexion** : se déconnecter depuis Paramètres menait à `/login?next=<URL complète de /parametres>`, et la
+  reconnexion y ramenait. `useLogout()` appelle `signOut()` puis navigue vers `/login` SANS `next` ; `signOut()` marque
+  la déconnexion comme voulue (`src/auth/signOutIntent.ts`) et `ProtectedRoute`, s'il réagit avant, renvoie aussi vers
+  `/login` sans `next` (une session expirée, elle, garde son `next`). Vaut pour tout `signOut()` du shell (« Pas toi ? »
+  compris) et la suppression du compte. `useLogout()` rend `(options?: { next?: string })` : un `next` interne voulu
+  explicitement reste possible.
+- **A4, `next` = chemin interne uniquement** : commence par « / », pas par « // » ni « /\\ », sans schéma ni hôte.
+  `isSafeNext` refuse toute URL complète, même `*.yunary.com` ; `ProtectedRoute` et `buildLoginUrl` écrivent
+  `pathname + search + hash` ; `toInternalPath` exporté. `extraNextOrigins` devient sans effet (gardé dans le type).
+- **A4, la règle** `resolveAfterAuth` : a. `/autoriser…` d'abord, avant l'onboarding (sinon la connexion OAuth depuis
+  Claude échoue pour un nouvel inscrit) ; b. onboarding pas terminé → `/onboarding` ; c. `next` interne → `next` ; d.
+  `/outils`. Elle rend toujours une route (navigation client). `isAuthorizeNext(next)` perd son `hubUrl` ; `hubUrl` de
+  `AfterAuthInput` devient facultatif et ignoré.
+- **A6, mot de passe oublié** : après envoi, un seul message, que le compte existe ou non : « Si un compte existe avec
+  cette adresse, tu vas recevoir un e-mail pour choisir un nouveau mot de passe. Pense à regarder dans tes spams. »,
+  titre « Vérifie ta boîte mail », adresse plus affichée (`LinkSentView` : `email` facultatif). Erreur serveur : bandeau
+  et formulaire, inchangés.
+- **B9, unités de quota** : le catalogue lit `tools.unit_label` et `tools.unit_label_plural` (`ToolDef.unitLabel`,
+  `unitLabelPlural`). `formatQuantite` (accord : 0 et 1 au singulier), `formatQuota`, `formatQuotaParMois` exportés et
+  testés. Toute ligne de quota porte son unité : « 9 €/mois · 50 analyses par mois » dans la grande modale et le
+  checkout, « 2 audits par mois · renouvelé le … » et « Encore 9 analyses jusque-là » sur l'écran de retour.
+  `ToolSwitchRowView` prend `unitLabel` / `unitLabelPlural`. `fr.tools.quotaPerMonth` est retiré (`fr.tools.perMonth`
+  prend une quantité formatée), `fr.tools.remaining` et `fr.paiement.result.remainingUntil` aussi.
+- **Tests** : 50 (dont 24 sur la règle et les `next` refusés, 5 sur les unités).
+
+---
+
 ## 0.4.1 — inscription sans confirmation, libellé du retour (25/09/2026)
 
 - **Inscription sans confirmation par e-mail** (Julien désactive « Confirm email » dans Supabase) : quand `signUp`

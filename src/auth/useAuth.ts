@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 import type { Session, User } from '@supabase/supabase-js';
 import { getSupabase } from '../lib/supabase';
+import { clearExplicitSignOut } from './signOutIntent';
 
 export interface AuthState {
   session: Session | null;
@@ -17,6 +18,8 @@ const listeners = new Set<() => void>();
 let initialized = false;
 
 function emit(next: AuthState): void {
+  /* Une session revient : la déconnexion voulue est terminée. */
+  if (next.session) clearExplicitSignOut();
   state = next;
   listeners.forEach(l => l());
 }

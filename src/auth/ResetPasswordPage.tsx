@@ -7,7 +7,6 @@ import { fr } from '../i18n/fr';
 import { getErrorMessage } from '../lib/errors';
 import { readSafeNext } from '../lib/next';
 import { resolveAfterAuth, withNextParam } from '../lib/afterAuth';
-import { getShellConfig } from '../config';
 import { useProfile } from '../account/useProfile';
 import { followAfterAuth } from './useAfterAuthRedirect';
 import { AuthHeading, AuthShell } from './AuthShell';
@@ -96,7 +95,7 @@ export function ResetPasswordPage({ forgotHref, loginHref, onboardingPath = '/on
       /* Profil illisible : on ne bloque pas — `ProtectedRoute` rattrapera l'onboarding sur l'accueil. */
       const data = profile.data ?? (await profile.refetch()).data;
       const target = resolveAfterAuth({
-        next, onboardingCompleted: data ? data.onboarding_completed : true, hubUrl: getShellConfig().hubUrl, onboardingPath, homePath,
+        next, onboardingCompleted: data ? data.onboarding_completed : true, onboardingPath, homePath,
       });
       if (target) followAfterAuth(target, navigate);
     } catch (e) {

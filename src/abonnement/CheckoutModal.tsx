@@ -10,6 +10,7 @@ import { DS_MOBILE_QUERY, useMediaQuery } from '../lib/useMediaQuery';
 import { checkoutTools, useStartCheckout, type CheckoutStart, type CheckoutTarget } from '../account/useStripe';
 import { packByIdIn, toolByIdIn, useToolCatalog, type ToolCatalog, type ToolDef } from '../tools/useToolCatalog';
 import { ToolLabel } from '../layout/ToolLabel';
+import { formatQuotaParMois } from '../lib/quantity';
 import { FullScreenSheet } from './FullScreenSheet';
 
 export interface CheckoutModalProps {
@@ -59,7 +60,7 @@ interface RecapLine {
  *
  * 🔒 Noms, quotas et montants viennent de la BASE (`tools`, `tool_packs` via `useToolCatalog`) puis de
  * l'Edge (`amountCents` = somme des articles, qui fait foi dès que la réponse est là) — jamais d'une
- * constante du paquet. Le mot d'unité du quota n'existe pas en base : « 50 par mois ».
+ * constante du paquet. Quota avec son unité, lue en base : « 50 analyses par mois » (0.4.2).
  */
 export function CheckoutModal({ open, onClose, target, inline, demo }: CheckoutModalProps): JSX.Element | null {
   const t = fr.parametres.abonnement.checkout;
@@ -229,7 +230,7 @@ function Recap({ lines, amount }: { lines: RecapLine[]; amount: number | null })
         <div key={l.id} className="flex items-start justify-between gap-space-4">
           <span className="flex min-w-0 flex-col">
             <ToolLabel name={l.name} className="text-foreground" />
-            <span className="text-caption text-text-muted">{fr.tools.quotaPerMonth(l.tool?.monthlyQuota ?? null)}</span>
+            {l.tool ? <span className="text-caption text-text-muted">{formatQuotaParMois(l.tool)}</span> : null}
           </span>
           <span className="flex-none font-semibold text-foreground">{l.tool?.priceCents != null ? formatEuros(l.tool.priceCents) : fr.parametres.abonnement.priceUnknown}</span>
         </div>

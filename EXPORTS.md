@@ -1,4 +1,4 @@
-# EXPORTS — l'API publique de `@yunary/shell` (0.4.1)
+# EXPORTS — l'API publique de `@yunary/shell` (0.4.2)
 
 Un seul point d'entrée : `import { … } from '@yunary/shell'`. Tout ce qui n'est pas listé ici
 est interne et peut changer sans bump majeur. Les **vues** (`*View`) sont pilotées par props et
@@ -13,7 +13,7 @@ que dans le web.
 
 | Export | Rôle |
 |---|---|
-| `configureShell(config)` | À appeler UNE fois dans `main.tsx`, avant tout rendu. `supabaseUrl`, `supabasePublishableKey`, `hubUrl`, `cookieDomain?` (absent en local), `stripePublishableKey?` (`VITE_STRIPE_PUBLISHABLE_KEY`, pour le checkout embarqué), `extraNextOrigins?` (local seulement). |
+| `configureShell(config)` | À appeler UNE fois dans `main.tsx`, avant tout rendu. `supabaseUrl`, `supabasePublishableKey`, `hubUrl`, `cookieDomain?` (absent en local), `stripePublishableKey?` (`VITE_STRIPE_PUBLISHABLE_KEY`, pour le checkout embarqué), `extraNextOrigins?` (**ignoré depuis 0.4.2**, `next` n'accepte plus que des chemins internes ; gardé dans le type pour ne rien casser). |
 | `getShellConfig()` · `isShellConfigured()` | Lecture de la config (lève si absente). |
 | `ShellConfig` | Type. |
 
@@ -34,13 +34,13 @@ que dans le web.
 | `useLogin()` → `{ signInWithEmail, signInWithOAuth(provider, next) }` | Connexion e-mail et OAuth Google / Apple (retour sur `${hubUrl}/login?next=`). |
 | `useSignup()` → `{ signUpWithEmail(email, password, next?) }` · `signupNextStep(hasSession)` | Inscription → `{ next: 'redirect' \| 'confirm', needsConfirmation }`. Session renvoyée (confirmation désactivée) = `redirect` : la page enchaîne avec `resolveAfterAuth` (0.4.1) ; sans session = « Vérifie ta boîte mail », dont le lien ramène sur `${hubUrl}/login?next=`. |
 | `usePasswordReset()` → `{ requestReset(email, next?), updatePassword }` | E-mail de reset (vers `${hubUrl}/reset?next=`, 0.3.2) et nouveau mot de passe. |
-| `useLogout()` | Déconnexion via le client unique. |
+| `useLogout()` → `(options?: { next?: string }) => Promise<void>` | (0.4.2) Déconnexion via le client unique, puis `/login` SANS `next` (la reconnexion suit la règle normale, jamais un retour sur la page quittée). `options.next` : un chemin interne voulu explicitement (ex. « Pas toi ? » sur `/autoriser`). |
 | `<ProtectedRoute requireOnboarding?>` · `<PageLoader />` | Non connecté ou onboarding non terminé → `hubUrl/login?next=<url>` ; loader pendant la résolution. |
-| `useAfterAuthRedirect({ next, onboardingPath?, homePath? })` | Après connexion : la règle de `resolveAfterAuth`. `next` vers `/autoriser` part dès que la session est là, le reste attend le profil. `homePath` par défaut `/outils`. |
-| `resolveAfterAuth({ next, onboardingCompleted, hubUrl, onboardingPath?, homePath? })` → `AfterAuthTarget \| null` | (0.3.2) 🔒 LA règle, dans l'ordre : 1. `next` sûr vers `/autoriser` (chemin exact, origine du hub, requête intacte) quel que soit l'onboarding ; 2. onboarding pas terminé → `onboardingPath` ; 3. `next` sûr → `next` ; 4. sinon `homePath` (`/outils`). `null` tant que le profil manque et qu'on en a besoin. `AfterAuthTarget` = `{ type: 'url', url }` (pleine page) ou `{ type: 'route', path }`. `AfterAuthInput`. |
-| `isAuthorizeNext(next, hubUrl)` · `AUTHORIZE_PATH` | (0.3.2) `next` sûr qui vise exactement `/autoriser` sur l'origine du hub : la seule exception à l'onboarding. |
+| `useAfterAuthRedirect({ next, onboardingPath?, homePath? })` | Après connexion : la règle de `resolveAfterAuth`, en navigation client. `next` vers `/autoriser` part dès que la session est là, le reste attend le profil. `homePath` par défaut `/outils`. |
+| `resolveAfterAuth({ next, onboardingCompleted, onboardingPath?, homePath? })` → `AfterAuthTarget \| null` | 🔒 LA règle, dans l'ordre (0.4.2) : a. `next` = `/autoriser…` (chemin exact, requête intacte) → `/autoriser`, QUEL QUE SOIT l'onboarding ; b. onboarding pas terminé → `onboardingPath` ; c. `next` interne valide → `next` (lien profond : `/facturation`, `/outils?ajouter=audit`) ; d. sinon `homePath` (`/outils`). Rend toujours `{ type: 'route', path }` (le cas `url` reste dans le type, jamais produit). `null` tant que le profil manque et qu'on en a besoin. `hubUrl` accepté et ignoré. `AfterAuthInput`. |
+| `isAuthorizeNext(next)` · `AUTHORIZE_PATH` | (0.4.2 : plus de `hubUrl`) `next` interne qui vise exactement `/autoriser` : la seule exception à l'onboarding. |
 | `withNextParam(href, next)` | (0.3.2) Reporte `next` sur un lien ou une URL de retour (confirmation d'e-mail, OAuth, reset) s'il n'y est pas déjà ; garde les autres paramètres et le fragment. |
-| `isSafeNext(url)` · `readSafeNext(search)` · `buildLoginUrl(currentUrl)` | `?next=` accepté seulement en sous-domaine https de `yunary.com` (+ `extraNextOrigins`). |
+| `isSafeNext(next)` · `readSafeNext(search)` · `buildLoginUrl(current)` · `toInternalPath(location)` | (0.4.2) `?next=` = **chemin interne uniquement** : commence par « / », pas par « // » ni « /\\ », sans schéma ni hôte ni caractère de contrôle. Toute URL complète est refusée, même `*.yunary.com`. `buildLoginUrl` et `ProtectedRoute` écrivent `pathname + search + hash` ; `toInternalPath` réduit une URL complète à son chemin. |
 | `loginSchema` · `signupSchema` · `forgotSchema` · `newPasswordSchema` · `PASSWORD_MIN` · `PASSWORD_RULE` | Schémas zod — mot de passe : 8 caractères, minuscule + majuscule + chiffre, la politique du projet Supabase. |
 
 ## Pages d'auth (montées par le hub seul)
@@ -49,8 +49,8 @@ que dans le web.
 |---|---|
 | `<LoginPage>` / `<LoginView>` | A1. Props de page : `signupHref`, `forgotHref`, `onboardingPath`, `homePath` (défaut `/outils`). La page reporte `?next=` sur ses liens (`withNextParam`, sans doubler celui que l'app a déjà mis). |
 | `<SignupPage>` / `<SignupView>` | A2 ; confirmation d'e-mail → `LinkSentView kind="confirmation"`. `next` part dans le lien de confirmation et sur « Se connecter ». |
-| `<ForgotPasswordPage>` / `<ForgotPasswordView>` | A3 → A4 avec « Renvoyer » (cooldown 30 s). Lit `?next=` et le met dans le lien de reset. |
-| `<LinkSentView kind="reset" \| "confirmation">` | A4. |
+| `<ForgotPasswordPage>` / `<ForgotPasswordView>` | A3 → A4 avec « Renvoyer » (cooldown 30 s). Lit `?next=` et le met dans le lien de reset. Après envoi (0.4.2) : un seul message, que le compte existe ou non, sans l'adresse. Erreur serveur : bandeau + formulaire. |
+| `<LinkSentView kind="reset" \| "confirmation" email? onResend? resendState? loginHref?>` | A4 « Vérifie ta boîte mail ». `reset` : « Si un compte existe avec cette adresse, tu vas recevoir un e-mail… Pense à regarder dans tes spams. », sans l'adresse (`email` facultatif depuis 0.4.2) ; `confirmation` : l'adresse + le rappel des spams. |
 | `<ResetPasswordPage forgotHref? loginHref? onboardingPath? homePath?>` / `<ResetPasswordView>` | `/reset` ; lien invalide (autre navigateur, expiré) → renvoi vers A3 (avec `next`). Après le nouveau mot de passe : `resolveAfterAuth` avec le `next` du lien (0.3.2 ; avant : toujours l'accueil). |
 | `<AuthShell>` · `<AuthHeading>` · `<OAuthButtons>` · `<GoogleMark>` · `<AppleMark>` | La coque et les briques des pages d'auth. |
 
@@ -68,7 +68,7 @@ que dans le web.
 
 | Export | Rôle |
 |---|---|
-| `useToolCatalog({ enabled? })` → `ToolCatalog` | `tools` (`ToolDef` : `id`, `name`, `description`, `position`, `monthlyQuota`, `priceCents`, `isPublished`, `status`) + `tool_packs` (`ToolPackDef` : `id`, `toolId`, `name`, `units`, `priceCents`, `isPublished`), lecture publique, triés par `position`. `toolCatalogKey`, `toolByIdIn(catalog, id)`, `packByIdIn(catalog, id)`. |
+| `useToolCatalog({ enabled? })` → `ToolCatalog` | `tools` (`ToolDef` : `id`, `name`, `description`, `position`, `monthlyQuota`, `unitLabel`, `unitLabelPlural` (0.4.2, `tools.unit_label*`), `priceCents`, `isPublished`, `status`) + `tool_packs` (`ToolPackDef` : `id`, `toolId`, `name`, `units`, `priceCents`, `isPublished`), lecture publique, triés par `position`. `toolCatalogKey`, `toolByIdIn(catalog, id)`, `packByIdIn(catalog, id)`. |
 | `useEntitlements()` → `EntitlementsInfo` | `rows` : les lignes `tool_entitlements` de l'utilisateur (`Entitlement` : `toolId`, `source`, `status`, `quotaTotal`, `quotaUsed`, `periodStart`, `periodEnd`, `endsAtPeriodEnd`) ; `summaries` : un `EntitlementSummary` par outil (`toolId`, `source`, `status`, `used`, `total`, `remaining`, `periodEnd`, `endsAtPeriodEnd`, `usable`) = le droit que le serveur consommerait (`subscription` → `pack` → `free`, actif, en période, non épuisé), sinon le premier actif. `entitlementsKey`, `isEntitlementUsable(row)`, `summarizeEntitlements(rows)`. Types `EntitlementSource`, `EntitlementStatus`. |
 | `useCanUse(tool)` → `CanUseResult` | 🔒 `select can_use(tool)` avec le jeton de l'utilisateur, lecture seule : `{ allowed, reason, source, remaining, link }`. `canUseKey`, `CanUseReason` (`ok`, `not_subscribed`, `quota_exhausted`, `unknown_tool`, `unauthorized`). |
 | `useToolRules({ tool? })` → `ToolRule[]` | `user_tool_rules` (owner), les plus récentes d'abord ; `toolId` null = règle commune à tous les outils (0.4.0). `useAddToolRule()` (`{ toolId: string \| null, stepKey?, text }`), `useUpdateToolRule()` (`{ id, text, stepKey? }`), `useDeleteToolRule()` (`{ id }`) ; texte nettoyé, 1..`RULE_TEXT_MAX` (500). `toolRulesKey`. |
@@ -119,7 +119,7 @@ Le premier abonnement reste le `CheckoutModal`. Tout changement d'un abonnement 
 
 | Export | Rôle |
 |---|---|
-| `<ModifySubscriptionView open onClose rows onToggle summary card phase? error? onConfirm onChangeCard? onAddCard? cardBusy? onCancelBank? layout? inline?>` | « Modifier mon abonnement » (Hub-03-ModifierOutils). `rows: ToolSwitchRowView[]` (`toolId`, `name`, `priceCents`, `monthlyQuota`, `state: ToolRowState` = `active` · `ending` · `none`, `checked`, `periodEnd`, `disabled?`) ; `summary: ChangeSummaryView \| null` (`added`, `removed`, `reactivated`, `todayCents`, `todayDetail?`, `nextCents`, `nextFrom` ; `null` = aperçu en cours) ; `phase: PaymentPhase` = `edit` · `paying` · `bank` · `declined`. CTA « Payer X € » / « Confirmer », inactif sans changement ou sans carte quand il faut payer. Plein écran sous 64 rem. |
+| `<ModifySubscriptionView open onClose rows onToggle summary card phase? error? onConfirm onChangeCard? onAddCard? cardBusy? onCancelBank? layout? inline?>` | « Modifier mon abonnement » (Hub-03-ModifierOutils). `rows: ToolSwitchRowView[]` (`toolId`, `name`, `priceCents`, `monthlyQuota`, `unitLabel`, `unitLabelPlural` (0.4.2), `state: ToolRowState` = `active` · `ending` · `none`, `checked`, `periodEnd`, `disabled?`) ; `summary: ChangeSummaryView \| null` (`added`, `removed`, `reactivated`, `todayCents`, `todayDetail?`, `nextCents`, `nextFrom` ; `null` = aperçu en cours) ; `phase: PaymentPhase` = `edit` · `paying` · `bank` · `declined`. CTA « Payer X € » / « Confirmer », inactif sans changement ou sans carte quand il faut payer. Plein écran sous 64 rem. |
 | `<ActivateToolView open onClose name amounts card phase? error? onConfirm onChangeCard? onAddCard? cardBusy? onCancelBank? inline?>` | « Activer Yunary Audit ? » (Hub-Outils-Activer-Confirmation). `amounts: ActivateAmountsView \| null` (`todayCents`, `todayDetail?`, `nextCents`, `nextDate`, `nextDetail?`). Phases de la grande modale + `done` (arrivée depuis Claude : « Tu peux retourner dans Claude »). |
 | `<ReactivateToolView open onClose name periodEnd next phase? error? onConfirm inline?>` | « Réactiver Yunary Analyse ? » (Hub-Outils-Reactiver-Confirmation) : 0 € aujourd'hui, `next: { cents, date, detail? } \| null`, `phase` = `edit` · `saving`. |
 | `<SubscriptionResultView variant subjects tools todayCents? next? periodEnd? email? invoicesHref? linkAs? onBack backLabel? onRetry? layout? inline?>` | L'écran de retour pleine page (Hub-03b-Retour) : `variant` = `added` · `removed` · `failed` ; `tools: ResultToolView[]` (`name`, `meta?`, `status` = `active` · `ending` · `failed`, `endsOn?`). Coche qui se dessine, puis titre, puis outils un par un. |
@@ -181,6 +181,7 @@ Le premier abonnement reste le `CheckoutModal`. Tout changement d'un abonnement 
 | `fr` | Toutes les chaînes communes (erreurs, auth, layout, outils et droits — `fr.tools` : sources, statuts, « Sans limite », « utilisé / total », « 50 par mois », échéances —, paramètres, checkout multi-outils, légal, audit). Jamais un nom d'outil : ils viennent de la base. |
 | `getErrorMessage(error)` | Une erreur (Supabase, réseau, code métier brut du back, inconnue) → une phrase FR. Jamais un message brut à l'écran. |
 | `messageForCode(code, fallback)` | 🔒 La phrase FR d'un code du back (`not_subscribed`, `quota_exhausted`, `not_published`, `already_subscribed`, `card_declined`, `past_due`, `requires_action`, `no_subscription`, `no_customer`, `unknown_tool`, `rate_limited`, `unauthorized`, `stripe_error`, `invalid_input`) ; inconnu → `fallback`. |
+| `formatQuantite(n, singulier, pluriel)` · `formatQuota(n, unit)` · `formatQuotaParMois(tool)` · `UnitLabels` | (0.4.2) Les unités de quota : accord français (0 et 1 au singulier, au-delà au pluriel), « 2 audits », « 50 analyses par mois », « Sans limite » sans quota. Quota et unité lus dans le catalogue, jamais en dur. |
 | `formatNombre` · `formatCompact` · `formatDateCourte` · `formatDateLongue` · `formatDateNumerique` (« 23/10/2026 ») · `formatJourMois` (« 23/10 ») · `formatEuros(cents)` · `initiales` | Formats FR via `Intl` ; `formatEuros` : centimes → « 9 € » / « 9,90 € ». |
 | `useMediaQuery(query)` · `DS_MOBILE_QUERY` | `matchMedia` en `useSyncExternalStore` ; `DS_MOBILE_QUERY` = `(max-width: 64rem)`, le seuil unique du DS. |
 | `withGlyphSize(icon, size?)` · `CARD_GLYPH_SIZE` | Pose `size` (18 px par défaut) sur un `<Icon />` reçu en prop, sauf si l'appelant l'a fixé. |

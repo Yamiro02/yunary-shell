@@ -1,5 +1,6 @@
 import { fr } from '../i18n/fr';
 import { formatEuros, formatDateNumerique, formatJourMois } from '../lib/format';
+import { formatQuota, formatQuotaParMois } from '../lib/quantity';
 import type { ToolCatalog } from '../tools/useToolCatalog';
 import type { ChangeSummaryView, ToolRowState, ToolSwitchRowView } from './ModifySubscriptionView';
 import type { ResultToolView } from './SubscriptionResultView';
@@ -243,9 +244,13 @@ export interface OutcomeInput {
   remaining?: Record<string, number | null>;
 }
 
-function quotaMeta(catalog: ToolCatalog | undefined, id: string, renewsOn: string | null): string {
-  const quota = fr.tools.quotaPerMonth(catalog?.tools.find(t => t.id === id)?.monthlyQuota ?? null);
-  return renewsOn ? `${quota} · ${fr.tools.renewsOn(formatDateNumerique(renewsOn)).toLowerCase()}` : quota;
+/** « 2 audits par mois · renouvelé le 23/10/2026 » : quota et unité lus dans le catalogue. */
+function quotaMeta(catalog: ToolCatalog | undefined, id: string, renewsOn: string | null): string | null {
+  const tool = catalog?.tools.find(t => t.id === id);
+  const renew = renewsOn ? fr.tools.renewsOn(formatDateNumerique(renewsOn)).toLowerCase() : null;
+  if (!tool) return renew;
+  const quota = formatQuotaParMois(tool);
+  return renew ? `${quota} · ${renew}` : quota;
 }
 
 /** L'écran de retour d'un changement réussi : ajout (même combiné à un retrait), retrait seul, ou « garder » seul. */
@@ -258,7 +263,8 @@ export function buildOutcome({ change, preview, catalog, unchanged, paidCents, r
   const active = (id: string): ResultToolView => ({ name: name(id), meta: quotaMeta(catalog, id, renew), status: 'active' });
   const ending = (id: string): ResultToolView => {
     const left = remaining[id];
-    return { name: name(id), meta: left != null ? fr.paiement.result.remainingUntil(left) : null, status: 'ending', endsOn: finPeriode };
+    const tool = catalog?.tools.find(t => t.id === id);
+    return { name: name(id), meta: left != null && tool ? fr.paiement.result.remainingUntil(formatQuota(left, tool)) : null, status: 'ending', endsOn: finPeriode };
   };
   const tools = [...added.map(active), ...unchanged.map(active), ...removed.map(ending)];
   const next = preview.prochainPrelevement ? { cents: preview.prochainPrelevement.montant, from: preview.prochainPrelevement.date } : null;

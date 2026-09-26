@@ -1,34 +1,48 @@
 import { getShellConfig } from '../config';
 
+/** Une base factice pour lire un chemin comme une URL : tout ce qui en sort n'est plus un chemin interne. */
+const INTERNAL_BASE = 'https://interne.invalid';
+
 /**
- * `?next=` — la seule chose qu'un front accepte comme destination après connexion.
- * Règle dure : un sous-domaine de `yunary.com` en https, rien d'autre (anti open-redirect).
- * En local, `extraNextOrigins` de la config ajoute les origines de développement.
+ * `?next=` — la seule chose qu'un front accepte comme destination après connexion (0.4.2, recette A4) : un CHEMIN
+ * INTERNE et rien d'autre. Il commence par « / », pas par « // » ni « /\\ » (lus comme une autre origine par les
+ * navigateurs), sans schéma ni hôte, sans caractère de contrôle. Toute URL complète est refusée, même en
+ * `*.yunary.com`. Anti open-redirect par construction : la destination reste sur l'origine courante.
  */
 export function isSafeNext(candidate: string | null | undefined): candidate is string {
-  if (!candidate) return false;
-  let url: URL;
+  if (!candidate || typeof candidate !== 'string') return false;
+  if (!candidate.startsWith('/') || candidate.startsWith('//') || candidate.startsWith('/\\')) return false;
+  if (/[\u0000-\u001f\u007f\\]/.test(candidate)) return false;
   try {
-    url = new URL(candidate);
+    return new URL(candidate, INTERNAL_BASE).origin === INTERNAL_BASE;
   } catch {
     return false;
   }
-  if (url.protocol === 'https:') {
-    const host = url.hostname.toLowerCase();
-    if (host === 'yunary.com' || host.endsWith('.yunary.com')) return true;
-  }
-  const extra = getShellConfig().extraNextOrigins ?? [];
-  return extra.some(origin => origin.replace(/\/+$/, '') === url.origin);
 }
 
-/** Lit `next` dans une query string et ne le rend que s'il est sûr. */
+/** Lit `next` dans une query string et ne le rend que s'il est sûr (chemin interne). */
 export function readSafeNext(search: string): string | null {
   const value = new URLSearchParams(search).get('next');
   return isSafeNext(value) ? value : null;
 }
 
-/** L'URL de connexion du Hub, avec la page courante en `next`. */
-export function buildLoginUrl(currentUrl: string): string {
+/**
+ * Le chemin interne d'une adresse : `pathname + search + hash`. Une URL complète est réduite à son chemin (jamais
+ * transmise telle quelle) ; un chemin déjà interne est rendu tel quel.
+ */
+export function toInternalPath(location: string): string {
+  if (isSafeNext(location)) return location;
+  try {
+    const url = new URL(location);
+    return `${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return '/';
+  }
+}
+
+/** L'URL de connexion du hub, avec le CHEMIN de la page courante en `next` (jamais une URL complète). */
+export function buildLoginUrl(current: string): string {
   const { hubUrl } = getShellConfig();
-  return `${hubUrl}/login?next=${encodeURIComponent(currentUrl)}`;
+  const path = toInternalPath(current);
+  return isSafeNext(path) ? `${hubUrl}/login?next=${encodeURIComponent(path)}` : `${hubUrl}/login`;
 }

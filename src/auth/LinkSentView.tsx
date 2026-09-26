@@ -7,7 +7,8 @@ import { AuthShell } from './AuthShell';
 export interface LinkSentViewProps {
   /** `reset` (A4, lien de réinitialisation) · `confirmation` (inscription, lien d'activation). */
   kind: 'reset' | 'confirmation';
-  email: string;
+  /** L'adresse, affichée pour la confirmation d'inscription seulement ; jamais pour le reset (0.4.2, A6). */
+  email?: string;
   onResend?: () => void;
   /** `idle` · `sending` · `sent` — l'état du bouton « Renvoyer ». */
   resendState?: 'idle' | 'sending' | 'sent';
@@ -15,7 +16,10 @@ export interface LinkSentViewProps {
   className?: string;
 }
 
-/** A4 — « Lien envoyé », partagée par le reset et la confirmation d'inscription. */
+/**
+ * A4 — « Vérifie ta boîte mail », partagée par le reset et la confirmation d'inscription. Reset (0.4.2, recette A6) :
+ * un seul message, que le compte existe ou non, sans l'adresse ; le rappel des spams y est inclus.
+ */
 export function LinkSentView({ kind, email, onResend, resendState = 'idle', loginHref = '/login', className }: LinkSentViewProps): JSX.Element {
   const f = fr.auth;
   const title = kind === 'reset' ? f.sent.title : f.signup.confirmTitle;
@@ -31,16 +35,10 @@ export function LinkSentView({ kind, email, onResend, resendState = 'idle', logi
         <div className="flex flex-col gap-space-2">
           <h1 className="text-heading">{title}</h1>
           <p className="text-body leading-body text-text-muted">
-            {kind === 'reset' ? (
-              <>
-                {f.sent.bodyBefore}
-                <strong className="font-semibold text-foreground">{email}</strong>
-                {f.sent.bodyAfter}
-              </>
-            ) : f.signup.confirmBody(email)}
+            {kind === 'reset' ? f.sent.body : f.signup.confirmBody(email ?? '')}
           </p>
         </div>
-        <Badge tone="neutral" icon={<Icon name="info" strokeWidth={2.5} />}>{f.sent.spam}</Badge>
+        {kind === 'reset' ? null : <Badge tone="neutral" icon={<Icon name="info" strokeWidth={2.5} />}>{f.sent.spam}</Badge>}
         <div className="mt-space-1 flex w-full flex-col gap-space-3">
           {onResend ? (
             <Button variant="secondary" surface="card" fullWidth loading={resendState === 'sending'} disabled={resendState !== 'idle'} onClick={onResend}>

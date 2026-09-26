@@ -3,6 +3,7 @@ import { Badge, Banner, Button, Icon, IconButton, Modal, Separator, Skeleton, Sw
 import { fr } from '../i18n/fr';
 import { formatDateNumerique, formatEuros } from '../lib/format';
 import { DS_MOBILE_QUERY, useMediaQuery } from '../lib/useMediaQuery';
+import { formatQuotaParMois } from '../lib/quantity';
 import { ToolLabel } from '../layout/ToolLabel';
 import { FullScreenSheet } from './FullScreenSheet';
 import { SavedCardLine, type SavedCardView } from './SavedCardLine';
@@ -18,6 +19,9 @@ export interface ToolSwitchRowView {
   name: string;
   priceCents: number | null;
   monthlyQuota: number | null;
+  /** L'unité du quota (catalogue, 0.4.2) : « 50 analyses par mois ». */
+  unitLabel: string;
+  unitLabelPlural: string;
   state: ToolRowState;
   /** Le choix de la personne : coché = gardé, ajouté ou réactivé. */
   checked: boolean;
@@ -86,7 +90,7 @@ function rowBadge(row: ToolSwitchRowView): ReactNode {
 }
 
 function priceLine(row: ToolSwitchRowView): string {
-  const quota = fr.tools.quotaPerMonth(row.monthlyQuota);
+  const quota = formatQuotaParMois(row);
   return row.priceCents === null ? quota : fr.paiement.priceLine(formatEuros(row.priceCents), quota);
 }
 

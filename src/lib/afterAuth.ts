@@ -7,25 +7,19 @@ import { isSafeNext } from './next';
  */
 export const AUTHORIZE_PATH = '/autoriser';
 
-/** Où aller après authentification : une URL absolue (navigation pleine page) ou une route de l'app. */
+/**
+ * Où aller après authentification. Depuis 0.4.2, toujours une ROUTE de l'app (`next` est un chemin interne) ;
+ * `url` reste dans le type pour compatibilité, la règle ne le produit plus.
+ */
 export type AfterAuthTarget = { type: 'url'; url: string } | { type: 'route'; path: string };
 
 /**
- * `next` sûr (`isSafeNext`) qui vise EXACTEMENT `/autoriser` sur l'origine du hub. Le chemin est
- * comparé tel quel : `/autoriser/x`, `/autoriserx` ou le même chemin sur un autre sous-domaine ne
- * comptent pas.
+ * `next` sûr (chemin interne, `isSafeNext`) qui vise EXACTEMENT `/autoriser` : `/autoriser/x`, `/autoriserx` ou
+ * `/Autoriser` ne comptent pas. La requête (`authorization_id`…) est gardée intacte.
  */
-export function isAuthorizeNext(next: string | null | undefined, hubUrl: string): next is string {
+export function isAuthorizeNext(next: string | null | undefined): next is string {
   if (!isSafeNext(next)) return false;
-  let url: URL;
-  let hub: URL;
-  try {
-    url = new URL(next);
-    hub = new URL(hubUrl);
-  } catch {
-    return false;
-  }
-  return url.origin === hub.origin && url.pathname === AUTHORIZE_PATH;
+  return new URL(next, 'https://interne.invalid').pathname === AUTHORIZE_PATH;
 }
 
 export interface AfterAuthInput {
@@ -33,27 +27,28 @@ export interface AfterAuthInput {
   next: string | null | undefined;
   /** `profiles.onboarding_completed` ; `null` = profil pas (encore) lisible. */
   onboardingCompleted: boolean | null;
-  hubUrl: string;
+  /** Ignoré depuis 0.4.2 (`next` est un chemin interne) ; gardé pour ne pas casser les appelants. */
+  hubUrl?: string;
   onboardingPath?: string;
   homePath?: string;
 }
 
 /**
- * 🔒 LA règle de redirection après authentification (connexion, inscription, OAuth, reset), dans
- * cet ordre :
- * 1. `next` sûr qui vise `/autoriser` → on y va, requête intacte, QUEL QUE SOIT l'onboarding ;
- * 2. onboarding pas terminé → `onboardingPath` ;
- * 3. `next` sûr → `next` ;
+ * 🔒 LA règle de redirection après authentification (connexion, inscription, OAuth, reset), dans cet ordre :
+ * 1. `next` = `/autoriser…` → on y va, requête intacte, QUEL QUE SOIT l'onboarding (seule exception : sans elle, la
+ *    connexion du connecteur depuis Claude échoue pour un nouvel inscrit) ;
+ * 2. onboarding pas terminé → `onboardingPath` (le hub reprend à la bonne étape) ;
+ * 3. `next` interne valide → `next` (lien profond conservé : `/facturation`, `/outils?ajouter=audit`) ;
  * 4. sinon `homePath` (`/outils`).
  * `null` tant que la règle a besoin du profil et qu'il n'est pas lu (étapes 2 à 4).
  */
 export function resolveAfterAuth({
-  next, onboardingCompleted, hubUrl, onboardingPath = '/onboarding', homePath = '/outils',
+  next, onboardingCompleted, onboardingPath = '/onboarding', homePath = '/outils',
 }: AfterAuthInput): AfterAuthTarget | null {
-  if (isAuthorizeNext(next, hubUrl)) return { type: 'url', url: next };
+  if (isAuthorizeNext(next)) return { type: 'route', path: next };
   if (onboardingCompleted === null) return null;
   if (!onboardingCompleted) return { type: 'route', path: onboardingPath };
-  if (isSafeNext(next)) return { type: 'url', url: next };
+  if (isSafeNext(next)) return { type: 'route', path: next };
   return { type: 'route', path: homePath };
 }
 

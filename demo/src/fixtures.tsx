@@ -16,10 +16,10 @@ export const ACCOUNT_SUBSCRIBED: AccountView = { ...ACCOUNT, planLabel: '2 outil
 /* Le catalogue tel que `useToolCatalog` le lit (`tools`, `tool_packs`) — valeurs de la base au 23/09/2026 (catalogue Stripe test : audit 5 € / 2, analyse 9 € / 50, pack 5 €) ; les prix ne vivent que là. */
 export const CATALOG: ToolCatalog = {
   tools: [
-    { id: 'audit', name: 'Yunary Audit', description: 'Audit de ton compte à partir de ton identifiant : chiffres, verdicts, points forts et actions.', position: 1, monthlyQuota: 2, priceCents: 500, isPublished: true, status: 'mvp' },
-    { id: 'analyse', name: 'Yunary Analyse', description: "Analyse complète d'une vidéo (transcription, mécanismes, performance) et fiche rédigée.", position: 2, monthlyQuota: 50, priceCents: 900, isPublished: true, status: 'mvp' },
-    { id: 'script', name: 'Yunary Script', description: 'Du hook au script rédigé, étape par étape.', position: 3, monthlyQuota: null, priceCents: null, isPublished: false, status: 'a_venir' },
-    { id: 'programmation', name: 'Yunary Programmation', description: 'Programmation de tes publications sur tes réseaux.', position: 4, monthlyQuota: null, priceCents: null, isPublished: false, status: 'a_venir' },
+    { id: 'audit', name: 'Yunary Audit', description: 'Audit de ton compte à partir de ton identifiant : chiffres, verdicts, points forts et actions.', position: 1, monthlyQuota: 2, unitLabel: 'audit', unitLabelPlural: 'audits', priceCents: 500, isPublished: true, status: 'mvp' },
+    { id: 'analyse', name: 'Yunary Analyse', description: "Analyse complète d'une vidéo (transcription, mécanismes, performance) et fiche rédigée.", position: 2, monthlyQuota: 50, unitLabel: 'analyse', unitLabelPlural: 'analyses', priceCents: 900, isPublished: true, status: 'mvp' },
+    { id: 'script', name: 'Yunary Script', description: 'Du hook au script rédigé, étape par étape.', position: 3, monthlyQuota: null, unitLabel: 'script', unitLabelPlural: 'scripts', priceCents: null, isPublished: false, status: 'a_venir' },
+    { id: 'programmation', name: 'Yunary Programmation', description: 'Programmation de tes publications sur tes réseaux.', position: 4, monthlyQuota: null, unitLabel: 'publication', unitLabelPlural: 'publications', priceCents: null, isPublished: false, status: 'a_venir' },
   ],
   packs: [
     { id: 'analyse-20', toolId: 'analyse', name: '20 analyses supplémentaires', units: 20, priceCents: 500, isPublished: true },

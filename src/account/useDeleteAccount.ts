@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import { getSupabase } from '../lib/supabase';
 import { fr } from '../i18n/fr';
+import { markExplicitSignOut } from '../auth/signOutIntent';
 
 interface DeleteAccountResponse {
   success: boolean;
@@ -20,6 +21,7 @@ export function useDeleteAccount() {
       if (!data?.success) throw new Error(data?.message ?? fr.errors.accountDeleteFailed);
     },
     onSuccess: async () => {
+      markExplicitSignOut();
       await getSupabase().auth.signOut({ scope: 'local' }).catch(() => undefined);
     },
   });

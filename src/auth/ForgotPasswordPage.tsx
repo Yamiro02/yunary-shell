@@ -82,6 +82,7 @@ export function ForgotPasswordPage({ loginHref: loginHrefProp }: { loginHref?: s
     timer.current = window.setTimeout(() => setResendState('idle'), RESEND_COOLDOWN_MS);
   };
 
-  if (sentTo) return <LinkSentView kind="reset" email={sentTo} onResend={onResend} resendState={resendState} loginHref={loginHref} />;
+  /* Un seul message, que le compte existe ou non ; l'adresse reste en mémoire pour « Renvoyer », jamais affichée (A6). */
+  if (sentTo) return <LinkSentView kind="reset" onResend={onResend} resendState={resendState} loginHref={loginHref} />;
   return <ForgotPasswordView onSubmit={onSubmit} loading={loading} error={error} loginHref={loginHref} />;
 }

@@ -93,7 +93,8 @@ export function ModifySubscriptionModal({ open, onClose, onDone }: ModifySubscri
   }, [open, ready]);
 
   const rows: ToolSwitchRowView[] = base.map(r => ({
-    toolId: r.tool.id, name: r.tool.name, priceCents: r.tool.priceCents, monthlyQuota: r.tool.monthlyQuota, state: r.state,
+    toolId: r.tool.id, name: r.tool.name, priceCents: r.tool.priceCents, monthlyQuota: r.tool.monthlyQuota,
+    unitLabel: r.tool.unitLabel, unitLabelPlural: r.tool.unitLabelPlural, state: r.state,
     checked: checked[r.tool.id] ?? r.state === 'active', periodEnd: r.right?.periodEnd ?? sub?.currentPeriodEnd ?? null,
   }));
   const change = diffSelection(rows);

@@ -23,7 +23,7 @@ export function AuthPage(): JSX.Element {
       <Section title="A3 · Mot de passe oublié → A4 · Lien envoyé">
         <Grid>
           <Frame label="A3"><ForgotPasswordView onSubmit={noop} className="min-h-full" /></Frame>
-          <Frame label="A4 · reset"><LinkSentView kind="reset" email="julien@exemple.com" onResend={noop} className="min-h-full" /></Frame>
+          <Frame label="A4 · reset"><LinkSentView kind="reset" onResend={noop} className="min-h-full" /></Frame>
         </Grid>
       </Section>
       <Section title="Suite de l'inscription · Nouveau mot de passe" note="La confirmation d'e-mail reprend A4 ; le reset a sa page (hors maquette), avec l'état « lien invalide » qui renvoie vers A3.">

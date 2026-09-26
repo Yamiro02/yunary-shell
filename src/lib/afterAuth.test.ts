@@ -1,109 +1,108 @@
 import { beforeAll, describe, expect, it } from 'vitest';
 import { configureShell } from '../config';
 import { AUTHORIZE_PATH, isAuthorizeNext, resolveAfterAuth, withNextParam } from './afterAuth';
+import { buildLoginUrl, isSafeNext, readSafeNext, toInternalPath } from './next';
 
 const HUB = 'https://app.yunary.com';
-/* Ce que Claude envoie, tel que le hub le met en `next` (`window.location.href`). */
-const AUTHORIZE = `${HUB}/autoriser?authorization_id=abc-123_XYZ%3D%3D&state=a%26b`;
-const OTHER = `${HUB}/regles?outil=analyse`;
+/* Ce que Claude envoie, en chemin interne (0.4.2 : plus jamais d'URL complète en `next`). */
+const AUTHORIZE = '/autoriser?authorization_id=abc-123_XYZ%3D%3D&state=a%26b';
+const route = (path: string) => ({ type: 'route', path });
 
 beforeAll(() => {
   configureShell({ supabaseUrl: 'https://demo.invalid', supabasePublishableKey: 'sb_publishable_test', hubUrl: HUB });
 });
 
-describe('resolveAfterAuth — les quatre priorités', () => {
-  it('1. next vers /autoriser passe avant l’onboarding non terminé, requête intacte', () => {
-    expect(resolveAfterAuth({ next: AUTHORIZE, onboardingCompleted: false, hubUrl: HUB })).toEqual({ type: 'url', url: AUTHORIZE });
+describe('resolveAfterAuth — l’ordre de la recette A4 (27/09/2026)', () => {
+  it('après une déconnexion (connexion sans next) → /outils', () => {
+    expect(resolveAfterAuth({ next: null, onboardingCompleted: true })).toEqual(route('/outils'));
   });
 
-  it('1. next vers /autoriser part même avant que le profil soit lu', () => {
-    expect(resolveAfterAuth({ next: AUTHORIZE, onboardingCompleted: null, hubUrl: HUB })).toEqual({ type: 'url', url: AUTHORIZE });
+  it('onboarding pas fini → /onboarding, même avec un lien profond', () => {
+    expect(resolveAfterAuth({ next: null, onboardingCompleted: false })).toEqual(route('/onboarding'));
+    expect(resolveAfterAuth({ next: '/facturation', onboardingCompleted: false })).toEqual(route('/onboarding'));
   });
 
-  it('1. next vers /autoriser avec l’onboarding terminé', () => {
-    expect(resolveAfterAuth({ next: AUTHORIZE, onboardingCompleted: true, hubUrl: HUB })).toEqual({ type: 'url', url: AUTHORIZE });
+  it('lien profond conservé, requête comprise', () => {
+    expect(resolveAfterAuth({ next: '/facturation', onboardingCompleted: true })).toEqual(route('/facturation'));
+    expect(resolveAfterAuth({ next: '/outils?ajouter=audit', onboardingCompleted: true })).toEqual(route('/outils?ajouter=audit'));
   });
 
-  it('2. onboarding pas terminé → /onboarding, même avec un autre next sûr', () => {
-    expect(resolveAfterAuth({ next: OTHER, onboardingCompleted: false, hubUrl: HUB })).toEqual({ type: 'route', path: '/onboarding' });
-    expect(resolveAfterAuth({ next: null, onboardingCompleted: false, hubUrl: HUB, onboardingPath: '/bienvenue' })).toEqual({ type: 'route', path: '/bienvenue' });
-  });
-
-  it('3. onboarding terminé + next sûr → next', () => {
-    expect(resolveAfterAuth({ next: OTHER, onboardingCompleted: true, hubUrl: HUB })).toEqual({ type: 'url', url: OTHER });
-    const creator = 'https://creator.yunary.com/videos';
-    expect(resolveAfterAuth({ next: creator, onboardingCompleted: true, hubUrl: HUB })).toEqual({ type: 'url', url: creator });
-  });
-
-  it('4. sans next → /outils par défaut, ou homePath', () => {
-    expect(resolveAfterAuth({ next: null, onboardingCompleted: true, hubUrl: HUB })).toEqual({ type: 'route', path: '/outils' });
-    expect(resolveAfterAuth({ next: null, onboardingCompleted: true, hubUrl: HUB, homePath: '/accueil' })).toEqual({ type: 'route', path: '/accueil' });
+  it('/autoriser passe avant l’onboarding, requête intacte, même avant que le profil soit lu', () => {
+    expect(resolveAfterAuth({ next: AUTHORIZE, onboardingCompleted: false })).toEqual(route(AUTHORIZE));
+    expect(resolveAfterAuth({ next: AUTHORIZE, onboardingCompleted: null })).toEqual(route(AUTHORIZE));
+    expect(resolveAfterAuth({ next: AUTHORIZE, onboardingCompleted: true })).toEqual(route(AUTHORIZE));
   });
 
   it('attend le profil quand la règle en a besoin', () => {
-    expect(resolveAfterAuth({ next: OTHER, onboardingCompleted: null, hubUrl: HUB })).toBeNull();
-    expect(resolveAfterAuth({ next: null, onboardingCompleted: null, hubUrl: HUB })).toBeNull();
+    expect(resolveAfterAuth({ next: '/facturation', onboardingCompleted: null })).toBeNull();
+    expect(resolveAfterAuth({ next: null, onboardingCompleted: null })).toBeNull();
+  });
+
+  it('homePath et onboardingPath restent paramétrables', () => {
+    expect(resolveAfterAuth({ next: null, onboardingCompleted: true, homePath: '/accueil' })).toEqual(route('/accueil'));
+    expect(resolveAfterAuth({ next: null, onboardingCompleted: false, onboardingPath: '/bienvenue' })).toEqual(route('/bienvenue'));
   });
 });
 
-describe('resolveAfterAuth — next non sûr ignoré', () => {
-  const unsafe = [
+describe('next refusé : jamais suivi', () => {
+  const refused = [
+    'https://evil.com',
     'https://evil.com/autoriser?authorization_id=abc',
-    'https://app.yunary.com.evil.com/autoriser',
-    'http://app.yunary.com/autoriser?authorization_id=abc',
-    '/autoriser?authorization_id=abc',
+    '//evil.com',
+    '//evil.com/autoriser',
+    '/\\evil.com',
+    'https://app.yunary.com/outils',
+    'https://app.yunary.com/autoriser?authorization_id=abc',
+    'http://app.yunary.com/facturation',
     'javascript:alert(1)',
+    'facturation',
+    '/outils\u0000',
     '',
   ];
-  it.each(unsafe)('%s → jamais suivi', next => {
-    expect(resolveAfterAuth({ next, onboardingCompleted: false, hubUrl: HUB })).toEqual({ type: 'route', path: '/onboarding' });
-    expect(resolveAfterAuth({ next, onboardingCompleted: true, hubUrl: HUB })).toEqual({ type: 'route', path: '/outils' });
+  it.each(refused)('%s', next => {
+    expect(isSafeNext(next)).toBe(false);
+    expect(readSafeNext(`?next=${encodeURIComponent(next)}`)).toBeNull();
+    expect(resolveAfterAuth({ next, onboardingCompleted: false })).toEqual(route('/onboarding'));
+    expect(resolveAfterAuth({ next, onboardingCompleted: true })).toEqual(route('/outils'));
   });
 });
 
-describe('isAuthorizeNext — chemin exact, origine du hub', () => {
-  it('accepte /autoriser sur le hub, avec ou sans requête', () => {
-    expect(isAuthorizeNext(AUTHORIZE, HUB)).toBe(true);
-    expect(isAuthorizeNext(`${HUB}${AUTHORIZE_PATH}`, HUB)).toBe(true);
+describe('isAuthorizeNext — chemin exact', () => {
+  it('accepte /autoriser, avec ou sans requête', () => {
+    expect(isAuthorizeNext(AUTHORIZE)).toBe(true);
+    expect(isAuthorizeNext(AUTHORIZE_PATH)).toBe(true);
   });
-  it('refuse tout ce qui n’est pas exactement /autoriser sur le hub', () => {
-    expect(isAuthorizeNext(`${HUB}/autoriser/autre`, HUB)).toBe(false);
-    expect(isAuthorizeNext(`${HUB}/autoriserx`, HUB)).toBe(false);
-    expect(isAuthorizeNext(`${HUB}/Autoriser`, HUB)).toBe(false);
-    expect(isAuthorizeNext('https://creator.yunary.com/autoriser?authorization_id=abc', HUB)).toBe(false);
-    expect(isAuthorizeNext(OTHER, HUB)).toBe(false);
-    expect(isAuthorizeNext(null, HUB)).toBe(false);
-  });
-});
-
-describe('withNextParam — next survit aux allers-retours, requête intacte', () => {
-  it('ajoute next à une route et à une URL absolue, relu identique', () => {
-    for (const base of ['/login', `${HUB}/login`, `${HUB}/reset`]) {
-      const href = withNextParam(base, AUTHORIZE);
-      const read = new URL(href, HUB).searchParams.get('next');
-      expect(read).toBe(AUTHORIZE);
-      expect(new URL(read!).searchParams.get('authorization_id')).toBe('abc-123_XYZ==');
-      expect(new URL(read!).searchParams.get('state')).toBe('a&b');
+  it('refuse le reste', () => {
+    for (const n of ['/autoriser/autre', '/autoriserx', '/Autoriser', '/regles', 'https://app.yunary.com/autoriser', null]) {
+      expect(isAuthorizeNext(n)).toBe(false);
     }
   });
-  it('ne double pas un next déjà porté par le lien (hub avec son withNext)', () => {
+});
+
+describe('chemins internes : écriture et lecture', () => {
+  it('buildLoginUrl écrit un CHEMIN en next, jamais une URL complète', () => {
+    expect(buildLoginUrl('/facturation?x=1#haut')).toBe(`${HUB}/login?next=${encodeURIComponent('/facturation?x=1#haut')}`);
+    expect(buildLoginUrl('https://app.yunary.com/outils?ajouter=audit')).toBe(`${HUB}/login?next=${encodeURIComponent('/outils?ajouter=audit')}`);
+  });
+  it('toInternalPath réduit une URL complète à son chemin', () => {
+    expect(toInternalPath('https://app.yunary.com/autoriser?authorization_id=abc')).toBe('/autoriser?authorization_id=abc');
+    expect(toInternalPath('/facturation')).toBe('/facturation');
+  });
+  it('withNextParam : next survit aux allers-retours (liens, retours OAuth, e-mails), requête intacte', () => {
+    for (const base of ['/login', `${HUB}/login`, `${HUB}/reset`]) {
+      const url = new URL(withNextParam(base, AUTHORIZE), HUB);
+      url.searchParams.set('code', 'pkce-code');
+      const read = url.searchParams.get('next');
+      expect(read).toBe(AUTHORIZE);
+      expect(new URL(read!, HUB).searchParams.get('authorization_id')).toBe('abc-123_XYZ==');
+      expect(new URL(read!, HUB).searchParams.get('state')).toBe('a&b');
+    }
+  });
+  it('withNextParam ne double pas un next déjà porté, garde les autres paramètres et le fragment', () => {
     const already = `/inscription?next=${encodeURIComponent(AUTHORIZE)}`;
-    expect(withNextParam(already, OTHER)).toBe(already);
-  });
-  it('garde les autres paramètres et le fragment', () => {
-    const href = withNextParam('/login?x=1#haut', OTHER);
-    const url = new URL(href, HUB);
-    expect(url.searchParams.get('x')).toBe('1');
-    expect(url.searchParams.get('next')).toBe(OTHER);
-    expect(url.hash).toBe('#haut');
-  });
-  it('ne touche à rien sans next', () => {
+    expect(withNextParam(already, '/facturation')).toBe(already);
+    const url = new URL(withNextParam('/login?x=1#haut', '/facturation'), HUB);
+    expect([url.searchParams.get('x'), url.searchParams.get('next'), url.hash]).toEqual(['1', '/facturation', '#haut']);
     expect(withNextParam('/login', null)).toBe('/login');
-  });
-  it('un retour OAuth / confirmation / reset (Supabase ajoute ?code=) garde next', () => {
-    const redirectTo = withNextParam(`${HUB}/login`, AUTHORIZE);
-    const back = new URL(redirectTo);
-    back.searchParams.set('code', 'pkce-code');
-    expect(back.searchParams.get('next')).toBe(AUTHORIZE);
   });
 });

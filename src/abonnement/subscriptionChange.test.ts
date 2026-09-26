@@ -7,8 +7,8 @@ import {
 
 const CATALOG: ToolCatalog = {
   tools: [
-    { id: 'audit', name: 'Yunary Audit', description: '', position: 1, monthlyQuota: 2, priceCents: 500, isPublished: true, status: 'mvp' },
-    { id: 'analyse', name: 'Yunary Analyse', description: '', position: 2, monthlyQuota: 50, priceCents: 900, isPublished: true, status: 'mvp' },
+    { id: 'audit', name: 'Yunary Audit', description: '', position: 1, monthlyQuota: 2, unitLabel: 'audit', unitLabelPlural: 'audits', priceCents: 500, isPublished: true, status: 'mvp' },
+    { id: 'analyse', name: 'Yunary Analyse', description: '', position: 2, monthlyQuota: 50, unitLabel: 'analyse', unitLabelPlural: 'analyses', priceCents: 900, isPublished: true, status: 'mvp' },
   ],
   packs: [],
 };
@@ -112,7 +112,8 @@ describe('buildOutcome — l’écran de retour', () => {
     expect(o.variant).toBe('added');
     expect(o.subjects).toEqual(['Yunary Audit']);
     expect(o.tools.map(t => [t.name, t.status])).toEqual([['Yunary Audit', 'active'], ['Yunary Analyse', 'ending']]);
-    expect(o.tools[1].meta).toBe('Encore 9 disponibles jusque-là');
+    expect(o.tools[1].meta).toBe('Encore 9 analyses jusque-là');
+    expect(o.tools[0].meta).toBe('2 audits par mois · renouvelé le 23/10/2026');
     expect(o.todayCents).toBe(333);
     expect(o.next).toEqual({ cents: 500, from: END });
   });

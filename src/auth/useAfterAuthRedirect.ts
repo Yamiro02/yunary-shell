@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { useProfile } from '../account/useProfile';
-import { getShellConfig } from '../config';
 import { resolveAfterAuth, type AfterAuthTarget } from '../lib/afterAuth';
 
 /** Suit une cible de `resolveAfterAuth` : URL absolue en pleine page (autre sous-domaine possible), route en navigation client. */
@@ -23,7 +22,7 @@ export function useAfterAuthRedirect({ next, onboardingPath = '/onboarding', hom
   const onboardingCompleted = profile.isSuccess ? profile.data.onboarding_completed : null;
   useEffect(() => {
     if (!session) return;
-    const target = resolveAfterAuth({ next, onboardingCompleted, hubUrl: getShellConfig().hubUrl, onboardingPath, homePath });
+    const target = resolveAfterAuth({ next, onboardingCompleted, onboardingPath, homePath });
     if (target) followAfterAuth(target, navigate);
   }, [session, onboardingCompleted, next, onboardingPath, homePath, navigate]);
 }

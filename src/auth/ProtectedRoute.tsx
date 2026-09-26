@@ -5,6 +5,7 @@ import { useAuth } from './useAuth';
 import { useProfile } from '../account/useProfile';
 import { getShellConfig } from '../config';
 import { buildLoginUrl } from '../lib/next';
+import { isExplicitSignOut } from './signOutIntent';
 
 export interface ProtectedRouteProps {
   /** Exiger `onboarding_completed` (défaut). Le Hub le désactive sur ses routes d'onboarding. */
@@ -22,9 +23,9 @@ export function PageLoader(): JSX.Element {
 }
 
 /**
- * Non connecté, ou onboarding non terminé → `VITE_HUB_URL/login?next=<url courante>`.
- * Même origine que le Hub : navigation client. Autre sous-domaine : navigation pleine page
- * (la session est partagée par cookie, la page de connexion la verra).
+ * Non connecté, ou onboarding non terminé → la connexion du hub, avec le CHEMIN courant en `next` (jamais une URL
+ * complète, 0.4.2). Après une déconnexion VOULUE (`signOut`), `/login` sans `next` : la reconnexion ne ramène pas sur
+ * la page quittée. Même origine que le hub : navigation client ; autre sous-domaine : pleine page.
  */
 export function ProtectedRoute({ requireOnboarding = true, children }: ProtectedRouteProps): JSX.Element {
   const { session, loading } = useAuth();
@@ -33,25 +34,26 @@ export function ProtectedRoute({ requireOnboarding = true, children }: Protected
   const { hubUrl } = getShellConfig();
   const isHub = typeof window !== 'undefined' && window.location.origin === hubUrl;
 
-  /* L'URL courante vient du ROUTEUR, jamais de window.location : le store de session émet
-     deux fois au démarrage, et entre les deux `Navigate` a déjà changé l'adresse. Lue dans
-     window, la seconde émission produirait un `next` imbriqué (`/login?next=…/login?next=…`).
-     Lue dans le routeur, elle ne change qu'au re-rendu où ce composant est démonté. */
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
-  const currentUrl = `${origin}${location.pathname}${location.search}${location.hash}`;
+  /* Le chemin courant vient du ROUTEUR, jamais de window.location : le store de session émet deux fois au démarrage,
+     et entre les deux `Navigate` a déjà changé l'adresse ; lue dans window, la seconde émission produirait un `next`
+     imbriqué (`/login?next=/login?next=…`). */
+  const currentPath = `${location.pathname}${location.search}${location.hash}`;
   const needsLogin = !loading && !session;
+  const explicit = needsLogin && isExplicitSignOut();
+  const loginTarget = explicit ? '/login' : `/login?next=${encodeURIComponent(currentPath)}`;
   const needsOnboarding =
     requireOnboarding && !loading && !!session && profile.isSuccess && !profile.data.onboarding_completed;
   const mustRedirect = needsLogin || needsOnboarding;
 
   useEffect(() => {
-    if (mustRedirect && !isHub) window.location.replace(buildLoginUrl(currentUrl));
-  }, [mustRedirect, isHub, currentUrl]);
+    if (!mustRedirect || isHub) return;
+    window.location.replace(needsLogin && explicit ? `${hubUrl}/login` : buildLoginUrl(currentPath));
+  }, [mustRedirect, isHub, needsLogin, explicit, hubUrl, currentPath]);
 
   if (loading) return <PageLoader />;
   if (needsLogin) {
     if (!isHub) return <PageLoader />;
-    return <Navigate to={`/login?next=${encodeURIComponent(currentUrl)}`} replace state={{ from: location }} />;
+    return <Navigate to={loginTarget} replace />;
   }
   if (requireOnboarding) {
     if (profile.isPending) return <PageLoader />;

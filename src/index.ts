@@ -10,7 +10,7 @@
  * L'API publique, symbole par symbole → EXPORTS.md.
  */
 /** ⚠ Se bumpe dans le MÊME commit que `package.json` : les deux ne doivent jamais diverger. */
-export const SHELL_VERSION = '0.4.1';
+export const SHELL_VERSION = '0.4.2';
 
 /* configuration */
 export { configureShell, getShellConfig, isShellConfigured } from './config';
@@ -32,7 +32,7 @@ export { usePasswordReset } from './auth/usePasswordReset';
 export { useLogout } from './auth/useLogout';
 export { ProtectedRoute, PageLoader } from './auth/ProtectedRoute';
 export type { ProtectedRouteProps } from './auth/ProtectedRoute';
-export { isSafeNext, readSafeNext, buildLoginUrl } from './lib/next';
+export { isSafeNext, readSafeNext, buildLoginUrl, toInternalPath } from './lib/next';
 export { resolveAfterAuth, isAuthorizeNext, withNextParam, AUTHORIZE_PATH } from './lib/afterAuth';
 export type { AfterAuthTarget, AfterAuthInput } from './lib/afterAuth';
 
@@ -127,6 +127,8 @@ export type {
 export { fr } from './i18n/fr';
 export type { Fr } from './i18n/fr';
 export { getErrorMessage, messageForCode } from './lib/errors';
+export { formatQuantite, formatQuota, formatQuotaParMois } from './lib/quantity';
+export type { UnitLabels } from './lib/quantity';
 export { formatNombre, formatCompact, formatDateCourte, formatDateLongue, formatDateNumerique, formatJourMois, formatEuros, initiales } from './lib/format';
 export { withGlyphSize, CARD_GLYPH_SIZE } from './lib/icon';
 export { useMediaQuery, DS_MOBILE_QUERY } from './lib/useMediaQuery';

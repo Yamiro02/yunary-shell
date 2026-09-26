@@ -2,6 +2,7 @@ import { createBrowserClient } from '@supabase/ssr';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type { Database } from '../integrations/supabase/types';
 import { getShellConfig } from '../config';
+import { clearExplicitSignOut, markExplicitSignOut } from '../auth/signOutIntent';
 
 /**
  * LE client Supabase de l'écosystème — le seul endroit qui en crée un ou qui touche au
@@ -55,6 +56,11 @@ export const supabase: ShellSupabaseClient = new Proxy({} as ShellSupabaseClient
  * ailleurs, sur un autre client, laisserait des cookies traîner sur un sous-domaine.
  */
 export async function signOut(): Promise<void> {
+  /* Déconnexion voulue : `ProtectedRoute` renverra vers `/login` SANS `next` (0.4.2). Levée si l'appel échoue. */
+  markExplicitSignOut();
   const { error } = await getSupabase().auth.signOut({ scope: 'global' });
-  if (error) throw error;
+  if (error) {
+    clearExplicitSignOut();
+    throw error;
+  }
 }

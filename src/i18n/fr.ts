@@ -122,10 +122,11 @@ export const fr = {
       subtitle: "Entre ton e-mail, on t'envoie un lien pour le réinitialiser.",
       submit: 'Envoyer le lien',
     },
+    /* Mot de passe oublié, après envoi (recette A6, 27/09/2026) : UN message, que le compte existe ou non (rien ne dit
+       si une adresse a un compte), et l'adresse n'est plus affichée. */
     sent: {
-      title: 'Lien envoyé',
-      bodyBefore: "On t'a envoyé un lien pour réinitialiser ton mot de passe à ",
-      bodyAfter: '. Clique dessus pour en choisir un nouveau.',
+      title: 'Vérifie ta boîte mail',
+      body: 'Si un compte existe avec cette adresse, tu vas recevoir un e-mail pour choisir un nouveau mot de passe. Pense à regarder dans tes spams.',
       spam: 'Pense à regarder tes spams.',
       resend: "Renvoyer l'e-mail",
       resending: 'Envoi…',
@@ -164,11 +165,12 @@ export const fr = {
     runStatus: { en_cours: 'En cours', termine: 'Terminé', abandonne: 'Abandonné', erreur: 'Erreur' },
     unlimited: 'Sans limite',
     usage: (used: number, total: number) => `${used} / ${total}`,
-    /* Le quota mensuel d'un outil du catalogue — « 50 par mois » : le mot d'unité n'existe pas en base (Julien, 23/09/2026). */
-    quotaPerMonth: (n: number | null) => (n === null ? 'Sans limite' : `${n} par mois`),
+    /* « 50 analyses par mois » : la quantité et son unité viennent du catalogue (`formatQuotaParMois`, 0.4.2, B9). */
+    perMonth: (quantite: string) => `${quantite} par mois`,
     /* Le lockup d'un outil : « Yunary » puis le mot accentué (`ToolLabel`). */
     brandPrefix: 'Yunary',
-    remaining: (n: number) => (n > 1 ? `${n} restantes` : `${n} restante`),
+    /* « Encore 38 analyses » : la quantité arrive formatée avec son unité (`formatQuota`). */
+    remaining: (quantite: string) => `Encore ${quantite}`,
     renewsOn: (date: string) => `Renouvelé le ${date}`,
     endsOn: (date: string) => `Se termine le ${date}`,
     freeOnce: 'Offert, une fois pour toutes',
@@ -404,7 +406,7 @@ export const fr = {
       invoicesAfter: (email: string) => `, un reçu est parti sur ${email}.`,
       invoicesNoEmail: '.',
       changeMind: (date: string) => `Tu changes d'avis ? « Réactiver » reste possible depuis Mes outils jusqu'au ${date}.`,
-      remainingUntil: (n: number) => (n > 1 ? `Encore ${n} disponibles jusque-là` : `Encore ${n} disponible jusque-là`),
+      remainingUntil: (quantite: string) => `Encore ${quantite} jusque-là`,
     },
     cancellation: {
       title: (date: string) => `Tout s'arrête le ${date}`,

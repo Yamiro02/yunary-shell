@@ -25,8 +25,8 @@ export interface ShellConfig {
    */
   stripePublishableKey?: string;
   /**
-   * Origines acceptées pour `?next=` EN PLUS des sous-domaines de `yunary.com` — en local
-   * seulement (`['http://localhost:5175']`). En prod, ne rien passer.
+   * @deprecated IGNORÉ depuis 0.4.2 : `?next=` n'accepte plus que des chemins internes (« /… »), jamais une origine.
+   * Gardé dans le type pour ne pas casser les apps qui le passent encore ; à retirer à leur prochaine montée.
    */
   extraNextOrigins?: string[];
 }

@@ -16,6 +16,9 @@ export interface ToolDef {
   position: number;
   /** `null` = outil sans quota. */
   monthlyQuota: number | null;
+  /** L'unité du quota, au singulier et au pluriel (`tools.unit_label*`, 0.4.2) : « analyse » / « analyses ». */
+  unitLabel: string;
+  unitLabelPlural: string;
   /** Prix mensuel en centimes — `null` tant que l'outil n'est pas tarifé. Vient de la base, jamais d'ici. */
   priceCents: number | null;
   /** Publié = achetable (prix + price Stripe posés). */
@@ -53,13 +56,14 @@ export function useToolCatalog({ enabled = true }: { enabled?: boolean } = {}) {
     queryFn: async (): Promise<ToolCatalog> => {
       const supabase = getSupabase();
       const [toolsRes, packsRes] = await Promise.all([
-        supabase.from('tools').select('id, name, description, position, monthly_quota, price_cents, is_published, status').order('position'),
+        supabase.from('tools').select('id, name, description, position, monthly_quota, unit_label, unit_label_plural, price_cents, is_published, status').order('position'),
         supabase.from('tool_packs').select('id, tool_id, name, units, price_cents, is_published').order('units'),
       ]);
       if (toolsRes.error) throw toolsRes.error;
       if (packsRes.error) throw packsRes.error;
       const tools = toolsRes.data.map(row => ({
         id: row.id, name: row.name, description: row.description, position: row.position, monthlyQuota: row.monthly_quota,
+        unitLabel: row.unit_label, unitLabelPlural: row.unit_label_plural,
         priceCents: row.price_cents, isPublished: row.is_published, status: row.status,
       }));
       const positionOf = (toolId: string) => tools.find(t => t.id === toolId)?.position ?? Number.MAX_SAFE_INTEGER;

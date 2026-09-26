@@ -11,8 +11,8 @@ const END = '2026-10-23T10:00:00Z';
 const CARD: SavedCardView = { brand: 'visa', last4: '4242', expMonth: 8, expYear: 2028 };
 
 /* Les lignes telles que le conteneur les composera : catalogue (nom, prix, quota) + droits (état, échéance) + le choix. */
-const analyse = (state: ToolSwitchRowView['state'], checked: boolean): ToolSwitchRowView => ({ toolId: 'analyse', name: 'Yunary Analyse', priceCents: 900, monthlyQuota: 50, state, checked, periodEnd: END });
-const audit = (state: ToolSwitchRowView['state'], checked: boolean): ToolSwitchRowView => ({ toolId: 'audit', name: 'Yunary Audit', priceCents: 500, monthlyQuota: 2, state, checked, periodEnd: state === 'none' ? null : END });
+const analyse = (state: ToolSwitchRowView['state'], checked: boolean): ToolSwitchRowView => ({ toolId: 'analyse', name: 'Yunary Analyse', priceCents: 900, monthlyQuota: 50, unitLabel: 'analyse', unitLabelPlural: 'analyses', state, checked, periodEnd: END });
+const audit = (state: ToolSwitchRowView['state'], checked: boolean): ToolSwitchRowView => ({ toolId: 'audit', name: 'Yunary Audit', priceCents: 500, monthlyQuota: 2, unitLabel: 'audit', unitLabelPlural: 'audits', state, checked, periodEnd: state === 'none' ? null : END });
 
 /* Ce que les conteneurs tirent de `preview-subscription-change` (§ 8 du back) : aucun montant n'est calculé côté front. */
 const ADD: ChangeSummaryView = { added: [{ name: 'Yunary Audit', priceCents: 500 }], removed: [], reactivated: [], todayCents: 333, todayDetail: 'Yunary Audit du 10/10 au 23/10', nextCents: 1400, nextFrom: END };
@@ -80,8 +80,8 @@ function ResultSection(): JSX.Element {
   const [k, setK] = useState(0);
   const added = { variant: 'added' as const, subjects: ['Yunary Audit'], todayCents: 333, next: { cents: 1400, from: END }, email: 'julien@exemple.com', invoicesHref: '/facturation', onBack: noop };
   const addedTools = [
-    { name: 'Yunary Audit', meta: '2 disponibles · renouvelé le 23/10/2026', status: 'active' as const },
-    { name: 'Yunary Analyse', meta: '50 par mois · renouvelé le 23/10/2026', status: 'active' as const },
+    { name: 'Yunary Audit', meta: '2 audits par mois · renouvelé le 23/10/2026', status: 'active' as const },
+    { name: 'Yunary Analyse', meta: '50 analyses par mois · renouvelé le 23/10/2026', status: 'active' as const },
   ];
   return (
     <Section title="SubscriptionResultView (Hub-03b-Retour)" note="Pleine page : la coche se dessine, puis le titre, puis les outils un par un (element.animate, --ease-standard). Sous prefers-reduced-motion : tout est visible tout de suite. Colonne à max-w-[35rem] (560, provisoire). Coche 5 rem bureau, 4 rem mobile.">
@@ -90,15 +90,15 @@ function ResultSection(): JSX.Element {
         <PageFrame label="Ajout"><SubscriptionResultView inline layout="desktop" {...added} tools={addedTools} /></PageFrame>
         <PageFrame label="Ajout de deux outils + un retrait (variante ajout, outil retiré en badge ambre)">
           <SubscriptionResultView inline layout="desktop" {...added} subjects={['Yunary Audit', 'Yunary Script']} todayCents={500} next={{ cents: 1000, from: END }}
-            tools={[addedTools[0], { name: 'Yunary Script', meta: 'Sans limite · renouvelé le 23/10/2026', status: 'active' }, { name: 'Yunary Analyse', meta: 'Tes 9 restantes sont utilisables jusque-là', status: 'ending', endsOn: END }]} />
+            tools={[addedTools[0], { name: 'Yunary Script', meta: 'Sans limite · renouvelé le 23/10/2026', status: 'active' }, { name: 'Yunary Analyse', meta: 'Encore 9 analyses jusque-là', status: 'ending', endsOn: END }]} />
         </PageFrame>
         <PageFrame label="Retrait">
           <SubscriptionResultView inline layout="desktop" variant="removed" subjects={['Yunary Analyse']} periodEnd={END} next={{ cents: 500, from: END }} onBack={noop}
-            tools={[{ name: 'Yunary Analyse', meta: 'Tes 9 restantes sont utilisables jusque-là', status: 'ending', endsOn: END }, { name: 'Yunary Audit', meta: '2 par mois · renouvelé le 23/10/2026', status: 'active' }]} />
+            tools={[{ name: 'Yunary Analyse', meta: 'Encore 9 analyses jusque-là', status: 'ending', endsOn: END }, { name: 'Yunary Audit', meta: '2 audits par mois · renouvelé le 23/10/2026', status: 'active' }]} />
         </PageFrame>
         <PageFrame label="Échec">
           <SubscriptionResultView inline layout="desktop" variant="failed" subjects={['Yunary Audit']} todayCents={333} onBack={noop} onRetry={noop}
-            tools={[{ name: 'Yunary Audit', meta: 'Pas encore ajouté', status: 'failed' }, { name: 'Yunary Analyse', meta: '50 par mois · renouvelé le 23/10/2026', status: 'active' }]} />
+            tools={[{ name: 'Yunary Audit', meta: 'Pas encore ajouté', status: 'failed' }, { name: 'Yunary Analyse', meta: '50 analyses par mois · renouvelé le 23/10/2026', status: 'active' }]} />
         </PageFrame>
         <div className="flex flex-wrap gap-space-5">
           <PhoneFrame label="Mobile · ajout"><SubscriptionResultView inline layout="mobile" {...added} tools={addedTools} /></PhoneFrame>
